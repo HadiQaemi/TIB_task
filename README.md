@@ -47,16 +47,15 @@ nano config.py
 
 #### 2-Backend
 
-The backend, implemented using Flask, is responsible for retrieving nested JSON data containing paper information and interacting with the MongoDB database. The related code is located in the ./backend folder of this repository. To provide interactive API documentation, a Swagger interface is utilized, accessible at http://<hostname>:5000. For the current deployment, the URL is http://13.40.80.42:5000/. The following command illustrate backend installation using Dockerfile:
+The backend, implemented using Flask, is responsible for retrieving nested JSON data containing paper information and interacting with the MongoDB database. The related code is located in the ./backend folder of this repository. To provide interactive API documentation, a Swagger interface is utilized, accessible at http://<hostname>:5000. For the current deployment, the URL is http://18.135.29.147:5000/. The following command illustrate backend installation using Dockerfile:
 ```
 sudo docker build -t python-backend .
 sudo docker run -d -p 5000:5000 python-backend
 ```
 #### 3-Frontend
 Frontend is utilizing React and provides two pages, which the first one shows a list of papers, and the second page presents the paper's nested information in detail.
-- [Paper List page](http://18.169.190.3:3000)
-- [Requested Paper deatils](http://18.169.190.3:3000/paper/R664252/)
-
+- [Paper List page](http://18.135.29.147:3000)
+- [Requested Paper deatils](http://18.135.29.147:3000/paper/R664252/)
 ```
 cd frontend/
 nano .env
@@ -69,7 +68,7 @@ sudo docker run -d -p 3000:80 react-front
 ```
 
 #### 4-Initiating
- As described in the [Swagger documentation ](http://13.40.80.42:5000) at http:<hostserver>/add-paper, needs to be called to initialize the database.
+ As described in the [Swagger documentation ](http://18.135.29.147:5000) at http:<hostserver>/add-paper, needs to be called to initialize the database.
  This API help to scrab and download information of papers to MongoDB.
 
 ![Screenshot](images/pages.jpg)
