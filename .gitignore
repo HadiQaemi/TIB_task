@@ -1,0 +1,21 @@
+# Python-specific
+*.pyc
+*.pyo
+__pycache__/
+.pytest_cache/
+
+# Flask-specific
+.flaskenv
+.pytest_cache/
+
+# React-specific
+/node_modules/
+npm-debug.log
+yarn-error.log
+.eslintcache
+.nyc_output/
+
+# Editor-specific
+.vscode/
+.idea/
+.DS_Store

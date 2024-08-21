@@ -1,0 +1,463 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.navTitle,
+.navTitle * {
+  /* height: 30px;
+  line-height: 14px; */
+  border-radius: 5px;
+  font-size: 15px !important;
+  color: #555 !important;
+}
+
+.navTitle svg {
+  height: 20px;
+}
+
+.font-red,
+.font-red a {
+  color: #e86161 !important;
+}
+
+.navTitle {
+  background-color: rgb(220, 222, 230);
+}
+
+.custom-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+  content: none;
+}
+
+.custom-breadcrumb {
+  background-color: rgb(220 222 230);
+}
+
+.button-red {
+  background-color: rgba(255, 100, 100, 0.85) !important;
+  border-color: rgba(255, 100, 100, 0.85) !important;
+}
+
+.tab-content {
+  min-height: 430px;
+  background-color: rgb(248, 249, 251);
+  box-shadow: 0 0 8px 0 #00000021;
+}
+
+.tab-content .item {
+  background-color: rgb(248, 249, 251);
+  padding: 10px 15px 1rem;
+  border-bottom: 1px solid rgb(238, 239, 243);
+  font-size: 12px;
+}
+
+.timeline-item {
+  border-left: 1px solid #555 !important;
+  margin-left: 10px;
+  background-color: transparent !important;
+}
+
+.timeline-circle {
+  left: -0.4rem;
+  top: -0.3rem;
+}
+
+.nav-link {
+  margin-bottom: 0px;
+  padding: 10px;
+  color: rgb(102, 102, 102);
+  cursor: pointer;
+  background-color: rgb(212, 216, 224);
+  font-size: 12px;
+  font-weight: bold;
+
+}
+
+.nav-link.active {
+  background-color: rgb(248, 249, 251);
+  color: rgb(102, 102, 102);
+}
+
+uncontrolled-tab-example .nav-item {
+  width: 50%;
+}
+
+uncontrolled-tab-example .nav-item button {
+  width: 100%;
+  color: rgb(102, 102, 102);
+}
+
+#analysis-tabs ul {
+  display: flex;
+  list-style: none;
+  /* Remove default bullet points */
+  padding: 0
+}
+
+#analysis-tabs li {
+  margin-right: 10px;
+  /* Adjust spacing between list items */
+  width: 179px;
+  float: none;
+  display: inline-block;
+  zoom: 1;
+  vertical-align: middle;
+}
+
+
+
+.my-tabs {
+  position: relative;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid #eee;
+  border-bottom: none;
+}
+
+.my-tabs:not(.--jsfied) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.my-tabs .--hidden {
+  display: none;
+}
+
+.my-tabs a,
+.my-tabs button {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-size: 1em;
+  line-height: 1.2;
+  text-align: center;
+  color: #555;
+  background-color: transparent;
+}
+
+.my-tabs .-primary {
+  display: flex;
+  list-style-type: none;
+  padding-left: 0px;
+}
+
+.my-tabs .-primary>li {
+  flex-grow: 1;
+}
+
+.-more {
+  border-left: 1px dashed #555;
+}
+
+.-more button {
+  border-left: 1px dashed #555;
+}
+
+.my-tabs .-primary>li>a,
+.my-tabs .-primary>li>button {
+  white-space: nowrap;
+  padding: 1em 0.6em;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  text-decoration: none;
+}
+
+.my-tabs .-primary>li>a:hover,
+.my-tabs .-primary>li>button:hover {
+  color: #e86161;
+}
+
+.my-tabs .-primary>li>a:active,
+.my-tabs .-primary>li>button:active {
+  color: #e86161;
+  border-bottom: 2px solid #e86161;
+}
+
+/* .my-tabs .-primary .-more {
+  background-color: #b61a3e;
+} */
+.my-tabs .-primary .-more>button span {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.my-tabs.--show-secondary .-primary .-more>button span {
+  transform: rotate(180deg);
+}
+
+.my-tabs .-secondary {
+  max-width: 100%;
+  min-width: 10em;
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  box-shadow: 0 0.3em 0.5em rgba(0, 0, 0, 0.3);
+  -webkit-animation: nav-secondary 0.2s;
+  animation: nav-secondary 0.2s;
+}
+
+.my-tabs .-secondary li {
+  border-top: 1px solid #e86161;
+}
+
+.my-tabs .-secondary a,
+.my-tabs .-secondary button {
+  padding: 0.6em;
+  text-decoration: none;
+}
+
+.my-tabs .-secondary a:hover,
+.my-tabs .-secondary button:hover {
+  color: #e86161;
+}
+
+.my-tabs .-secondary a:active,
+.my-tabs .-secondary button:active {
+  color: #e86161;
+}
+
+.my-tabs.--show-secondary .-secondary {
+  display: block;
+  list-style: none;
+  background: #fff;
+  padding-left: 0px;
+}
+
+.app-footer {
+  background-color: rgb(224, 226, 234) !important;
+  margin-top: 75px;
+  border-top: 1px solid rgb(209, 211, 217) !important;
+}
+
+.app-footer .nav-link {
+  padding: 0px !important;
+  background-color: transparent !important;
+  color: #212529;
+}
+
+.wrapper.d-flex {
+  background-color: #e9ebf2 !important;
+}
+
+.bg-body-tertiary {
+  box-shadow: rgba(0, 0, 0, 0.13) 0px 2px 8px 0px;
+  background: white;
+}
+
+.pointer {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tab-title {
+  width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dynamic-tabs-link {
+  width: 32%;
+  padding: 11px;
+  padding-top: 5px;
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #000;
+  border-bottom: 1px solid #aaa;
+  border-top: 1px solid #aaa;
+  cursor: pointer;
+}
+
+.dynamic-tabs-link:first-child {
+  border-left: 1px solid #aaa;
+  border-top-left-radius: 10px;
+}
+
+.dynamic-tabs-link.active {
+  border-bottom: 1px solid rgb(232, 97, 97);
+  color: rgb(232, 97, 97);
+  font-weight: 500;
+}
+
+.dynamic-tabs-link:hover {
+  color: rgb(232, 97, 97);
+}
+
+.more-tab {
+  align-items: stretch;
+  position: relative;
+  left: -35px;
+  z-index: 1;
+}
+
+.more-tab .dynamic-tabs-link {
+  width: 100%;
+  padding: 3px 5px;
+  margin: 0px !important;
+  border: none;
+}
+
+.more-tab .dynamic-tabs-link:hover {
+  color: rgb(232, 97, 97);
+}
+
+.contributions {
+  border: 1px solid #dfdfdf;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  padding: 20px;
+}
+
+.contributions-item {
+  border: 1px solid #dfdfdf;
+  margin-top: 0px !important;
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  margin: 20px;
+  border-radius: 3px;
+  padding-left: 0px !important;
+}
+
+.contributions-item .lable {
+  background-color: #f8f9fb;
+  font-weight: 500;
+  padding: 10px;
+}
+
+.contributions-item .title {
+  color: #e86161;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.title-predicte {
+  margin: 0px;
+  padding: 0px;
+}
+
+.title-predicte span {
+  width: 80px !important;
+  display: inline-block;
+  overflow: hidden;
+  text-wrap: nowrap;
+  border: 2px solid #e86161;
+  border-radius: 5px;
+  margin: 0px;
+  padding: 0px;
+  background: #f7f7f7;
+  padding: 0px 5px;
+  margin-left: -5px;
+  cursor: pointer;
+}
+
+.title-predicte .back {
+  cursor: pointer;
+}
+
+.title-predicte .item {
+  display: flex;
+}
+
+.title-predicte span:first-child {
+  margin-left: 15px;
+}
+
+.title-predicte span:last-child {
+  background: #e86161;
+  color: #fff;
+  cursor: initial;
+  width: 400px !important;
+  flex-grow: 1;
+}
+
+.title-predicte .hovered span:hover {
+  width: 400px !important;
+}
+
+.fullscreen button,
+.fullscreen .page-link {
+  background: #f1dcdc !important;
+  border-color: #bb4f4f !important;
+  color: #bb4f4f;
+}
+
+.fullscreen button,
+.fullscreen .active .page-link {
+  background: #e86161 !important;
+  border-color: #bb4f4f !important;
+  color: #f1dcdc;
+}
+
+.file-source pre {
+  height: 250px;
+  background: #eee;
+}
+
+.file-source span {
+  color: #e86161 !important;
+  cursor: pointer;
+  margin: 5px 0px;
+  display: inline-block;
+}
+
+.file-source .copy {
+  background-color: #e86161 !important;
+  color: #fff;
+  border: 1px solid #ef242d;
+  border-radius: 5px;
+}
+
+.file-source .copy-button {
+  height: 10px;
+  text-align: right;
+}
+
+.file-source .copy-button button {
+  position: relative;
+  top: 30px;
+  right: 30px;
+}
+
+pre.show-all {
+  height: 100%;
+}
+
+.abstract {
+  text-align: justify;
+  font-size: 12px;
+  width: 95%;
+}
+
+.list .authors {
+  font-size: 10px;
+}
+
+.list .authors span {
+  border: 1px solid #aaa;
+  margin: 2px 5px;
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #eee;
+}
+
+#basic-navbar-nav button {
+  width: 150px;
+  font-size: small;
+}
