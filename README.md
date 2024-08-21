@@ -26,4 +26,5 @@ sudo docker run -d -p 3000:80 react-front
 ```
 ![Screenshot](images/pages.jpg)
 # Note
-The interface is designed based on  The Open Research Knowledge Graph.(https://orkg.org/)  
+The interface is designed based on  The Open Research Knowledge Graph.(https://orkg.org/).
+Note: Given the public nature of the data and its lower sensitivity, I prioritized to focus on development and deployment. As a result, the application is currently running over HTTP and has not yet been migrated to HTTPS, and might affect to accessing the application on high restricted networks.
