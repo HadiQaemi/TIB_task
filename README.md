@@ -20,7 +20,7 @@ Frontend is utilizing React and provides two pages, which the first one shows a 
 - [Requested Paper deatils](http://13.40.80.42:3000/paper/R664252/)
 ```
 git clone https://github.com/HadiQaemi/TIB_task.git
-cd /frontend/
+cd frontend/
 sudo docker build -t react-front .
 sudo docker run -d -p 3000:80 react-front
 ```
