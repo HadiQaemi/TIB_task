@@ -55,7 +55,7 @@ sudo docker run -d -p 5000:5000 python-backend
 #### 3-Frontend
 Frontend is utilizing React and provides two pages, which the first one shows a list of papers, and the second page presents the paper's nested information in detail.
 - [Paper List page](http://18.135.29.147:3000)
-- [Requested Paper deatils](http://18.135.29.147:3000/paper/R664252/)
+- [Requested Paper deatils](http://18.135.29.147:3000/paper/R689181/)
 ```
 cd frontend/
 nano .env
