@@ -2,23 +2,24 @@
 This repository details the development of the React-based application for extracting and displaying paper-related data from nested JSON structures.
 The data is extracted from  [TIB APIs](https://orkg.org/api/predicates/) to present the scholar data that have inclusion dependencies.  This solution tries to address the challenge of presenting nested JSON data by utilizing React/Flask/Nginx/MongoDB technologies.  The Figure below illustrates the big picture and screenshots.
 ![Screenshot](images/screenshot.jpg)
-- [Installation](#installation)
--- [MongoDB](##mongoDB)
--- [Backend](##backend)
--- [Frontend](##frontend)
+  - [Installation](#installation)
+  - [MongoD](#1-mongodb)
+  - [Backend](#2-backend)
+  - [Frontend](#3-frontend)
+  - [Initiating Database](#4-initiating)
 - [Note](#note)
 
 
 ## Installation
 To deploy the application in the target environments, apart from installation requirements,  there is required to apply some changes in config files to set up the application to the target environment. These main steps are required which will be described in detail:
 
-#### 1 - Cloning the current repository
+#### Cloning the current repository
 
 ```
 git clone https://github.com/HadiQaemi/TIB_task.git
 ```
 
-#### 2- Installing MongoDB using docker
+#### 1-MongoDB
 To store extracted data, MongoDB is used as the database. For simplified management and isolation, a MongoDB Docker container is utilized.
 ```
 sudo docker ps
@@ -44,14 +45,14 @@ nano config.py
 ```
 
 
-#### 3- Installing Backend using Dockerfile
+#### 2-Backend
 
-The backend, implemented using Flask, is responsible for retrieving nested JSON data containing paper information and interacting with the MongoDB database. The related code is located in the ./backend folder of this repository. To provide interactive API documentation, a Swagger interface is utilized, accessible at http://<hostname>:5000. For the current deployment, the URL is http://13.40.80.42:5000/.
+The backend, implemented using Flask, is responsible for retrieving nested JSON data containing paper information and interacting with the MongoDB database. The related code is located in the ./backend folder of this repository. To provide interactive API documentation, a Swagger interface is utilized, accessible at http://<hostname>:5000. For the current deployment, the URL is http://13.40.80.42:5000/. The following command illustrate backend installation using Dockerfile:
 ```
 sudo docker build -t python-backend .
 sudo docker run -d -p 5000:5000 python-backend
 ```
-#### 4- Installing Frontend using Dockerfile
+#### 3-Frontend
 Frontend is utilizing React and provides two pages, which the first one shows a list of papers, and the second page presents the paper's nested information in detail.
 - [Paper List page](http://18.169.190.3:3000)
 - [Requested Paper deatils](http://18.169.190.3:3000/paper/R664252/)
@@ -67,7 +68,7 @@ sudo docker build -t react-front .
 sudo docker run -d -p 3000:80 react-front
 ```
 
-#### 5- Initiating Papers in Database
+#### 4-Initiating
  As described in the [Swagger documentation ](http://13.40.80.42:5000) at http:<hostserver>/add-paper, needs to be called to initialize the database.
  This API help to scrab and download information of papers to MongoDB.
 
