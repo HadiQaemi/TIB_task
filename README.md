@@ -22,14 +22,14 @@ git clone https://github.com/HadiQaemi/TIB_task.git
 #### 1-MongoDB
 To store extracted data, MongoDB is used as the database. For simplified management and isolation, a MongoDB Docker container is utilized.
 ```
-sudo docker ps
-sudo docker inspect <container id> | grep "IPAddress"
+sudo docker pull mongo:latest
+sudo docker run --name my-mongo -d -p 27017:27017 mongo:latest
 ```
 
 To assign an internal IP address, use the following command to obtain the IP address of the running MongoDB container, which can then be used for MongoDB connections.
 
 ```
-# List lists all running Docker containers info (e.g., containerID, status)
+# List all running Docker containers info (e.g., containerID, status)
 sudo docker ps
 
 # This command inspects a specific Docker container and extracts its IP address.
