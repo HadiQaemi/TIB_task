@@ -1,18 +1,30 @@
-# Build Stage
-FROM node:16-alpine AS build
-WORKDIR /app
-COPY . .
-RUN yarn
-RUN yarn build
-# production environment
-FROM nginx:stable-alpine
+# Build stage
+FROM node:16-alpine as build
 
-# Copy the built application from the build stage
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Create production build
+ENV REACT_APP_API_URL=http://localhost:5000
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built files from build stage
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy the custom Nginx configuration file
+# Copy nginx configuration
 COPY /nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
+# Expose port 80
 EXPOSE 80
-# Start Nginx in the foreground
+
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
