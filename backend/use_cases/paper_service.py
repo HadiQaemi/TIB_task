@@ -55,8 +55,11 @@ class PaperService:
             contributions.append(self.scraper.load_json_from_url(json))
         author = self.scraper.author()
         DOIs, entity, external = self.scraper.DOI()
-        info = self.scraper.info()
+        info = ""
+        if len(DOIs) > 0:
+            info = self.scraper.info()
         timeline = self.scraper.timeline()
+        
         data = {
             "title": title, 
             "author": author, 
