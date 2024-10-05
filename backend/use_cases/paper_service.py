@@ -33,7 +33,11 @@ class PaperService:
         Returns:
             Paper: A Paper object if found, otherwise None.
         """
-        paper = self.db_client.find_one("papers", {"entity": entity_id}, projection={
+        # paper = self.db_client.find_one("papers", {"entity": entity_id}, projection={
+        #     "contributions": 1, "title": 1, "author": 1, "DOIs": 1, 
+        #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
+        # })
+        paper = self.db_client.find_one("papers", {"title": entity_id}, projection={
             "contributions": 1, "title": 1, "author": 1, "DOIs": 1, 
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
