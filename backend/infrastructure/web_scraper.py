@@ -46,7 +46,11 @@ class NodeExtractor:
             span = item.find('span', class_='format-label')
             if span["data-format"] == 'json':
                 url = "https://service.tib.eu/" + item["href"] + "/download/" + item["title"]
-                URLs.append(url)
+                index = url.find('ro-crate-metadata.json')
+                print(index)
+                print(item["title"])
+                if index<0:
+                    URLs.append(url)
         return URLs
 
     def extract_last_part(self, url):
@@ -71,8 +75,6 @@ class NodeExtractor:
                 self.doi = url
         if self.doi == "":
             self.doi = entity
-        print(self.url)
-        print(DOIs)
         return DOIs, entity, external
 
     def info(self):
