@@ -342,8 +342,32 @@ uncontrolled-tab-example .nav-item button {
 
 .contributions-item .title {
   color: #e86161;
-  text-decoration: underline;
+  /* text-decoration: underline; */
   cursor: pointer;
+}
+
+.contributions-item .title .sub-title {
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+}
+
+.contributions-item .title .text-title {
+  color: #000;
+  text-decoration: none !important;
+  cursor: help;
+  padding: 10px;
+}
+
+.contributions-item .title .sub-title:last-child {
+  border-bottom: none;
+}
+
+.my-responsive {
+  overflow: scroll;
+}
+
+.my-responsive th, td {
+  text-wrap: nowrap;
 }
 
 .title-predicte {

@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import ImplementationFile from './ImplementationFile';
 import TableComponent from '../TableComponent';
 
-function Contribution({ rowIndex, activeContribution, predicates, enArray, handleClick }) {
+function Contribution({ rowIndex, activeContribution, predicates, enArray, handleClick, noTitle, multi }) {
     return (
         <span key={rowIndex}>
             {
@@ -28,6 +28,42 @@ function Contribution({ rowIndex, activeContribution, predicates, enArray, handl
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
                         <Col xs={8}>{activeContribution['titles'][rowIndex]}</Col>
+                    </Row>
+                ) : multi.includes(activeContribution['keys'][rowIndex]) ? (
+                    <Row key={rowIndex} className='contributions-item'>
+                        <Col className='lable' xs={4}>
+                            {predicates[activeContribution['keys'][rowIndex]]}
+                        </Col>
+                        <Col className='title' xs={8}>
+                            {
+                                activeContribution['keys'][rowIndex] === 'P20098' ? (
+                                    <Row className='text-title'>
+                                        <img alt='' src={activeContribution['titles'][rowIndex]} width="520" />
+                                    </Row>
+                                ) : activeContribution['keys'][rowIndex] === 'P149015' ? (
+                                    <Row className='text-title'>
+                                        <ImplementationFile url={activeContribution['titles'][rowIndex]} />
+                                    </Row>
+                                ) : (
+                                    activeContribution['item'][activeContribution['keys'][rowIndex]].map((row, index) => (
+                                        typeof row === 'string' ? (
+                                            <Row className='text-title' key={index}>
+                                                <>{row}</>
+                                            </Row>
+                                        ) : (
+                                            <Row className='sub-title' key={index} onClick={() => handleClick([activeContribution['keys'][rowIndex].toString(), index.toString()])}>
+                                                <>{row['label']}</>
+                                            </Row>
+                                        )
+                                    ))
+                                )
+                            }
+                        </Col>
+                    </Row>
+                ) : noTitle.includes(activeContribution['keys'][rowIndex]) ? (
+                    <Row key={rowIndex} className='contributions-item'>
+                        <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
+                        <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>{activeContribution['titles'][rowIndex]['label']}</Col>
                     </Row>
                 ) : (
                     <Row key={rowIndex} className='contributions-item'>

@@ -76,9 +76,19 @@ const PaperDetails = (props) => {
     }, [paper, activeTab])
 
     const handleClick = (id) => {
-        let ids = [...selectedPredicate, id]
-        setSelectedPredicate(ids);
-        changePredicate(ids)
+        console.log(typeof id)
+        let ids = selectedPredicate
+        if (typeof id === 'object') {
+            id.map((item, _) => {
+                ids = [...ids, item]
+            })
+            setSelectedPredicate(ids);
+            changePredicate(ids)
+        } else {
+            ids = [...ids, id]
+            setSelectedPredicate(ids);
+            changePredicate(ids)
+        }
     };
 
     const changeActive = (id) => {
@@ -94,6 +104,10 @@ const PaperDetails = (props) => {
     };
 
     const changePredicate = (ids) => {
+        const last_id = ids[ids.length - 1]
+        if (_paper.noTitle.includes(last_id)) {
+            ids.push('0')
+        }
         let temp = props.paper;
         if (temp !== null & temp !== undefined) {
             temp = temp['contributions']
@@ -176,17 +190,21 @@ const PaperDetails = (props) => {
                             {contributions && (
                                 <DynamicTabs>
                                     {contributions.map((row, rowIndex) => (
-                                        <React.Fragment key={rowIndex}>
-                                            {rowIndex === parseInt(activeTab) ? (
-                                                <span key={rowIndex} className={`dynamic-tabs-link ${rowIndex === parseInt(activeTab) ? 'active' : ''}`}>
-                                                    {row}
-                                                </span>
-                                            ) : (
-                                                <span key={rowIndex} onClick={() => changeActive(rowIndex)} className={`dynamic-tabs-link ${rowIndex === parseInt(activeTab) ? 'active' : ''}`}>
-                                                    {row}
-                                                </span>
-                                            )}
-                                        </React.Fragment>
+                                        typeof row !== 'undefined' ? (
+                                            <React.Fragment key={rowIndex}>
+                                                {rowIndex === parseInt(activeTab) ? (
+                                                    <span key={rowIndex} className={`dynamic-tabs-link ${rowIndex === parseInt(activeTab) ? 'active' : ''}`}>
+                                                        {row}
+                                                    </span>
+                                                ) : (
+                                                    <span key={rowIndex} onClick={() => changeActive(rowIndex)} className={`dynamic-tabs-link ${rowIndex === parseInt(activeTab) ? 'active' : ''}`}>
+                                                        {row}
+                                                    </span>
+                                                )}
+                                            </React.Fragment>
+                                        ) : (
+                                            <React.Fragment key={rowIndex}></React.Fragment>
+                                        )
                                     ))}
                                 </DynamicTabs>
                             )}
@@ -201,7 +219,7 @@ const PaperDetails = (props) => {
                                         </div>
                                     ) : (activeContribution &&
                                         activeContribution['keys'].map((row, rowIndex) => (
-                                            <Contribution key={rowIndex} handleClick={handleClick} rowIndex={rowIndex} activeContribution={activeContribution} predicates={dictionary} enArray={_paper.enArray} />
+                                            <Contribution key={rowIndex} handleClick={handleClick} rowIndex={rowIndex} activeContribution={activeContribution} predicates={dictionary} enArray={_paper.enArray} noTitle={_paper.noTitle} multi={_paper.multi} />
                                         ))
                                     )}
                             </Row>

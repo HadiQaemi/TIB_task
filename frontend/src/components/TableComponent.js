@@ -50,26 +50,26 @@ const TableComponent = ({ data }) => {
             </Form.Group>
           </Col>
         </Row>
-
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              {Object.keys(data[0] || {}).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item, index) => (
-              <tr key={index}>
-                {Object.values(item).map((value, i) => (
-                  <td key={i}>{value}</td>
+        <Row className="my-responsive">
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                {Object.keys(data[0] || {}).map((key) => (
+                  <th key={key}>{key}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </Table>
-
+            </thead>
+            <tbody>
+              {currentItems.map((item, index) => (
+                <tr key={index}>
+                  {Object.values(item).map((value, i) => (
+                    <td key={i}>{value}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Row>
         <Pagination>
           {[...Array(Math.ceil(data.length / itemsPerPage))].map((_, index) => (
             <Pagination.Item
