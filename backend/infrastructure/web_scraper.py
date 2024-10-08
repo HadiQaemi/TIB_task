@@ -16,6 +16,7 @@ import re
 class NodeExtractor:
     def __init__(self):
         self.url = ""
+        self.metadata = ""
         self.soup = None
         self.doi = ""
 
@@ -23,6 +24,7 @@ class NodeExtractor:
         self.url = url
         self.soup = None
         self.doi = ""
+        self.metadata = ""
     
     def fetch_html(self):
         response = requests.get(self.url)
@@ -42,20 +44,38 @@ class NodeExtractor:
             self.fetch_html()
         heading = self.soup.find('section', id='dataset-resources').find_all('a', class_='heading')
         URLs = []
+        metadata = []
         for item in heading:
             span = item.find('span', class_='format-label')
             if span["data-format"] == 'json':
                 url = "https://service.tib.eu/" + item["href"] + "/download/" + item["title"]
                 index = url.find('ro-crate-metadata.json')
-                print(index)
-                print(item["title"])
                 if index<0:
                     URLs.append(url)
-        return URLs
+                else:
+                    metadata.append(url)
+        return URLs, metadata
 
     def extract_last_part(self, url):
         parsed_url = urllib.parse.urlparse(url)
         return parsed_url.path.rsplit('/', 1)[-1]
+
+    def get_metadata(self, metadata):
+        title = ""
+        authors = []
+        for json in metadata:
+            meta = self.load_json_from_url(json)
+            for graph in meta["@graph"]:
+                if graph["@type"] == 'ScholarlyArticle':
+                    for author in graph["author"]:
+                        authors.append(author["givenName"] + " " + author["familyName"])
+                    title = graph["name"]
+        return {
+            "author": authors,
+            "abstract": "",
+            "title": title,
+            "journal": "",
+        }
 
     def DOI(self):
         if not self.soup:
@@ -64,8 +84,13 @@ class NodeExtractor:
         DOIs = []
         entity = ""
         external = ""
+        print("heading")
         for item in heading:
             url = item["href"]
+            is_doi = url.startswith("doi.org")
+            if is_doi == -1:
+                continue
+            print(url)
             index = url.find("/R")
             DOIs.append(url)
             if index:
