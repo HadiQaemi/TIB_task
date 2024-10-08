@@ -53,7 +53,7 @@ class PaperService:
         """
         self.scraper.set_url(url)
         title = self.scraper.title()
-        json_files = self.scraper.json_files()
+        json_files, metadata = self.scraper.json_files()
         contributions = []
         for json in json_files:
             contributions.append(self.scraper.load_json_from_url(json))
@@ -62,6 +62,9 @@ class PaperService:
         info = ""
         if len(DOIs) > 0:
             info = self.scraper.info()
+        elif len(metadata) > 0:
+            info = self.scraper.get_metadata(metadata)
+
         timeline = self.scraper.timeline()
         
         data = {
