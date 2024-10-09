@@ -8,8 +8,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-    volumes:
-      - mongodb_data:/data/db
     networks:
       - app-network
     restart: unless-stopped
@@ -53,6 +51,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  mongodb_data:
