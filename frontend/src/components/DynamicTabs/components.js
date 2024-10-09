@@ -72,6 +72,8 @@ export function Menu({ children, innerProps }) {
                 background: #fff;
                 box-shadow: 0px 0px 10px 1px hsla(0, 0%, 0%, 0.2);
                 max-width: 400px;
+                overflow: scroll;
+                max-height: 300px;
             `}
             {...innerProps}
         >
