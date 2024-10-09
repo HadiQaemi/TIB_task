@@ -3,11 +3,11 @@ import { Col, Row } from 'react-bootstrap';
 import ImplementationFile from './ImplementationFile';
 import TableComponent from '../TableComponent';
 
-function Contribution({ rowIndex, activeContribution, predicates, enArray, handleClick, noTitle, multi }) {
+function Contribution({ rowIndex, activeContribution, predicates, handleClick, array }) {
     return (
         <span key={rowIndex}>
             {
-                activeContribution['keys'][rowIndex] === 'P110081' ? (
+                array.implimentation.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
                         <Col xs={8}><ImplementationFile url={activeContribution['titles'][rowIndex]} /></Col>
@@ -24,12 +24,12 @@ function Contribution({ rowIndex, activeContribution, predicates, enArray, handl
                     </Row>
                 ) : activeContribution['keys'][rowIndex] === 'Table' ? (
                     <TableComponent data={activeContribution['data']} />
-                ) : enArray.includes(activeContribution['keys'][rowIndex]) ? (
+                ) : array.enArray.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
                         <Col xs={8}>{activeContribution['titles'][rowIndex]}</Col>
                     </Row>
-                ) : multi.includes(activeContribution['keys'][rowIndex]) ? (
+                ) : array.multi.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>
                             {predicates[activeContribution['keys'][rowIndex]]}
@@ -60,15 +60,39 @@ function Contribution({ rowIndex, activeContribution, predicates, enArray, handl
                             }
                         </Col>
                     </Row>
-                ) : noTitle.includes(activeContribution['keys'][rowIndex]) ? (
+                ) : array.noTitle.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
                         <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>{activeContribution['titles'][rowIndex]['label']}</Col>
                     </Row>
+                ) : (activeContribution['keys'][rowIndex] === 'P450745') ? (
+                    <>
+                        {JSON.stringify(activeContribution['keys'][rowIndex])}
+                    </>
                 ) : (
                     <Row key={rowIndex} className='contributions-item'>
-                        <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
-                        <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>{activeContribution['titles'][rowIndex]}</Col>
+                        <Col className='lable' xs={4}>last{predicates[activeContribution['keys'][rowIndex]]}</Col>
+                        {
+                            Object.keys(activeContribution['titles'][rowIndex]).length === 1 ? (
+                                activeContribution['titles'][rowIndex]['@id']
+                            ) : (
+                                typeof activeContribution['titles'][rowIndex]['label'] === 'undefined' ? (
+                                    <Col className='title' xs={8}>
+                                        {activeContribution['titles'][rowIndex]}
+                                    </Col>
+                                ) : (
+                                    <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>
+                                        {
+                                            activeContribution['titles'][rowIndex]['label'].length === 0 ? (
+                                                <>NO_LABEL</>
+                                            ) : (
+                                                <>label: {activeContribution['titles'][rowIndex]['label']}</>
+                                            )
+                                        }
+                                    </Col>
+                                )
+                            )
+                        }
                     </Row>
                 )
             }

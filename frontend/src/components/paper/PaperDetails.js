@@ -76,7 +76,6 @@ const PaperDetails = (props) => {
     }, [paper, activeTab])
 
     const handleClick = (id) => {
-        console.log(typeof id)
         let ids = selectedPredicate
         if (typeof id === 'object') {
             id.map((item, _) => {
@@ -98,14 +97,13 @@ const PaperDetails = (props) => {
         setSelectedTitle([])
         setIsLoading([])
         setContributions([])
-
         setAtiveTab(id)
 
     };
 
     const changePredicate = (ids) => {
         const last_id = ids[ids.length - 1]
-        if (_paper.noTitle.includes(last_id)) {
+        if (_paper.addZero.includes(last_id)) {
             ids.push('0')
         }
         let temp = props.paper;
@@ -172,8 +170,14 @@ const PaperDetails = (props) => {
     const handleHover = (index) => {
         setHoveredIndex(index);
     };
-    const backPredicat = (index) => {
+    const backPredicat = (index, type) => {
         if (index !== 0) {
+            if (type === 'back') {
+                const last_id = selectedPredicate[selectedPredicate.length - 1]
+                if (last_id === '0') {
+                    index = -2
+                }
+            }
             const newPredicates = selectedPredicate.slice(0, index);
             setSelectedPredicate(newPredicates)
             changePredicate(newPredicates)
@@ -219,7 +223,7 @@ const PaperDetails = (props) => {
                                         </div>
                                     ) : (activeContribution &&
                                         activeContribution['keys'].map((row, rowIndex) => (
-                                            <Contribution key={rowIndex} handleClick={handleClick} rowIndex={rowIndex} activeContribution={activeContribution} predicates={dictionary} enArray={_paper.enArray} noTitle={_paper.noTitle} multi={_paper.multi} />
+                                            <Contribution key={rowIndex} handleClick={handleClick} rowIndex={rowIndex} activeContribution={activeContribution} predicates={dictionary} array={_paper} />
                                         ))
                                     )}
                             </Row>
