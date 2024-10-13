@@ -22,17 +22,17 @@ function Contribution({ rowIndex, activeContribution, predicates, handleClick, a
                         <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
                         <Col xs={8}><img alt='' src={activeContribution['titles'][rowIndex]} width="520" /></Col>
                     </Row>
-                ) : activeContribution['keys'][rowIndex] === 'Table' ? (
+                ) : activeContribution['keys'][rowIndex] === 'P71162' ? (
                     <TableComponent data={activeContribution['data']} />
                 ) : array.enArray.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
-                        <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}</Col>
+                        <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}{activeContribution['keys'][rowIndex]}</Col>
                         <Col xs={8}>{activeContribution['titles'][rowIndex]}</Col>
                     </Row>
                 ) : array.multi.includes(activeContribution['keys'][rowIndex]) ? (
                     <Row key={rowIndex} className='contributions-item'>
                         <Col className='lable' xs={4}>
-                            {predicates[activeContribution['keys'][rowIndex]]}
+                            {predicates[activeContribution['keys'][rowIndex]]}++++++
                         </Col>
                         <Col className='title' xs={8}>
                             {
@@ -67,18 +67,18 @@ function Contribution({ rowIndex, activeContribution, predicates, handleClick, a
                     </Row>
                 ) : (activeContribution['keys'][rowIndex] === 'P450745') ? (
                     <>
-                        {JSON.stringify(activeContribution['keys'][rowIndex])}
+                        {JSON.stringify(activeContribution['keys'][rowIndex])}---
                     </>
                 ) : (
                     <Row key={rowIndex} className='contributions-item'>
-                        <Col className='lable' xs={4}>last{predicates[activeContribution['keys'][rowIndex]]}</Col>
+                        <Col className='lable' xs={4}>{predicates[activeContribution['keys'][rowIndex]]}{activeContribution['keys'][rowIndex]}</Col>
                         {
                             Object.keys(activeContribution['titles'][rowIndex]).length === 1 ? (
-                                activeContribution['titles'][rowIndex]['@id']
+                                <>{activeContribution['titles'][rowIndex]['@id']}---</>
                             ) : (
                                 typeof activeContribution['titles'][rowIndex]['label'] === 'undefined' ? (
-                                    <Col className='title' xs={8}>
-                                        {activeContribution['titles'][rowIndex]}
+                                    <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>
+                                        {activeContribution['titles'][rowIndex]}---
                                     </Col>
                                 ) : (
                                     <Col className='title' xs={8} onClick={() => handleClick(activeContribution['keys'][rowIndex])}>
@@ -86,7 +86,7 @@ function Contribution({ rowIndex, activeContribution, predicates, handleClick, a
                                             activeContribution['titles'][rowIndex]['label'].length === 0 ? (
                                                 <>NO_LABEL</>
                                             ) : (
-                                                <>label: {activeContribution['titles'][rowIndex]['label']}</>
+                                                <>label: {activeContribution['titles'][rowIndex]['label']}----</>
                                             )
                                         }
                                     </Col>

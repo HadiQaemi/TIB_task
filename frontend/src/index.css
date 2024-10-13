@@ -366,7 +366,8 @@ uncontrolled-tab-example .nav-item button {
   overflow: scroll;
 }
 
-.my-responsive th, td {
+.my-responsive th,
+td {
   text-wrap: nowrap;
 }
 
@@ -419,6 +420,18 @@ uncontrolled-tab-example .nav-item button {
   background: #f1dcdc !important;
   border-color: #bb4f4f !important;
   color: #bb4f4f;
+}
+
+.page-link {
+  background-color: rgb(255, 100, 100) !important;
+  border-color: #bb4f4f !important;
+  color: #FFF !important;
+}
+
+.active .page-link {
+  background-color: rgb(247, 189, 189) !important;
+  border-color: #bb4f4f !important;
+  color: #bb4f4f !important;
 }
 
 .fullscreen button,

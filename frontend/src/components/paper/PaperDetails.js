@@ -8,6 +8,7 @@ import SelectedPredicate from './SelectedPredicate';
 import PaperInfo from './PaperInfo';
 import { _paper } from '../../constants/functions';
 import { useNavigate } from 'react-router-dom';
+import JsonTabsViewer from './JsonTabsViewer';
 
 const PaperDetails = (props) => {
     const storedAPredicate = localStorage.getItem('dictionary');
@@ -190,8 +191,11 @@ const PaperDetails = (props) => {
                     <PaperInfo paper={paper} />
                     <hr className='mb-3' />
                     <Row className='mb-3'>
+                        {contributions.length > 0 && (
+                            <JsonTabsViewer contributions={paper.contributions} />
+                        )}
                         <Col xs={12} md={9}>
-                            {contributions && (
+                            {/* {contributions && (
                                 <DynamicTabs>
                                     {contributions.map((row, rowIndex) => (
                                         typeof row !== 'undefined' ? (
@@ -226,12 +230,12 @@ const PaperDetails = (props) => {
                                             <Contribution key={rowIndex} handleClick={handleClick} rowIndex={rowIndex} activeContribution={activeContribution} predicates={dictionary} array={_paper} />
                                         ))
                                     )}
-                            </Row>
+                            </Row> */}
                         </Col>
                         <Col xs={12} md={3}>
-                            {paper.timeline && (
+                            {/* {paper.timeline && (
                                 <TimelineTab timeline={paper.timeline} author={paper.author} external={paper.external} />
-                            )}
+                            )} */}
                         </Col>
                     </Row>
                 </Card.Body>
