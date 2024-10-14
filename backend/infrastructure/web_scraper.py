@@ -63,6 +63,9 @@ class NodeExtractor:
         parsed_url = urllib.parse.urlparse(url)
         return parsed_url.path.rsplit('/', 1)[-1]
 
+    def is_doi(self, url):
+        return url.find("https://doi.org/")
+
     def get_metadata(self, metadata):
         title = ""
         authors = []
@@ -91,7 +94,7 @@ class NodeExtractor:
         external = ""
         for item in heading:
             url = item["href"]
-            is_doi = url.find("https://doi.org/")
+            is_doi = self.is_doi(url)
             if is_doi == -1:
                 continue
             DOIs.append(url)
@@ -107,28 +110,35 @@ class NodeExtractor:
 
     def info(self):
         try:
-            url = "https://api.crossref.org/works/" + \
-                self.doi.replace(":", "%3A").replace("/", "%2F")
-            response = requests.get(url)
-            response.raise_for_status()
-            info = response.json()
-            abstract = info["message"]["abstract"]
-            title = info["message"]["title"][0]
-            journal = info["message"]["short-container-title"][0]
-            author = []
-            for item in info["message"]["author"]:
-                author.append(item['given'] + " " + item['family'])
-            clean = re.compile('<.*?>')
-            return {
-                "author": author,
-                "abstract": re.sub(clean, '', abstract),
-                "title": title,
-                "journal": journal,
-            }
-        finally:
-            print("Error.")
+            print(self.doi)
+            is_doi = self.is_doi(self.doi)
+            print(is_doi)
+            if is_doi == 0:
+                url = "https://api.crossref.org/works/" + \
+                    self.doi.replace(":", "%3A").replace("/", "%2F")
+                print(url)
+                response = requests.get(url)
+                response.raise_for_status()
+                info = response.json()
+                abstract = info["message"]["abstract"]
+                title = info["message"]["title"][0]
+                journal = info["message"]["short-container-title"][0]
+                author = []
+                for item in info["message"]["author"]:
+                    author.append(item['given'] + " " + item['family'])
+                clean = re.compile('<.*?>')
+                return {
+                    "author": author,
+                    "abstract": re.sub(clean, '', abstract),
+                    "title": title,
+                    "journal": journal,
+                }
+            else:
+                return ""
+        except ValueError:
+            print("Error.", ValueError)
             return ""
-    
+
     def author(self):
         if not self.soup:
             self.fetch_html()
