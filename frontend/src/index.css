@@ -498,3 +498,11 @@ pre.show-all {
   width: 150px;
   font-size: small;
 }
+
+.w-10 {
+  width: 10%;
+}
+
+.w-90 {
+  width: 90%;
+}

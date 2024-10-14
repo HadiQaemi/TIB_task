@@ -1,6 +1,9 @@
 from infrastructure.database import MongoDBClient
 from infrastructure.web_scraper import NodeExtractor
 from domain.entities import Paper
+from bson.regex import Regex
+from urllib.parse import unquote
+
 
 class PaperService:
     """Service class for handling paper-related operations.
@@ -9,6 +12,7 @@ class PaperService:
     It provides methods for fetching existing papers, retrieving a specific paper,
     and extracting paper information from a given URL.
     """
+
     def __init__(self):
         self.db_client = MongoDBClient()
         self.scraper = NodeExtractor()
@@ -20,7 +24,7 @@ class PaperService:
             list[Paper]: A list of Paper objects containing selected paper data.
         """
         papers = self.db_client.find_all("papers", projection={
-            "contributions": 1, "title": 1, "author": 1, "DOIs": 1, 
+            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
         return [Paper(**paper) for paper in papers]
@@ -34,14 +38,36 @@ class PaperService:
             Paper: A Paper object if found, otherwise None.
         """
         # paper = self.db_client.find_one("papers", {"entity": entity_id}, projection={
-        #     "contributions": 1, "title": 1, "author": 1, "DOIs": 1, 
+        #     "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
         #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         # })
         paper = self.db_client.find_one("papers", {"title": entity_id}, projection={
-            "contributions": 1, "title": 1, "author": 1, "DOIs": 1, 
+            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
         return Paper(**paper) if paper else None
+
+    def search_by_title(self, search_title):
+        """
+        Retrieves all single papers by their title from the database, excluding the "title" field.
+        Args:
+            title (str): The title of the papers to retrieve.
+        Returns:
+            Paper: A list of Paper objects if found, otherwise None.
+        """
+        search_title = unquote(search_title)
+        query = {
+            "$or": [
+                {"info.title": Regex(search_title, "i")},
+                {"DOIs": {"$elemMatch": {"$regex": search_title, "$options": "i"}}},
+                {"entity_id": Regex(search_title, "i")},
+            ]
+        }
+        papers = self.db_client.find_all("papers", query, projection={
+            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
+            "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
+        })
+        return [Paper(**paper) for paper in papers]
 
     def extract_paper(self, url):
         """
@@ -66,10 +92,10 @@ class PaperService:
             info = self.scraper.get_metadata(metadata)
 
         timeline = self.scraper.timeline()
-        
+
         data = {
-            "title": title, 
-            "author": author, 
+            "title": title,
+            "author": author,
             "DOIs": DOIs,
             "entity": entity,
             "contributions": contributions,

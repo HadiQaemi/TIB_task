@@ -32,6 +32,19 @@ class AllPapers(Resource):
             'totalElements': len(papers),
         }
 
+# Define the endpoint for retrieving all papers.
+@api.route('/search')
+@api.param('title', 'The paper title')
+class Search(Resource):
+    @api.doc('search_by_title')
+    def get(self):
+        title = request.args.get('title')
+        papers = paper_service.search_by_title(title)
+        return {
+            'content': [vars(paper) for paper in papers],
+            'totalElements': len(papers),
+        }
+
 # Define the endpoint for retrieving a paper by its entity ID.
 @api.route('/paper')
 @api.param('id', 'The paper entity ID')

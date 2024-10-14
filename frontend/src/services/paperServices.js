@@ -4,6 +4,16 @@ import { SERVER_ADDRESS } from '../constants/configs';
 // Define an object called paperServices that exports four methods:
 // getList, getPaper, getPredicate, and getFile.
 export const paperServices = {
+    search: async (title) => {
+        let res = await axios.get(SERVER_ADDRESS + `/search?title=${encodeURIComponent(title)}`)
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
     getList: async () => {
         let res = await axios.get(SERVER_ADDRESS + '/all-paper')
             .then(response => {
