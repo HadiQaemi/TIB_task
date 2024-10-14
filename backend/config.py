@@ -15,7 +15,7 @@ class Config:
     
     # Construct MongoDB URI
     MONGO_URI = f"mongodb://{encoded_username}:{encoded_password}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}?authSource=admin"
-    MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}?authSource=admin"
+    # MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}?authSource=admin"
     # print(MONGO_URI)
 
     # Other Flask configurations

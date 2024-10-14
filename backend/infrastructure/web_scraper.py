@@ -13,6 +13,7 @@ import uuid
 import urllib.parse
 import re
 
+
 class NodeExtractor:
     def __init__(self):
         self.url = ""
@@ -25,7 +26,7 @@ class NodeExtractor:
         self.soup = None
         self.doi = ""
         self.metadata = ""
-    
+
     def fetch_html(self):
         response = requests.get(self.url)
         if response.status_code == 200:
@@ -42,15 +43,17 @@ class NodeExtractor:
     def json_files(self):
         if not self.soup:
             self.fetch_html()
-        heading = self.soup.find('section', id='dataset-resources').find_all('a', class_='heading')
+        heading = self.soup.find(
+            'section', id='dataset-resources').find_all('a', class_='heading')
         URLs = []
         metadata = []
         for item in heading:
             span = item.find('span', class_='format-label')
             if span["data-format"] == 'json':
-                url = "https://service.tib.eu/" + item["href"] + "/download/" + item["title"]
+                url = "https://service.tib.eu/" + \
+                    item["href"] + "/download/" + item["title"]
                 index = url.find('ro-crate-metadata.json')
-                if index<0:
+                if index < 0:
                     URLs.append(url)
                 else:
                     metadata.append(url)
@@ -68,7 +71,8 @@ class NodeExtractor:
             for graph in meta["@graph"]:
                 if graph["@type"] == 'ScholarlyArticle':
                     for author in graph["author"]:
-                        authors.append(author["givenName"] + " " + author["familyName"])
+                        authors.append(
+                            author["givenName"] + " " + author["familyName"])
                     title = graph["name"]
         return {
             "author": authors,
@@ -80,19 +84,18 @@ class NodeExtractor:
     def DOI(self):
         if not self.soup:
             self.fetch_html()
-        heading = self.soup.find('div', class_='embedded-content').find_all('a')
+        heading = self.soup.find(
+            'div', class_='embedded-content').find_all('a')
         DOIs = []
         entity = ""
         external = ""
-        print("heading")
         for item in heading:
             url = item["href"]
-            is_doi = url.startswith("doi.org")
+            is_doi = url.find("https://doi.org/")
             if is_doi == -1:
                 continue
-            print(url)
-            index = url.find("/R")
             DOIs.append(url)
+            index = url.find("/R")
             if index:
                 entity = self.extract_last_part(url)
             if index == -1:
@@ -103,24 +106,29 @@ class NodeExtractor:
         return DOIs, entity, external
 
     def info(self):
-        url = "https://api.crossref.org/works/" + self.doi.replace(":", "%3A").replace("/", "%2F")
-        response = requests.get(url)
-        response.raise_for_status()
-        info = response.json()
-        abstract = info["message"]["abstract"]
-        title = info["message"]["title"][0]
-        journal = info["message"]["short-container-title"][0]
-        author = []
-        for item in info["message"]["author"]:
-            author.append(item['given'] + " " +item['family'])
-        clean = re.compile('<.*?>')
-        return {
-            "author": author,
-            "abstract": re.sub(clean, '', abstract),
-            "title": title,
-            "journal": journal,
-        }
-
+        try:
+            url = "https://api.crossref.org/works/" + \
+                self.doi.replace(":", "%3A").replace("/", "%2F")
+            response = requests.get(url)
+            response.raise_for_status()
+            info = response.json()
+            abstract = info["message"]["abstract"]
+            title = info["message"]["title"][0]
+            journal = info["message"]["short-container-title"][0]
+            author = []
+            for item in info["message"]["author"]:
+                author.append(item['given'] + " " + item['family'])
+            clean = re.compile('<.*?>')
+            return {
+                "author": author,
+                "abstract": re.sub(clean, '', abstract),
+                "title": title,
+                "journal": journal,
+            }
+        finally:
+            print("Error.")
+            return ""
+    
     def author(self):
         if not self.soup:
             self.fetch_html()
@@ -152,7 +160,7 @@ class NodeExtractor:
         response = requests.get(url)
         if response.status_code == 200:
             json = response.json()
-            json["_id"] = self.generate_timestamp_based_id()            
+            json["_id"] = self.generate_timestamp_based_id()
             return json
         else:
             print(f"Error downloading file: {response.status_code}")
