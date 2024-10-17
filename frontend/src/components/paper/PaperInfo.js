@@ -1,13 +1,10 @@
 import React from 'react';
-import { Alert, Col, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { FaBars, FaCalendar, FaUser } from 'react-icons/fa';
 
 function PaperInfo({ paper }) {
     return (
         <>
-            <Alert variant="warning" className="mt-3">
-                You are viewing the published version of the paper. Click to Fetch live data
-            </Alert>
             <h4>{paper.info && paper.info.title}</h4>
             <Row className="mb-3">
                 <Col>

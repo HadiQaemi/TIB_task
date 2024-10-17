@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Tooltip, OverlayTrigger, Button, Spinner } from 'react-bootstrap';
 import JsonTable from './JsonTable';
 import JsonSourceCode from './JsonSourceCode';
+import URLOrText from './URLOrText';
 
 const styles = {
   container: {
@@ -109,7 +110,6 @@ const styles = {
   },
   label: {
     fontWeight: '600',
-    textDecoration: 'underline',
   },
   nodeContent: {
     paddingLeft: '20px',
@@ -162,6 +162,7 @@ const styles = {
   },
   image: {
     maxWidth: '100%',
+    maxHeight: '500px',
     height: 'auto',
     margin: '10px',
   },
@@ -174,6 +175,19 @@ const styles = {
   redColor: {
     backgroundColor: 'rgb(255, 100, 100)',
     borderColor: 'rgb(255, 100, 100)',
+  },
+  textLabel: {
+    textShadow: '#fff 1px 0 10px',
+    color: '#000',
+  },
+  linkLabel: {
+    textShadow: '#fff 1px 0 10px',
+  },
+  nodeLabel: {
+    color: '#555',
+    fontSize: 'smaller',
+    fontWeight: '100',
+    textShadow: '#fff 1px 0 10px',
   },
 };
 
@@ -242,7 +256,7 @@ function analyzeJSONStructure(jsonElement) {
 
 // Modified TreeNode component for individual node control
 const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [fetchedData, setFetchedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [sourceCode, setSourceCode] = useState('');
@@ -292,8 +306,9 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
   const textColor = getTextColor(level);
 
   // const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label + ',' + nodeKey + ',' + analyzeJSONStructure(nodeValue) : nodeKey);
+  // const displayKey = label !== '' ? (fetchedData ? label + ':' + fetchedData.label : nodeKey + ':' + label) : (fetchedData ? fetchedData.label : nodeKey);
+  const nodeLabel = typeof (nodeValue) === 'object' ? (nodeValue.label === undefined ? '' : nodeValue.label) : '';
   const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label : nodeKey);
-
   const renderTooltip = (props) => (
     <Tooltip id={`tooltip-${nodeKey}`} {...props}>
       {fetchedData?.description || "No description available"}
@@ -318,7 +333,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
       <img src={nodeValue} alt="Predicate image" style={styles.image} />
     )
   }
-  console.log(nodeKey, nodeValue, typeof nodeValue, isOpen)
+
   return (
     <div style={{
       ...styles.treeNode,
@@ -354,7 +369,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                 ...styles.keyName,
                 color: textColor,
               }}>
-                {displayKey}:
+                {displayKey}: <span style={styles.nodeLabel}>{nodeLabel}</span>
               </span>
             )
           }
@@ -365,15 +380,21 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
             }}>
               {
                 (nodeKey === 'P110081' || nodeKey === 'P149015' || parentKey === 'P4077') ? (
-                  <JsonSourceCode styles={styles} isCodeLoading={isCodeLoading} sourceCode={sourceCode} showAllCode={showAllCode} toggleShowAllCode={toggleShowAllCode} />
+                  <>
+                    <JsonSourceCode styles={styles} isCodeLoading={isCodeLoading} sourceCode={sourceCode} showAllCode={showAllCode} toggleShowAllCode={toggleShowAllCode} />
+                  </>
                 ) : (nodeKey === 'P20098' || parentKey === 'P117002') ? (
-                  <img src={nodeValue} alt="Predicate image" style={styles.image} />
+                  <>
+                    <img src={nodeValue} alt="Predicate image" style={styles.image} />
+                  </>
                 ) : (
                   <span style={{
                     ...styles.label
                   }}>
                     {/* 000----{parentKey}---{displayKey}--- */}
-                    {nodeValue}
+                    <>
+                      <URLOrText content={nodeValue} styles={styles} nodeLabel={nodeLabel} />
+                    </>
                   </span>
                 )
               }
@@ -385,12 +406,11 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
         <div style={styles.nodeContent}>
           {isLoading ? (
             <div>Loading...</div>
-            // eslint-disable-next-line valid-typeof
           ) : (specialKeys.includes(nodeKey)) ? (
             (analyzeJSONStructure(nodeValue) === 'Array of mixed types') ? (
-              <>
+              <React.Fragment>
                 {Object.entries(nodeValue).map(([key, value], index) => (
-                  <>
+                  <React.Fragment key={key}>
                     <TreeNode
                       key={`${key}-${index}`}
                       nodeKey={nodeKey}
@@ -398,14 +418,14 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                       nodeValue={value}
                       level={level + 1}
                     />
-                  </>
+                  </React.Fragment>
                 ))}
-              </>
+              </React.Fragment>
             ) : (
               (analyzeJSONStructure(nodeValue) === 'Array of objects') ? (
-                <>
+                <React.Fragment>
                   {Object.entries(nodeValue).map(([key, value], index) => (
-                    <>
+                    <React.Fragment key={key}>
                       <TreeNode
                         key={`${key}-${index}`}
                         nodeKey={key}
@@ -414,16 +434,16 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                         nodeValue={value}
                         level={level + 1}
                       />
-                    </>
+                    </React.Fragment>
                   ))}
-                </>
+                </React.Fragment>
               ) : (
-                <>
+                <React.Fragment>
                   {
                     (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'P71162' || nodeKey === 'P71162') ? (
                       <JsonTable data={nodeValue} styles={styles} />
                     ) : (Object.entries(nodeValue).map(([key, value], index) => (
-                      <>
+                      <React.Fragment key={key}>
                         <TreeNode
                           key={`${key}-${index}`}
                           nodeKey={key}
@@ -431,42 +451,35 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                           nodeValue={value}
                           level={level + 1}
                         />
-                      </>
+                      </React.Fragment>
                     ))
                     )
                   }
-                </>
+                </React.Fragment>
               )
             )
           ) : (nodeKey === 'P71163') ? (
-            <>
-              {
-                (parentKey === 'P149024' || parentKey === 'P149010') ? (
-                  <JsonTable data={nodeValue} />
-                ) : (
-                  Object.entries(nodeValue).map(([key, value], index) => (
-                    <>
-                      <TreeNode
-                        key={`${key}-${index}`}
-                        nodeKey={key}
-                        parentKey={nodeKey}
-                        nodeValue={value}
-                        level={level + 1}
-                      />
-                    </>
-                  ))
-                )
-
-              }
-            </>
+            (parentKey === 'P149024' || parentKey === 'P149010') ? (
+              <JsonTable data={nodeValue} />
+            ) : (
+              Object.entries(nodeValue).map(([key, value], index) => (
+                <TreeNode
+                  key={`${key}-${index}}`}
+                  nodeKey={key}
+                  parentKey={nodeKey}
+                  nodeValue={value}
+                  level={level + 1}
+                />
+              ))
+            )
           ) : (analyzeJSONStructure(nodeValue) === 'Object with mixed value types') ? (
-            <>
+            <React.Fragment>
               {
                 (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'P71164') ? (
                   <JsonTable data={nodeValue} />
                 ) : (
                   Object.entries(nodeValue).map(([key, value], index) => (
-                    <>
+                    <React.Fragment>
                       <TreeNode
                         key={`${key}-${index}`}
                         nodeKey={key}
@@ -474,17 +487,16 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                         nodeValue={value}
                         level={level + 1}
                       />
-                    </>
+                    </React.Fragment>
                   ))
                 )
-
               }
-            </>
+            </React.Fragment>
           ) : (analyzeJSONStructure(nodeValue) === 'Array of objects') ? (
-            <>
+            <React.Fragment>
               {
                 Object.entries(nodeValue).map(([key, value], index) => (
-                  <>
+                  <React.Fragment>
                     <TreeNode
                       key={`${nodeKey}-${index}`}
                       label={value.label}
@@ -493,14 +505,14 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                       nodeValue={value}
                       level={level + 1}
                     />
-                  </>
+                  </React.Fragment>
                 ))
               }
-            </>
+            </React.Fragment>
           ) : (
-            <>
+            <React.Fragment>
               {Object.entries(nodeValue).map(([key, value], index) => (
-                <>
+                <React.Fragment>
                   <TreeNode
                     key={`${key}-${index}`}
                     nodeKey={key}
@@ -508,9 +520,9 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                     nodeValue={value}
                     level={level + 1}
                   />
-                </>
+                </React.Fragment>
               ))}
-            </>
+            </React.Fragment>
           )}
         </div>
       )}
@@ -519,7 +531,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
 };
 
 
-const JsonTabsViewer = ({ contributions }) => {
+const JsonTabsViewer = ({ contributions, tab }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -529,7 +541,11 @@ const JsonTabsViewer = ({ contributions }) => {
   const jsonFiles = contributions;
   const visibleTabs = jsonFiles.slice(0, MAX_VISIBLE_TABS);
   const dropdownTabs = jsonFiles.slice(MAX_VISIBLE_TABS);
-
+  useEffect(() => {
+    if (tab > 0) {
+      setActiveTab(tab - 1)
+    }
+  }, [tab]);
   return (
     <div style={styles.container}>
       <div style={styles.tabContainer}>

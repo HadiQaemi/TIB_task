@@ -31,13 +31,13 @@ const Papers = () => {
         <>
             {paper ? (
                 <>
-                    <MyBreadcrumb breadcrumb={["Life Sciences", "Ecology and Evolutionary Biology"]} />
+                    {/* <MyBreadcrumb breadcrumb={["Life Sciences", "Ecology and Evolutionary Biology"]} /> */}
                     <NavTitle title="Paper" dropdown={true} />
                     <PaperDetails paper={paper} tab={tab ? tab : 0} paperId={id} />
                 </>
             ) : (
                 <>
-                    <MyBreadcrumb breadcrumb={["Life Sciences", "Ecology and Evolutionary Biology"]} />
+                    {/* <MyBreadcrumb breadcrumb={["All papers", "Ecology and Evolutionary Biology"]} /> */}
                     <NavTitle title="Paper" dropdown={true} />
                     <Page404 />
                 </>

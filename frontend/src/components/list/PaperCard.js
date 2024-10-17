@@ -19,11 +19,11 @@ const PaperCard = (props) => {
                 {
                     typeof info === 'string' ? (
                         <Col xs={12}>
-                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{title}{entity}</h5>
+                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{title}</h5>
                         </Col>
                     ) : (
                         <Col xs={12}>
-                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{info["title"]}{entity}</h5>
+                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{info["title"]}</h5>
                             <span className="mt-2 mb-0 abstract">{truncateString(info["abstract"], 600)}</span>
                         </Col>
                     )

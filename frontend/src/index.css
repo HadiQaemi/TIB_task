@@ -256,7 +256,6 @@ uncontrolled-tab-example .nav-item button {
 
 .pointer {
   cursor: pointer;
-  text-decoration: underline;
 }
 
 .tab-title {
@@ -494,6 +493,16 @@ pre.show-all {
   background-color: #eee;
 }
 
+.list .predicates span {
+  border: 1px solid #e86161;
+  margin: 2px 5px;
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 5px;
+  color: #fff;
+  background-color: #f59090;
+}
+
 #basic-navbar-nav button {
   width: 150px;
   font-size: small;
@@ -503,6 +512,58 @@ pre.show-all {
   width: 10%;
 }
 
+.w-50 {
+  width: 50%;
+}
+
 .w-90 {
   width: 90%;
+}
+
+.text-xl {
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.text-sm {
+  font-size: .875rem;
+  line-height: 1.25rem;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.block {
+  display: block;
+}
+
+.title {
+  padding: 1px 2px;
+  background: #e9ebf2;
+  border-radius: 2px;
+  font-size: 10px;
+  bottom: -3px;
+  right: 0px;
+  font-weight: 600;
+}
+
+.header-link {
+  margin: 0px 10px;
+  text-decoration: none;
+  color: #444;
 }

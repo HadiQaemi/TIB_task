@@ -8,7 +8,7 @@ const JsonTable = ({ data, styles }) => {
     const rows = data.rows.sort((a, b) => a.number - b.number);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const tableContainerRef = useRef(null);
 

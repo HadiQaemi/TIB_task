@@ -1,5 +1,5 @@
 import React from 'react';
-import MyBreadcrumb from '../components/MyBreadcrumb';
+// import MyBreadcrumb from '../components/MyBreadcrumb';
 import NavTitle from '../components/paper/Title';
 import List from '../components/list/List';
 
@@ -9,7 +9,7 @@ const PaperList = () => {
 
   return (
     <>
-      <MyBreadcrumb breadcrumb={["Papers", "List of papers"]} />
+      {/* <MyBreadcrumb breadcrumb={["Papers", "List of papers"]} /> */}
       <NavTitle title="Paper list" dropdown={false}/>
       <List />
     </>
