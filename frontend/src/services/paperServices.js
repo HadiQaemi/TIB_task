@@ -14,6 +14,16 @@ export const paperServices = {
             });
         return res
     },
+    getStatements: async () => {
+        let res = await axios.get(SERVER_ADDRESS + '/all-statements')
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
     getList: async () => {
         let res = await axios.get(SERVER_ADDRESS + '/all-paper')
             .then(response => {

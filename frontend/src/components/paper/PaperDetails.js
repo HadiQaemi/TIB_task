@@ -16,7 +16,7 @@ const PaperDetails = (props) => {
     if (_localStorage == null)
         _localStorage = []
     const { paper, tab, paperId } = props
-    const [activeTab, setAtiveTab] = useState(tab)
+    const [activeTab, setAtiveTab] = useState(tab>0 ? tab - 1 : 0)
     const [activeContribution, setActiveContribution] = useState([])
     const [selectedPredicate, setSelectedPredicate] = useState([activeTab])
     const [selectedTitle, setSelectedTitle] = useState([activeTab])
@@ -61,6 +61,8 @@ const PaperDetails = (props) => {
                     addToDict(key)
             }
             const { keys, titles } = _paper.details(paper, activeTab, dictionary, setDictionary)
+            console.log(activeTab)
+            console.log(paper['contributions'])
             setActiveContribution({
                 'title': paper['contributions'][activeTab]['label'],
                 'type': paper['contributions'][activeTab]['@type'],
@@ -192,7 +194,7 @@ const PaperDetails = (props) => {
                     <hr className='mb-3' />
                     <Row className='mb-3'>
                         {contributions.length > 0 && (
-                            <JsonTabsViewer contributions={paper.contributions} />
+                            <JsonTabsViewer contributions={paper.contributions} tab={tab}/>
                         )}
                         <Col xs={12} md={9}>
                             {/* {contributions && (
