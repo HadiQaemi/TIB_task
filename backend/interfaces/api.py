@@ -28,8 +28,20 @@ class AllPapers(Resource):
     def get(self):
         papers = paper_service.get_all_papers()
         return {
-            'content': [vars(paper) for paper in papers],
+            # 'content': [vars(paper) for paper in papers],
+            'content': papers,
             'totalElements': len(papers),
+        }
+
+# Define the endpoint for retrieving all papers.
+@api.route('/all-statements')
+class AllStatements(Resource):
+    @api.doc('get_all_statements')
+    def get(self):
+        statements = paper_service.get_all_statements()
+        return {
+            'content': statements,
+            'totalElements': len(statements),
         }
 
 # Define the endpoint for retrieving all papers.

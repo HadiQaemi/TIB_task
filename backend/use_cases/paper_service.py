@@ -28,6 +28,28 @@ class PaperService:
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
         return [Paper(**paper) for paper in papers]
+    def get_all_statements(self):
+        pipeline = [
+            {
+                "$unwind": {
+                    "path": "$contributions",
+                    "preserveNullAndEmptyArrays": True
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "author": 1,
+                    "title": 1,
+                    "info": 1,
+                    "contribution": "$contributions"
+                }
+            }
+        ]
+        results = list(self.db_client.aggregate("papers", pipeline))
+        if not results:
+            return []
+        return results
 
     def get_paper_by_id(self, entity_id):
         """
