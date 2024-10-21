@@ -2,6 +2,15 @@ import os
 from urllib.parse import quote_plus
 
 class Config:
+    # Database selection
+    DATABASE_TYPE = 'mongodb'  # 'postgresql' or 'mongodb'
+
+    # PostgreSQL settings
+    PG_HOST = 'localhost'
+    PG_DATABASE = 'tib_task'
+    PG_USER = 'postgres'
+    PG_PASSWORD = '123'
+    
     # MongoDB Configuration
     MONGO_USERNAME = os.getenv('MONGODB_USERNAME', 'admin')
     MONGO_PASSWORD = os.getenv('MONGODB_PASSWORD', 'your_secure_password')
