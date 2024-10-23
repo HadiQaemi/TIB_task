@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from config import Config
+from infrastructure.config import Config
 
 # Import API blueprint from the interfaces.api module
 from interfaces.api import api
