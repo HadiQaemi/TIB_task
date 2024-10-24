@@ -1,8 +1,9 @@
-from infrastructure.database import MongoDBClient
 from infrastructure.web_scraper import NodeExtractor
-from domain.entities import Paper
+from domain.entities import Paper, Contribution
 from bson.regex import Regex
 from urllib.parse import unquote
+from pymongo import MongoClient
+from infrastructure.repositories.data_repository import DataRepository
 
 
 class PaperService:
@@ -14,7 +15,7 @@ class PaperService:
     """
 
     def __init__(self):
-        self.db_client = MongoDBClient()
+        self.db_client = DataRepository()
         self.scraper = NodeExtractor()
 
     def get_all_papers(self):
@@ -23,11 +24,17 @@ class PaperService:
         Returns:
             list[Paper]: A list of Paper objects containing selected paper data.
         """
-        papers = self.db_client.find_all("papers", projection={
-            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
+        # papers = self.db_client.find_all("papers", projection={
+        #     "contributions": 1, "title": 1, "author": 1, "dois": 1,
+        #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
+        # })
+        papers = self.db_client.get_all_items("papers", projection={
+            "contributions": 1, "title": 1, "author": 1, "dois": 1,
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
-        return [Paper(**paper) for paper in papers]
+        # return [Paper(**paper) for paper in papers]
+        return papers
+
     def get_all_statements(self):
         pipeline = [
             {
@@ -60,14 +67,15 @@ class PaperService:
             Paper: A Paper object if found, otherwise None.
         """
         # paper = self.db_client.find_one("papers", {"entity": entity_id}, projection={
-        #     "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
+        #     "contributions": 1, "title": 1, "author": 1, "dois": 1,
         #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         # })
         paper = self.db_client.find_one("papers", {"title": entity_id}, projection={
-            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
+            "contributions": 1, "title": 1, "author": 1, "dois": 1,
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
-        return Paper(**paper) if paper else None
+        # return Paper(**paper) if paper else None
+        return paper if paper else None
 
     def search_by_title(self, search_title):
         """
@@ -81,12 +89,12 @@ class PaperService:
         query = {
             "$or": [
                 {"info.title": Regex(search_title, "i")},
-                {"DOIs": {"$elemMatch": {"$regex": search_title, "$options": "i"}}},
+                {"dois": {"$elemMatch": {"$regex": search_title, "$options": "i"}}},
                 {"entity_id": Regex(search_title, "i")},
             ]
         }
         papers = self.db_client.find_all("papers", query, projection={
-            "contributions": 1, "title": 1, "author": 1, "DOIs": 1,
+            "contributions": 1, "title": 1, "author": 1, "dois": 1,
             "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         })
         return [Paper(**paper) for paper in papers]
@@ -106,9 +114,9 @@ class PaperService:
         for json in json_files:
             contributions.append(self.scraper.load_json_from_url(json))
         author = self.scraper.author()
-        DOIs, entity, external = self.scraper.DOI()
+        dois, entity, external = self.scraper.DOI()
         info = ""
-        if len(DOIs) > 0:
+        if len(dois) > 0:
             info = self.scraper.info()
         elif len(metadata) > 0:
             info = self.scraper.get_metadata(metadata)
@@ -118,12 +126,12 @@ class PaperService:
         data = {
             "title": title,
             "author": author,
-            "DOIs": DOIs,
+            "dois": dois,
             "entity": entity,
             "contributions": contributions,
             "external": external,
             "info": info,
             "timeline": timeline,
         }
-        inserted_id = self.db_client.insert_one("papers", data)
+        inserted_id = self.db_client.add_item("papers", data)
         return inserted_id

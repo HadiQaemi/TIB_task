@@ -89,7 +89,7 @@ class NodeExtractor:
             self.fetch_html()
         heading = self.soup.find(
             'div', class_='embedded-content').find_all('a')
-        DOIs = []
+        dois = []
         entity = ""
         external = ""
         for item in heading:
@@ -97,7 +97,7 @@ class NodeExtractor:
             is_doi = self.is_doi(url)
             if is_doi == -1:
                 continue
-            DOIs.append(url)
+            dois.append(url)
             index = url.find("/R")
             if index:
                 entity = self.extract_last_part(url)
@@ -106,7 +106,7 @@ class NodeExtractor:
                 self.doi = url
         if self.doi == "":
             self.doi = entity
-        return DOIs, entity, external
+        return dois, entity, external
 
     def info(self):
         try:

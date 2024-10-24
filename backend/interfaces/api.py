@@ -8,12 +8,12 @@ api = Api(version='1.0', title='TIB API', description='API for TIB data')
 # Create an instance of the PaperService, which handles the business logic for paper data.
 paper_service = PaperService()
 
-# Define the model for a Paper object, which includes fields like contributions, title, author, DOIs, entity, external information, and timeline.
+# Define the model for a Paper object, which includes fields like contributions, title, author, dois, entity, external information, and timeline.
 paper_model = api.model('Paper', {
     'contributions': fields.List(fields.Raw, description='Contributions of the paper'),
     'title': fields.String(description='Title of the paper'),
     'author': fields.String(description='Author of the paper'),
-    'DOIs': fields.List(fields.String, description='DOIs associated with the paper'),
+    'dois': fields.List(fields.String, description='dois associated with the paper'),
     'entity': fields.String(description='Entity ID of the paper'),
     'external': fields.Raw(description='External information about the paper'),
     'info': fields.Raw(description='Additional information about the paper'),
@@ -65,7 +65,8 @@ class PaperById(Resource):
     def get(self):
         entity_id = request.args.get('id')
         paper = paper_service.get_paper_by_id(entity_id)
-        return vars(paper) if paper else api.abort(404, "Paper not found")
+        # return vars(paper) if paper else api.abort(404, "Paper not found")
+        return paper
 
 
 # Define the endpoint for adding a new paper by its URL.
