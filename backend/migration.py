@@ -1,10 +1,16 @@
 # src/main.py
+from infrastructure.config import Config
 from infrastructure.repositories.data_repository import DataRepository
-from infrastructure.database.data_migration import run_migration
+from infrastructure.database.data_migration_postgre import run_postgre_migration
+from infrastructure.database.data_migration_mongo import run_mongo_migration
+
 
 def main():
     # Run data migration
-    run_migration()
+    if Config.DATABASE_TYPE == 'mongodb':
+        return run_mongo_migration()
+    elif Config.DATABASE_TYPE == 'postgresql':
+        return run_postgre_migration()
 
     # Use repository to interact with your data
     repo = DataRepository()

@@ -12,14 +12,15 @@ def create_database_if_not_exists():
         host=Config.PG_HOST,
         user=Config.PG_USER,
         password=Config.PG_PASSWORD,
-        database='postgres'  # Connect to default database first
+        database="postgres",  # Connect to default database first
     )
     conn.autocommit = True
     cur = conn.cursor()
 
     # Check if database exists
     cur.execute(
-        f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{Config.PG_DATABASE}'")
+        f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{Config.PG_DATABASE}'"
+    )
     exists = cur.fetchone()
 
     if not exists:
@@ -36,10 +37,11 @@ def create_table_if_not_exists():
         host=Config.PG_HOST,
         database=Config.PG_DATABASE,
         user=Config.PG_USER,
-        password=Config.PG_PASSWORD
+        password=Config.PG_PASSWORD,
     )
     cur = conn.cursor()
-    cur.execute("""
+    cur.execute(
+        """
     CREATE TABLE IF NOT EXISTS "public"."papers" (
         "id" SERIAL PRIMARY KEY,
         "title" text,
@@ -51,9 +53,11 @@ def create_table_if_not_exists():
         "timeline" json,
         "contributions" json
     )
-    """)
+    """
+    )
 
-    cur.execute("""
+    cur.execute(
+        """
     CREATE TABLE IF NOT EXISTS "public"."contributions" (
         "id" SERIAL PRIMARY KEY,
         "paper_id" INTEGER REFERENCES "public"."papers"(id) ON DELETE CASCADE,
@@ -67,7 +71,8 @@ def create_table_if_not_exists():
             FOREIGN KEY(paper_id)
             REFERENCES papers(id)
     )
-    """)
+    """
+    )
 
     conn.commit()
     cur.close()
@@ -80,14 +85,16 @@ def generate_fake_context_json():
     return {
         "version": f"v{fake.random_int(min=1, max=5)}.{fake.random_int(min=0, max=9)}",
         "domain": fake.domain_name(),
-        "category": fake.random_element(elements=("research", "methodology", "analysis", "review")),
+        "category": fake.random_element(
+            elements=("research", "methodology", "analysis", "review")
+        ),
         "department": fake.company_suffix(),
         "institution": fake.company(),
         "location": fake.city(),
         "country": fake.country(),
         "language": fake.language_name(),
         "license": f"CC-{fake.random_element(elements=('BY', 'BY-SA', 'BY-NC', 'BY-ND'))}-4.0",
-        "timestamp": fake.iso8601()
+        "timestamp": fake.iso8601(),
     }
 
 
@@ -96,7 +103,9 @@ def generate_fake_contribution(paper_id):
     return {
         "paper_id": paper_id,
         "json_id": f"contribution_{fake.uuid4()}",
-        "json_type": fake.random_element(elements=("Research", "Method", "Data", "Analysis")),
+        "json_type": fake.random_element(
+            elements=("Research", "Method", "Data", "Analysis")
+        ),
         "json_context": generate_fake_context_json(),
         "label": fake.sentence(),
         "mongo_id": str(fake.uuid4()),
@@ -105,18 +114,22 @@ def generate_fake_contribution(paper_id):
             f"P{fake.random_int(min=1, max=999)}": [fake.word() for _ in range(3)],
             f"P{fake.random_int(min=1, max=999)}": {
                 "value": fake.sentence(),
-                "confidence": fake.random_number(digits=2) / 100
+                "confidence": fake.random_number(digits=2) / 100,
             },
             f"P{fake.random_int(min=1, max=999)}": {
-                "type": fake.random_element(elements=("primary", "secondary", "tertiary")),
-                "references": [str(fake.uuid4()) for _ in range(2)]
+                "type": fake.random_element(
+                    elements=("primary", "secondary", "tertiary")
+                ),
+                "references": [str(fake.uuid4()) for _ in range(2)],
             },
             f"P{fake.random_int(min=1, max=999)}": {
-                "status": fake.random_element(elements=("verified", "pending", "rejected")),
+                "status": fake.random_element(
+                    elements=("verified", "pending", "rejected")
+                ),
                 "reviewer": fake.name(),
-                "date": str(fake.date_this_year())
-            }
-        }
+                "date": str(fake.date_this_year()),
+            },
+        },
     }
 
 
@@ -125,7 +138,7 @@ def insert_fake_data():
         host=Config.PG_HOST,
         database=Config.PG_DATABASE,
         user=Config.PG_USER,
-        password=Config.PG_PASSWORD
+        password=Config.PG_PASSWORD,
     )
     cur = conn.cursor()
     paper_ids = []
@@ -153,7 +166,7 @@ def insert_fake_data():
                 contribution_data["json_context"],
                 contribution_data["label"],
                 contribution_data["mongo_id"],
-                json.dumps(contribution_data["predicates"])
+                json.dumps(contribution_data["predicates"]),
             )
             cur.execute(query, values)
     conn.commit()
@@ -162,7 +175,7 @@ def insert_fake_data():
     print("10 fake papers and their contributions inserted into tables.")
 
 
-def run_migration():
+def run_postgre_migration():
     create_database_if_not_exists()
     create_table_if_not_exists()
     insert_fake_data()
@@ -170,4 +183,4 @@ def run_migration():
 
 
 if __name__ == "__main__":
-    run_migration()
+    run_postgre_migration()
