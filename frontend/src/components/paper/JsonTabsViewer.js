@@ -177,17 +177,13 @@ const styles = {
     borderColor: 'rgb(255, 100, 100)',
   },
   textLabel: {
-    textShadow: '#fff 1px 0 10px',
     color: '#000',
   },
-  linkLabel: {
-    textShadow: '#fff 1px 0 10px',
-  },
+  linkLabel: {},
   nodeLabel: {
     color: '#555',
     fontSize: 'smaller',
     fontWeight: '100',
-    textShadow: '#fff 1px 0 10px',
   },
 };
 

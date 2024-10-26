@@ -1,4 +1,5 @@
 import pymongo
+import math
 from application.interfaces.database_interface import DatabaseInterface
 from infrastructure.config import Config
 
@@ -12,6 +13,32 @@ class MongoDBClient(DatabaseInterface):
     def __init__(self):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]
+
+    def find_all_paginated(self, collection_name, query=None, projection=None, page=1, page_size=10):
+        collection = self.db[collection_name]
+        
+        # Calculate skip value
+        skip = (page - 1) * page_size
+        
+        # Get total count for pagination
+        total_elements = collection.count_documents(query if query else {})
+        
+        # Fetch paginated results
+        cursor = collection.find(
+            filter=query if query else {},
+            projection=projection
+        ).skip(skip).limit(page_size)
+        
+        # Convert cursor to list
+        content = list(cursor)
+        
+        return {
+            "content": content,
+            "totalElements": total_elements,
+            "page": page,
+            "pageSize": page_size,
+            "totalPages": math.ceil(total_elements / page_size)
+        }
 
     def find_all(self, collection_name, query=None, projection=None):
         collection = self.db[collection_name]

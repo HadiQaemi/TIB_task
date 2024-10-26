@@ -4,6 +4,7 @@ from bson.regex import Regex
 from urllib.parse import unquote
 from pymongo import MongoClient
 from infrastructure.repositories.data_repository import DataRepository
+import math
 
 
 class PaperService:
@@ -28,35 +29,59 @@ class PaperService:
         #     "contributions": 1, "title": 1, "author": 1, "dois": 1,
         #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         # })
-        papers = self.db_client.get_all_items("papers", projection={
-            "contributions": 1, "title": 1, "author": 1, "dois": 1,
-            "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
-        })
+        papers = self.db_client.get_all_items(
+            "papers",
+            projection={
+                "contributions": 1,
+                "title": 1,
+                "author": 1,
+                "dois": 1,
+                "entity": 1,
+                "external": 1,
+                "info": 1,
+                "timeline": 1,
+                "_id": 0,
+            },
+        )
         # return [Paper(**paper) for paper in papers]
         return papers
 
-    def get_all_statements(self):
+    def get_all_statements(self, page, page_size):
         pipeline = [
-            {
-                "$unwind": {
-                    "path": "$contributions",
-                    "preserveNullAndEmptyArrays": True
-                }
-            },
+            {"$unwind": {"path": "$contributions", "preserveNullAndEmptyArrays": True}},
             {
                 "$project": {
                     "_id": 0,
                     "author": 1,
                     "title": 1,
                     "info": 1,
-                    "contribution": "$contributions"
+                    "contribution": "$contributions",
                 }
-            }
+            },
+            {"$skip": (page - 1) * page_size},
+            {"$limit": page_size},
         ]
+
+        # Add count stage for total elements
+        count_pipeline = [
+            {"$unwind": {"path": "$contributions", "preserveNullAndEmptyArrays": True}},
+            {"$count": "total"},
+        ]
+
+        # Get paginated results
         results = list(self.db_client.aggregate("papers", pipeline))
-        if not results:
-            return []
-        return results
+
+        # Get total count
+        total_count = list(self.db_client.aggregate("papers", count_pipeline))
+        total_elements = total_count[0]["total"] if total_count else 0
+
+        return {
+            "content": results,
+            "totalElements": total_elements,
+            "page": page,
+            "size": page_size,
+            "totalPages": math.ceil(total_elements / page_size),
+        }
 
     def get_paper_by_id(self, entity_id):
         """
@@ -70,10 +95,21 @@ class PaperService:
         #     "contributions": 1, "title": 1, "author": 1, "dois": 1,
         #     "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
         # })
-        paper = self.db_client.find_one("papers", {"title": entity_id}, projection={
-            "contributions": 1, "title": 1, "author": 1, "dois": 1,
-            "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
-        })
+        paper = self.db_client.find_one(
+            "papers",
+            {"title": entity_id},
+            projection={
+                "contributions": 1,
+                "title": 1,
+                "author": 1,
+                "dois": 1,
+                "entity": 1,
+                "external": 1,
+                "info": 1,
+                "timeline": 1,
+                "_id": 0,
+            },
+        )
         # return Paper(**paper) if paper else None
         return paper if paper else None
 
@@ -93,10 +129,21 @@ class PaperService:
                 {"entity_id": Regex(search_title, "i")},
             ]
         }
-        papers = self.db_client.find_all("papers", query, projection={
-            "contributions": 1, "title": 1, "author": 1, "dois": 1,
-            "entity": 1, "external": 1, "info": 1, "timeline": 1, "_id": 0
-        })
+        papers = self.db_client.get_all_items(
+            "papers",
+            query,
+            projection={
+                "contributions": 1,
+                "title": 1,
+                "author": 1,
+                "dois": 1,
+                "entity": 1,
+                "external": 1,
+                "info": 1,
+                "timeline": 1,
+                "_id": 0,
+            },
+        )
         return [Paper(**paper) for paper in papers]
 
     def extract_paper(self, url):

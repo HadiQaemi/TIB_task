@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 class DatabaseInterface(ABC):
     @abstractmethod
+    def find_all_paginated(self, collection_name, query=None, projection=None, page=1, page_size=10):
+        pass
+
+    @abstractmethod
     def find_all(self, table_name, query=None, projection=None):
         pass
 

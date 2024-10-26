@@ -14,8 +14,8 @@ export const paperServices = {
             });
         return res
     },
-    getStatements: async () => {
-        let res = await axios.get(SERVER_ADDRESS + '/all-statements')
+    getStatements: async (currentPage, pageSize) => {
+        let res = await axios.get(SERVER_ADDRESS + `/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
             .then(response => {
                 return response.data;
             })
