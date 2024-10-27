@@ -3,7 +3,7 @@ from flask_restx import Api, Resource, fields
 from use_cases.paper_service import PaperService
 
 # Create the Flask-RESTX API object with version, title, and description.
-api = Api(version="1.0", title="TIB API", description="API for TIB data")
+api = Api(version="1.0", title="TIB API", description="API for TIB data", doc='/api/swagger')
 
 # Create an instance of the PaperService, which handles the business logic for paper data.
 paper_service = PaperService()
@@ -29,7 +29,7 @@ paper_model = api.model(
 
 
 # Define the endpoint for retrieving all papers.
-@api.route("/all-paper")
+@api.route("/api/all-paper")
 @api.param("currentPage", "The current page in list")
 @api.param("pageSize", "The size of pages ")
 class AllPapers(Resource):
@@ -47,7 +47,7 @@ class AllPapers(Resource):
 
 
 # Define the endpoint for retrieving all papers.
-@api.route("/all-statements")
+@api.route("/api/all-statements")
 @api.param("currentPage", "The current page in list")
 @api.param("pageSize", "The size of pages ")
 class AllStatements(Resource):
@@ -60,7 +60,7 @@ class AllStatements(Resource):
 
 
 # Define the endpoint for retrieving all papers.
-@api.route("/search")
+@api.route("/api/search")
 @api.param("title", "The paper title")
 class Search(Resource):
     @api.doc("search_by_title")
@@ -74,7 +74,7 @@ class Search(Resource):
 
 
 # Define the endpoint for retrieving a paper by its entity ID.
-@api.route("/paper")
+@api.route("/api/paper")
 @api.param("id", "The paper entity ID")
 class PaperById(Resource):
     @api.doc("get_paper_by_id")
@@ -86,7 +86,7 @@ class PaperById(Resource):
 
 
 # Define the endpoint for adding a new paper by its URL.
-@api.route("/add-paper")
+@api.route("/api/add-paper")
 @api.param("url", "The paper entity URL")
 class PaperById(Resource):
     @api.doc("add_paper_by_url")

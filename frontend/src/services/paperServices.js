@@ -5,7 +5,7 @@ import { SERVER_ADDRESS } from '../constants/configs';
 // getList, getPaper, getPredicate, and getFile.
 export const paperServices = {
     search: async (title) => {
-        let res = await axios.get(SERVER_ADDRESS + `/search?title=${encodeURIComponent(title)}`)
+        let res = await axios.get(SERVER_ADDRESS + `/api/search?title=${encodeURIComponent(title)}`)
             .then(response => {
                 return response.data;
             })
@@ -15,7 +15,7 @@ export const paperServices = {
         return res
     },
     getStatements: async (currentPage, pageSize) => {
-        let res = await axios.get(SERVER_ADDRESS + `/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
+        let res = await axios.get(SERVER_ADDRESS + `/api/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
             .then(response => {
                 return response.data;
             })
@@ -25,7 +25,7 @@ export const paperServices = {
         return res
     },
     getList: async () => {
-        let res = await axios.get(SERVER_ADDRESS + '/all-paper')
+        let res = await axios.get(SERVER_ADDRESS + '/api/all-paper')
             .then(response => {
                 return response.data;
             })
@@ -35,7 +35,7 @@ export const paperServices = {
         return res
     },
     getPaper: async (data) => {
-        let res = await axios.get(SERVER_ADDRESS + '/paper?id=' + data, { id: data })
+        let res = await axios.get(SERVER_ADDRESS + '/api/paper?id=' + data, { id: data })
             .then(response => {
                 return response.data;
             })
