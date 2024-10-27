@@ -30,29 +30,34 @@ class NodeExtractor:
     def fetch_html(self):
         response = requests.get(self.url)
         if response.status_code == 200:
-            self.soup = BeautifulSoup(response.content, 'html.parser')
+            self.soup = BeautifulSoup(response.content, "html.parser")
         else:
             raise Exception(f"Failed to fetch HTML: {response.status_code}")
 
     def title(self):
         if not self.soup:
             self.fetch_html()
-        element = self.soup.find('h1', class_='heading')
+        element = self.soup.find("h1", class_="heading")
         return element.text if element else None
 
     def json_files(self):
         if not self.soup:
             self.fetch_html()
-        heading = self.soup.find(
-            'section', id='dataset-resources').find_all('a', class_='heading')
+        heading = self.soup.find("section", id="dataset-resources").find_all(
+            "a", class_="heading"
+        )
         URLs = []
         metadata = []
         for item in heading:
-            span = item.find('span', class_='format-label')
-            if span["data-format"] == 'json':
-                url = "https://service.tib.eu/" + \
-                    item["href"] + "/download/" + item["title"]
-                index = url.find('ro-crate-metadata.json')
+            span = item.find("span", class_="format-label")
+            if span["data-format"] == "json":
+                url = (
+                    "https://service.tib.eu/"
+                    + item["href"]
+                    + "/download/"
+                    + item["title"]
+                )
+                index = url.find("ro-crate-metadata.json")
                 if index < 0:
                     URLs.append(url)
                 else:
@@ -61,7 +66,7 @@ class NodeExtractor:
 
     def extract_last_part(self, url):
         parsed_url = urllib.parse.urlparse(url)
-        return parsed_url.path.rsplit('/', 1)[-1]
+        return parsed_url.path.rsplit("/", 1)[-1]
 
     def is_doi(self, url):
         return url.find("https://doi.org/")
@@ -72,10 +77,9 @@ class NodeExtractor:
         for json in metadata:
             meta = self.load_json_from_url(json)
             for graph in meta["@graph"]:
-                if graph["@type"] == 'ScholarlyArticle':
+                if graph["@type"] == "ScholarlyArticle":
                     for author in graph["author"]:
-                        authors.append(
-                            author["givenName"] + " " + author["familyName"])
+                        authors.append(author["givenName"] + " " + author["familyName"])
                     title = graph["name"]
         return {
             "author": authors,
@@ -87,8 +91,7 @@ class NodeExtractor:
     def DOI(self):
         if not self.soup:
             self.fetch_html()
-        heading = self.soup.find(
-            'div', class_='embedded-content').find_all('a')
+        heading = self.soup.find("div", class_="embedded-content").find_all("a")
         dois = []
         entity = ""
         external = ""
@@ -113,23 +116,27 @@ class NodeExtractor:
             print(self.doi)
             is_doi = self.is_doi(self.doi)
             print(is_doi)
+            title = ""
             if is_doi == 0:
-                url = "https://api.crossref.org/works/" + \
-                    self.doi.replace(":", "%3A").replace("/", "%2F")
+                url = "https://api.crossref.org/works/" + self.doi.replace(
+                    ":", "%3A"
+                ).replace("/", "%2F")
                 print(url)
                 response = requests.get(url)
                 response.raise_for_status()
                 info = response.json()
                 abstract = info["message"]["abstract"]
                 title = info["message"]["title"][0]
-                journal = info["message"]["short-container-title"][0]
+                journal = ""
+                if len(info["message"]["short-container-title"]) > 0:
+                    journal = info["message"]["short-container-title"][0]
                 author = []
                 for item in info["message"]["author"]:
-                    author.append(item['given'] + " " + item['family'])
-                clean = re.compile('<.*?>')
+                    author.append(item["given"] + " " + item["family"])
+                clean = re.compile("<.*?>")
                 return {
                     "author": author,
-                    "abstract": re.sub(clean, '', abstract),
+                    "abstract": re.sub(clean, "", abstract),
                     "title": title,
                     "journal": journal,
                 }
@@ -142,11 +149,11 @@ class NodeExtractor:
     def author(self):
         if not self.soup:
             self.fetch_html()
-        tr = self.soup.find('table', class_='table-condensed').find_all('tr')
+        tr = self.soup.find("table", class_="table-condensed").find_all("tr")
         author = ""
         for item in tr:
-            th = item.find('th').text
-            td = item.find('td')
+            th = item.find("th").text
+            td = item.find("td")
             if th == "Author":
                 author = td.text
         return author
@@ -154,12 +161,12 @@ class NodeExtractor:
     def timeline(self):
         if not self.soup:
             self.fetch_html()
-        tr = self.soup.find('table', class_='table-condensed').find_all('tr')
+        tr = self.soup.find("table", class_="table-condensed").find_all("tr")
         timeline = []
         temp = ""
         for item in tr:
-            th = item.find('th').text
-            td = item.find('td')
+            th = item.find("th").text
+            td = item.find("td")
             if th == "Created":
                 timeline.append({"Created": td.text})
             if th == "Last update":
