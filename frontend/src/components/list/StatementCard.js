@@ -82,41 +82,6 @@ const StatementCard = (props) => {
                     <StatementPredicate obj={contribution} />
                 </Card.Body>
             </Card>
-            {/* <Row className="align-items-center py-3">
-                {
-                    typeof info === 'string' ? (
-                        <Col xs={12}>
-                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{contribution.label}</h5>
-                        </Col>
-                    ) : (
-                        <Col xs={12}>
-                            <h5 className="mb-0 pointer" onClick={() => handleCardClick(title)}>{contribution["label"]}</h5>
-                            <div className="list-disc pl-5">
-                                <StatementPredicate obj={contribution} />
-                            </div>
-                        </Col>
-                    )
-                }
-            </Row>
-            <Row className="align-items-center border-bottom mb-2 list">
-                <Col xs={12} className="mt-0 mb-2">
-                    {
-                        typeof info === 'string' ? (
-                            <span className="authors">
-                                Authers:
-                                <span>{author}</span>
-                            </span>
-                        ) : (
-                            <span className="authors">
-                                Authers:
-                                {info["author"].map((row, rowIndex) => (
-                                    <span key={rowIndex}>{row}</span>
-                                ))}
-                            </span>
-                        )
-                    }
-                </Col>
-            </Row> */}
         </>
     );
 }
