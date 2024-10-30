@@ -10,7 +10,7 @@ const Statements = React.lazy(() => import('./views/Statements'))
 // The routes object defines the different routes and the corresponding components.
 // Each route has a path, a name, an element (the component to be rendered), and a flag to indicate if it's the exact match.
 const routes = [
-  { path: '/', name: 'list', element: PaperList, exact: true },
+  { path: '/', name: 'list', element: Statements, exact: true },
   { path: '/paper/all', name: 'list', element: PaperList, exact: true },
   { path: '/paper/:id', name: 'list', element: Papers, exact: true },
   { path: '/paper/:id/:tab', name: 'list', element: Papers, exact: true },
