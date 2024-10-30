@@ -4,207 +4,10 @@ import { Tooltip, OverlayTrigger, Button, Spinner } from 'react-bootstrap';
 import JsonTable from './JsonTable';
 import JsonSourceCode from './JsonSourceCode';
 import URLOrText from './URLOrText';
-
-const styles = {
-  container: {
-    width: '100%',
-    margin: '20px 0',
-    fontFamily: 'Arial, sans-serif',
-  },
-  tabContainer: {
-    display: 'flex',
-    borderBottom: '1px solid #ccc',
-    marginBottom: '20px',
-    position: 'relative',
-    width: '100%',
-  },
-  tabList: {
-    display: 'flex',
-    flex: 1,
-    width: '100%',
-    overflow: 'hidden', // Prevent tabs from overflowing
-  },
-  tab: {
-    flex: 1,
-    padding: '10px 20px',
-    cursor: 'pointer',
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #ccc',
-    borderBottom: 'none',
-    marginRight: '1px',
-    borderTopLeftRadius: '4px',
-    borderTopRightRadius: '4px',
-    textAlign: 'center',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    minWidth: 0, // Allow flex items to shrink below their content size
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tabText: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    maxWidth: '100%',
-  },
-  lastTab: {
-    marginRight: 0,
-  },
-  activeTab: {
-    backgroundColor: '#fff',
-    borderBottom: '1px solid #fff',
-    marginBottom: '-1px',
-  },
-  moreButton: {
-    padding: '10px 20px',
-    cursor: 'pointer',
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #ccc',
-    borderBottom: 'none',
-    borderTopLeftRadius: '4px',
-    borderTopRightRadius: '4px',
-    position: 'relative',
-    minWidth: '100px', // Minimum width for More button
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dropdown: {
-    position: 'absolute',
-    top: '100%',
-    right: 0,
-    backgroundColor: '#fff',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    zIndex: 1000,
-    maxHeight: '300px',
-    overflowY: 'auto',
-    minWidth: '200px',
-  },
-  dropdownItem: {
-    padding: '10px 20px',
-    cursor: 'pointer',
-    borderBottom: '1px solid #eee',
-    '&:hover': {
-      backgroundColor: '#f5f5f5',
-    },
-  },
-  treeContainer: {
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    padding: '20px',
-    width: '100%',
-    boxSizing: 'border-box',
-    backgroundColor: '#ffffff',
-  },
-  treeNode: {
-    width: '100%',
-    boxSizing: 'border-box',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    padding: '5px',
-    margin: '5px 0px',
-  },
-  label: {
-    fontWeight: '600',
-  },
-  nodeContent: {
-    paddingLeft: '20px',
-  },
-  nodeRow: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    transition: 'background-color 0.2s',
-  },
-  toggleButton: {
-    width: '20px',
-    height: '20px',
-    marginRight: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    border: 'none',
-    backgroundColor: 'transparent',
-    color: '#666',
-  },
-  keyName: {
-    fontWeight: 'bold',
-    marginRight: '8px',
-  },
-  valueText: {
-    color: '#444',
-    width: '100%',
-  },
-  activeDropdownItem: {
-    backgroundColor: '#f0f0f0',
-  },
-  codeBlock: {
-    backgroundColor: '#f4f4f4',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    padding: '10px',
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'monospace',
-    fontSize: '14px',
-    width: '100%',
-  },
-  codePre: {
-    width: '100%',
-    maxHeight: '500px',
-    overflow: 'scroll',
-    color: '#000',
-  },
-  image: {
-    maxWidth: '100%',
-    maxHeight: '500px',
-    height: 'auto',
-    margin: '10px',
-  },
-  loadingSpinner: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100px',
-  },
-  redColor: {
-    backgroundColor: 'rgb(255, 100, 100)',
-    borderColor: 'rgb(255, 100, 100)',
-  },
-  textLabel: {
-    color: '#000',
-  },
-  linkLabel: {},
-  nodeLabel: {
-    color: '#555',
-    fontSize: 'smaller',
-    fontWeight: '100',
-  },
-};
-
-const getLevelColor = (level) => {
-  const colors = [
-    '#ffffff',
-    '#f8f9fa',
-    '#f1f3f5',
-    '#e9ecef',
-    '#dee2e6',
-    '#ced4da',
-    '#adb5bd',
-    '#868e96',
-    '#495057',
-    '#343a40',
-  ];
-  return colors[level % colors.length];
-};
+import { helper, styles } from '../../services/helper';
 
 const getTextColor = (level) => {
-  return level > 6 ? '#ffffff' : 'rgb(209 66 66)';
+  return level > 6 ? '#ffffff' : '#000';
 };
 
 function analyzeJSONStructure(jsonElement) {
@@ -251,7 +54,7 @@ function analyzeJSONStructure(jsonElement) {
 }
 
 // Modified TreeNode component for individual node control
-const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 }) => {
+const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackground, level = 0 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [fetchedData, setFetchedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -298,13 +101,14 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
     setShowAllCode(!showAllCode);
   };
 
-  const backgroundColor = getLevelColor(level);
+  // const backgroundColor = helper.getLevelColor(level);
   const textColor = getTextColor(level);
 
   // const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label + ',' + nodeKey + ',' + analyzeJSONStructure(nodeValue) : nodeKey);
   // const displayKey = label !== '' ? (fetchedData ? label + ':' + fetchedData.label : nodeKey + ':' + label) : (fetchedData ? fetchedData.label : nodeKey);
   const nodeLabel = typeof (nodeValue) === 'object' ? (nodeValue.label === undefined ? '' : nodeValue.label) : '';
   const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label : nodeKey);
+
   const renderTooltip = (props) => (
     <Tooltip id={`tooltip-${nodeKey}`} {...props}>
       {fetchedData?.description || "No description available"}
@@ -329,7 +133,8 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
       <img src={nodeValue} alt="Predicate image" style={styles.image} />
     )
   }
-
+  const background = helper.getPredicateStyle(nodeKey, parentBackground, "background")
+  const backgroundColor = helper.newGetLevelColor(background, level);
   return (
     <div style={{
       ...styles.treeNode,
@@ -345,7 +150,6 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
           ref={nodeRef}
           style={{
             ...styles.nodeRow,
-            backgroundColor,
           }}
         >
           {isObject(nodeValue) && (
@@ -413,6 +217,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                       parentKey={nodeKey}
                       nodeValue={value}
                       level={level + 1}
+                      parentBackground={background}
                     />
                   </React.Fragment>
                 ))}
@@ -429,6 +234,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                         label={value.label}
                         nodeValue={value}
                         level={level + 1}
+                        parentBackground={background}
                       />
                     </React.Fragment>
                   ))}
@@ -446,6 +252,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                           parentKey={nodeKey}
                           nodeValue={value}
                           level={level + 1}
+                          parentBackground={background}
                         />
                       </React.Fragment>
                     ))
@@ -465,6 +272,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                   parentKey={nodeKey}
                   nodeValue={value}
                   level={level + 1}
+                  parentBackground={background}
                 />
               ))
             )
@@ -482,6 +290,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                         parentKey={nodeKey}
                         nodeValue={value}
                         level={level + 1}
+                        parentBackground={background}
                       />
                     </React.Fragment>
                   ))
@@ -500,6 +309,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                       parentKey={nodeKey}
                       nodeValue={value}
                       level={level + 1}
+                      parentBackground={background}
                     />
                   </React.Fragment>
                 ))
@@ -515,6 +325,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, level = 0 })
                     parentKey={nodeKey}
                     nodeValue={value}
                     level={level + 1}
+                    parentBackground={background}
                   />
                 </React.Fragment>
               ))}
@@ -600,6 +411,7 @@ const JsonTabsViewer = ({ contributions, tab }) => {
             key={`${key}-${index}`}
             nodeKey={key}
             nodeValue={value}
+            parentBackground={""}
           />
         ))}
       </div>

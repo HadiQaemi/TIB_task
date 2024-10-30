@@ -61,8 +61,6 @@ const PaperDetails = (props) => {
                     addToDict(key)
             }
             const { keys, titles } = _paper.details(paper, activeTab, dictionary, setDictionary)
-            console.log(activeTab)
-            console.log(paper['contributions'])
             setActiveContribution({
                 'title': paper['contributions'][activeTab]['label'],
                 'type': paper['contributions'][activeTab]['@type'],
