@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import ColorMapCustomizer from './ColorMapCustomizer';
 
-const SearchStatementsForm = ({onSubmit}) => {
+const SearchStatementsForm = ({ onSubmit }) => {
   const [title, setTitle] = useState('');
 
   const handleSubmit = (e) => {
@@ -18,7 +19,7 @@ const SearchStatementsForm = ({onSubmit}) => {
           // onChange={(e) => setTitle(e.target.value)}
           required
           placeholder="Enter paper Entity, Doi or Title"
-          className="w-90 flex-grow shadow appearance-none border rounded-l py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="w-80 flex-grow shadow appearance-none border rounded-l py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
         <button
           type="submit"
@@ -26,6 +27,7 @@ const SearchStatementsForm = ({onSubmit}) => {
         >
           Search
         </button>
+        <ColorMapCustomizer />
       </div>
     </form>
   );
