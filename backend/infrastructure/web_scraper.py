@@ -12,6 +12,7 @@ import time
 import uuid
 import urllib.parse
 import re
+from collections import defaultdict
 
 
 class NodeExtractor:
@@ -64,6 +65,25 @@ class NodeExtractor:
                     metadata.append(url)
         return URLs, metadata
 
+    def all_json_files(self):
+        if not self.soup:
+            self.fetch_html()
+        heading = self.soup.find("section", id="dataset-resources").find_all(
+            "a", class_="heading"
+        )
+        json_links = defaultdict(str)
+        for item in heading:
+            span = item.find("span", class_="format-label")
+            if span["data-format"] == "json":
+                url = (
+                    "https://service.tib.eu/"
+                    + item["href"]
+                    + "/download/"
+                    + item["title"]
+                )
+                json_links[item["title"]] = url
+        return json_links
+
     def extract_last_part(self, url):
         parsed_url = urllib.parse.urlparse(url)
         return parsed_url.path.rsplit("/", 1)[-1]
@@ -81,20 +101,28 @@ class NodeExtractor:
                     for author in graph["author"]:
                         authors.append(author["givenName"] + " " + author["familyName"])
                     title = graph["name"]
+                    datePublished = graph["datePublished"]
+                    identifier = graph["identifier"]
+                    journal = graph["journal"]
+                    publisher = graph["publisher"]
         return {
             "author": authors,
-            "abstract": "",
             "title": title,
-            "journal": "",
+            "datePublished": datePublished,
+            "identifier": identifier,
+            "journal": journal,
+            "publisher": publisher,
         }
 
     def DOI(self):
         if not self.soup:
             self.fetch_html()
-        heading = self.soup.find("div", class_="embedded-content").find_all("a")
         dois = []
         entity = ""
         external = ""
+        if self.soup.find("div", class_="embedded-content") is None:
+            return dois, entity, external
+        heading = self.soup.find("div", class_="embedded-content").find_all("a")
         for item in heading:
             url = item["href"]
             is_doi = self.is_doi(url)
