@@ -30,6 +30,11 @@ code {
   color: #e86161 !important;
 }
 
+.font-green,
+.font-green a {
+  color: #4aa869 !important;
+}
+
 .navTitle {
   background-color: rgb(220, 222, 230);
 }
@@ -587,4 +592,74 @@ pre.show-all {
 
 .right {
   float: right;
+}
+
+.custom-blockquote {
+  padding: 10px 10px 10px 20px;
+  margin: 20px 0;
+  position: relative;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.custom-blockquote::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #999;
+  border-radius: 4px 0 0 4px;
+}
+
+.custom-blockquote .blockquote {
+  margin: 0;
+}
+
+.custom-blockquote .blockquote p {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.custom-blockquote .blockquote-footer {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: 10px;
+}
+
+.custom-blockquote .blockquote-footer::before {
+  content: '— ';
+}
+
+.popover-width {
+  max-width: 400px !important;
+  min-width: 400px !important;
+}
+
+.popover .title span {
+  width: 90% !important;
+  display: inline-block;
+}
+
+.popover .title button {
+  width: 10% !important;
+  text-align: right;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.statement {
+  margin: 0px 20px;
+  padding-top: 20px;
+}
+
+.statement .statement-title {
+  border-bottom: 1px dashed;
+}
+
+.text-bold {
+  font-weight: bold;
 }

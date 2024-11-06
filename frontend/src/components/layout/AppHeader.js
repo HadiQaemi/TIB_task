@@ -15,18 +15,18 @@ export default function AppHeader() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Link to="/paper/all" className='header-link'>Paper view</Link>
-            <Link to="/statement/all" className='header-link'>Statement view</Link>
+            {/* <Link to="/paper/all" className='header-link'>Paper view</Link>
+            <Link to="/statement/all" className='header-link'>Statement view</Link> */}
           </Nav>
           <Form className="d-flex flex-column flex-lg-row gap-2 w-50">
-            <InputGroup>
+            {/* <InputGroup>
               <Form.Control
                 placeholder="Search"
                 aria-label="Search"
                 aria-describedby="basic-addon1"
               />
               <InputGroup.Text id="basic-addon1"><FaSearch /></InputGroup.Text>
-            </InputGroup>
+            </InputGroup> */}
           </Form>
         </Navbar.Collapse>
       </Container>

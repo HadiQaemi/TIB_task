@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
-import { Settings } from 'lucide-react';
+import { Search, Settings } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const LOCAL_STORAGE_KEY = 'localColorMap';
@@ -79,14 +79,20 @@ const ColorMapCustomizer = () => {
 
     return (
         <>
-            <button
-                variant="primary"
+            <Button
+                variant="secondary"
                 onClick={handleShow}
-                className="w-20 font-bold py-2 px-4 rounded-r"
+                className="w-100 rounded-0"
             >
-                <Settings className="me-2" size={16} />
-                Customize Colors
-            </button>
+                {/* <Settings className="me-2" size={16} />
+                Customize Colors */}
+                <div className="d-block d-sm-none">
+                    <Settings size={16} className="mx-auto" />
+                </div>
+                <div className="d-none d-sm-block">
+                    <Settings size={16} className="mx-auto" />
+                </div>
+            </Button>
 
             <Modal
                 show={show}
