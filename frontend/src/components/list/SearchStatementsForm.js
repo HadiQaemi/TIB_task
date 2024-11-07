@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import ColorMapCustomizer from './ColorMapCustomizer';
+import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Search } from 'lucide-react';
 
 const SearchStatementsForm = ({ onSubmit }) => {
   const [title, setTitle] = useState('');
@@ -11,24 +13,36 @@ const SearchStatementsForm = ({ onSubmit }) => {
   };
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl mx-auto mt-8">
-      <div className="flex items-center mb-4">
-        <input
-          type="text"
-          id="title"
-          value={title}
-          // onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder="Enter paper Entity, Doi or Title"
-          className="w-80 flex-grow shadow appearance-none border rounded-l py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-        <button
-          type="submit"
-          className="w-10 bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-r focus:outline-none focus:shadow-outline"
-        >
-          Search
-        </button>
-        <ColorMapCustomizer />
-      </div>
+      <Row className="g-0 mb-4">
+        <Col xs={11}>
+          <Form.Control
+            type="text"
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter paper Entity, Doi or Title"
+            className="rounded-start rounded-0"
+          />
+        </Col>
+
+        <Col xs={1}>
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-100 rounded-0"
+          >
+            <div className="d-block d-sm-none">
+              <Search size={16} className="d-block d-sm-none mx-auto" />
+            </div>
+            <div className="d-none d-sm-block">
+              Search
+            </div>
+          </Button>
+        </Col>
+        {/* <Col xs={1}>
+          <ColorMapCustomizer />
+        </Col> */}
+      </Row>
     </form>
   );
 };

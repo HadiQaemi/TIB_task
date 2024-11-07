@@ -6,7 +6,7 @@ import StatementCard from './StatementCard';
 import SearchStatementsForm from './SearchStatementsForm';
 
 const ListStatements = () => {
-  const [papers, setPapers] = useState([]);
+  const [statements, setStatements] = useState([]);
   const [totalElements, setTotalElements] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -19,7 +19,7 @@ const ListStatements = () => {
     const fetchData = async () => {
       try {
         const result = await paperServices.getStatements(currentPage, pageSize);
-        setPapers(result.content);
+        setStatements(result.content);
         setTotalElements(result.totalElements);
         setTotalPages(result.totalPages);
       } catch (error) {
@@ -35,7 +35,7 @@ const ListStatements = () => {
   const handleSubmit = async (title) => {
     try {
       const result = await paperServices.search(title, currentPage, pageSize);
-      setPapers(result.content);
+      setStatements(result.content);
       setTotalElements(result.totalElements);
       setTotalPages(result.totalPages);
       effectRan.current = false
@@ -113,17 +113,17 @@ const ListStatements = () => {
           "The list is empty"
         ) : (
           <>
-            {papers.map((paper, index) => (
+            {statements.map((statement, index) => (
               // <StatementCard key={index} {...paper} />
               <React.Fragment key={index}>
                 {(() => {
-                  if (title === paper.title) {
+                  if (title === statement.title) {
                     number = number + 1
                   } else {
-                    title = paper.title
+                    title = statement.title
                     number = 1
                   }
-                  return <StatementCard key={index} {...paper} tab={number} />;
+                  return <StatementCard key={index} statement={statement} tab={number} />;
                 })()}
               </React.Fragment>
             ))}
