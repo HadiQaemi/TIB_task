@@ -5,25 +5,25 @@ import { FaBars, FaCalendar, FaUser } from 'react-icons/fa';
 function PaperInfo({ paper }) {
     return (
         <>
-            <h4>{paper.info && paper.info.title}</h4>
+            <h4>{paper && paper.name}</h4>
             <Row className="mb-3">
                 <Col>
-                    {paper.info && (
-                        <span className="badge bg-light me-2 text-secondary"><FaCalendar className='me-1' />{paper.timeline[0]["Created"]}</span>
+                    {paper && (
+                        <span className="badge bg-light me-2 text-secondary"><FaCalendar className='me-1' />{paper.datePublished}</span>
                     )}
-                    {paper.info && (
-                        <span className="badge bg-light me-2 mb-2 text-secondary"><FaBars className='me-1 font-red' />{paper.info.journal}</span>
+                    {paper && (
+                        <span className="badge bg-light me-2 mb-2 text-secondary"><FaBars className='me-1 font-red' />{paper.journal}</span>
                     )}
-                    {paper.info && paper.info.author.map(function (item, k) {
+                    {paper && paper.author.map(function (item, k) {
                         return (
-                            <span key={k} className="badge bg-light me-2 mb-2 text-secondary"><FaUser className='me-1' />{item}</span>
+                            <span key={k} className="badge bg-light me-2 mb-2 text-secondary"><FaUser className='me-1' />{item.givenName} {item.familyName}</span>
                         )
                     })}
                 </Col>
             </Row>
             <Row>
-                <Col xs={12} md={7} lg={8} xl={9}>{paper.info && "Published in:"} <a href={paper.external} className='font-italic font-weight-light'>{paper.info && paper.info.journal}</a></Col>
-                <Col xs={12} md={5} lg={4} xl={3}>{paper.info && "DOI:"} <a href={paper && paper.external} className='font-red'>{paper && paper.external}</a></Col>
+                <Col xs={12} md={7} lg={8} xl={8}>{paper && "Published in:"} <a href={paper.publisher} className='font-italic font-weight-light'>{paper && paper.publisher}</a></Col>
+                <Col xs={12} md={5} lg={4} xl={4} className='text-right'>{paper && "DOI:"} <a href={paper && paper.identifier} className='font-red'>{paper && paper.identifier}</a></Col>
             </Row>
         </>
     );

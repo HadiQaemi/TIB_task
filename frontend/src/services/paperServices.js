@@ -15,7 +15,8 @@ export const paperServices = {
         return res
     },
     getStatements: async (currentPage, pageSize) => {
-        let res = await axios.get(SERVER_ADDRESS + `/api/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
+        // let res = await axios.get(SERVER_ADDRESS + `/api/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
+        let res = await axios.get(SERVER_ADDRESS + `/api/query-data?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
             .then(response => {
                 return response.data;
             })
@@ -36,6 +37,16 @@ export const paperServices = {
     },
     getPaper: async (data) => {
         let res = await axios.get(SERVER_ADDRESS + '/api/paper?id=' + data, { id: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
+    getStatement: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/statement?id=' + data, { id: data })
             .then(response => {
                 return response.data;
             })
