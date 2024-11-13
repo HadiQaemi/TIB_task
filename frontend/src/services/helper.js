@@ -33,6 +33,82 @@ export const helper = {
                 return colorMap[key].backgroundColor;
         // return helper.adjustColorOpacity(colorMap[key].backgroundColor);
     },
+    validURL: (str) => {
+        if (typeof str !== 'string') {
+            return false;
+        }
+
+        const urlPattern = new RegExp(
+            '^' + // Start of string
+            '(?:(?:https?|ftp)://)?' + // Protocol (optional)
+            '(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})' + // Exclude private networks
+            '(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})' +
+            '(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})' +
+            '(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])' + // IP address
+            '(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}' +
+            '(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))' +
+            '|' + // OR
+            '(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)' + // Domain name
+            '(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*' +
+            '(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))' + // Top level domain
+            ')' +
+            '(?::\\d{2,5})?' + // Port (optional)
+            '(?:[/?#][^\\s]*)?$', // Path, query params, hash (optional)
+            'i' // Case-insensitive
+        );
+
+        try {
+            // First check: Basic pattern matching
+            if (!urlPattern.test(str)) {
+                return false;
+            }
+
+            // Second check: Try creating URL object
+            new URL(str.startsWith('http') ? str : `http://${str}`);
+            return true;
+        } catch (err) {
+            return false;
+        }
+    },
+    isFileURL: (url) => {
+        const validExtensions = {
+            images: ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'],
+            sourceCode: ['.r', '.py']
+        };
+
+        try {
+            const urlObject = new URL(url);
+            if (!['http:', 'https:'].includes(urlObject.protocol)) {
+                return {
+                    isValid: false,
+                    reason: 'Invalid protocol. URL must use HTTP or HTTPS'
+                };
+            }
+            const pathname = urlObject.pathname.toLowerCase();
+            const extension = pathname.substring(pathname.lastIndexOf('.'));
+            const isImage = validExtensions.images.includes(extension);
+            const isSourceCode = validExtensions.sourceCode.includes(extension);
+
+            if (!isImage && !isSourceCode) {
+                return {
+                    isValid: true,
+                    fileType: 'string',
+                    extension: extension
+                };
+            }
+            return {
+                isValid: true,
+                fileType: isImage ? 'image' : 'sourceCode',
+                extension: extension
+            };
+
+        } catch (error) {
+            return {
+                isValid: false,
+                reason: 'Invalid URL format'
+            };
+        }
+    },
     getLevelColor: (level) => {
         const colors = [
             '#ffffff',
@@ -47,6 +123,9 @@ export const helper = {
             '#343a40',
         ];
         return colors[level % colors.length];
+    },
+    capitalizeFirstLetter: (val) => {
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
     },
     newGetLevelColor: (color, level) => {
         return helper.adjustColorOpacity(color, (level + 1) * 0.05);
@@ -157,7 +236,7 @@ export const styles = {
         border: '1px solid #ccc',
         borderRadius: '4px',
         padding: '20px',
-        width: '100%',
+        margin: '0px 20px',
         boxSizing: 'border-box',
         backgroundColor: '#ffffff',
     },
