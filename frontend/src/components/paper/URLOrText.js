@@ -1,6 +1,6 @@
 import React from 'react';
 
-const URLOrText = ({ content, nodeLabel, styles }) => {
+const URLOrText = ({ content, styles }) => {
     const isURL = (str) => {
         try {
             new URL(str);

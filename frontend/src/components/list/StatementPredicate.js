@@ -3,15 +3,16 @@ import { Badge } from 'react-bootstrap';
 import { paperServices } from '../../services/paperServices';
 import { helper } from '../../services/helper';
 
-const StatementPredicate = ({ obj }) => {
+const PREDICATES_STORAGE_KEY = 'predicateLabels';
+const StatementPredicate = ({ concepts }) => {
     const [predicateLabels, setPredicateLabels] = useState({});
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadPredicateLabels = async () => {
-            if (!obj) return;
+            if (!concepts) return;
 
-            const entries = Object.entries(obj);
+            const entries = Object.entries(concepts);
             const predicateKeys = entries
                 .map(([key]) => key)
                 .filter(key => key.startsWith('P'));
@@ -20,6 +21,7 @@ const StatementPredicate = ({ obj }) => {
             const promises = [];
 
             for (const predicateKey of predicateKeys) {
+                
                 const cachedLabel = localStorage.getItem(`predicate_${predicateKey}`);
 
                 if (cachedLabel) {
@@ -48,9 +50,9 @@ const StatementPredicate = ({ obj }) => {
         };
 
         loadPredicateLabels();
-    }, [obj, paperServices]);
+    }, [concepts, paperServices]);
 
-    if (!obj || typeof obj !== 'object' || obj === null) {
+    if (!concepts || typeof concepts !== 'object' || concepts === null) {
         return (
             <div className="p-4" style={{ backgroundColor: '#FEE2E2', borderRadius: '0.375rem' }}>
                 Invalid or missing object input
@@ -58,7 +60,7 @@ const StatementPredicate = ({ obj }) => {
         );
     }
 
-    const entries = Object.entries(obj);
+    const entries = Object.entries(concepts);
 
     if (entries.length === 0) {
         return <p>The object is empty</p>;

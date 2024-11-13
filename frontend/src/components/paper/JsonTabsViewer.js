@@ -5,6 +5,8 @@ import JsonTable from './JsonTable';
 import JsonSourceCode from './JsonSourceCode';
 import URLOrText from './URLOrText';
 import { helper, styles } from '../../services/helper';
+import StatementInfo from './StatementInfo';
+import JsonTreeViewer from './JsonTreeViewer';
 
 const getTextColor = (level) => {
   return level > 6 ? '#ffffff' : '#000';
@@ -78,7 +80,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
         });
     }
 
-    if ((nodeKey === 'P110081' || nodeKey === 'P149015' || parentKey === 'P4077') && typeof nodeValue === 'string') {
+    if ((nodeKey === 'doi:abef9f1c0d48853f3e51#is_implemented_by') && typeof nodeValue === 'string') {
       setIsCodeLoading(true);
       fetch(nodeValue)
         .then(response => response.text())
@@ -179,11 +181,11 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
               color: textColor,
             }}>
               {
-                (nodeKey === 'P110081' || nodeKey === 'P149015' || parentKey === 'P4077') ? (
+                (nodeKey === 'doi:abef9f1c0d48853f3e51#is_implemented_by' || nodeKey === 'P149015' || parentKey === 'P4077') ? (
                   <>
                     <JsonSourceCode styles={styles} isCodeLoading={isCodeLoading} sourceCode={sourceCode} showAllCode={showAllCode} toggleShowAllCode={toggleShowAllCode} />
                   </>
-                ) : (nodeKey === 'P20098' || parentKey === 'P117002') ? (
+                ) : (nodeKey === 'P20098' || parentKey === 'doi:5b66cb584b974b186f37#has_specified_output') ? (
                   <>
                     <img src={nodeValue} alt="Predicate image" style={styles.image} />
                   </>
@@ -242,7 +244,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
               ) : (
                 <React.Fragment>
                   {
-                    (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'P71162' || nodeKey === 'P71162') ? (
+                    (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'P71162' || nodeKey === 'doi:aff130c76e68ead3862e#has_format') ? (
                       <JsonTable data={nodeValue} styles={styles} />
                     ) : (Object.entries(nodeValue).map(([key, value], index) => (
                       <React.Fragment key={key}>
@@ -267,7 +269,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
             ) : (
               Object.entries(nodeValue).map(([key, value], index) => (
                 <TreeNode
-                  key={`${key}-${index}}`}
+                  key={`JsonTable-${key}-${index}}`}
                   nodeKey={key}
                   parentKey={nodeKey}
                   nodeValue={value}
@@ -279,7 +281,7 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
           ) : (analyzeJSONStructure(nodeValue) === 'Object with mixed value types') ? (
             <React.Fragment>
               {
-                (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'P71164') ? (
+                (parentKey === 'P149024' || parentKey === 'P149010' || parentKey === 'P117003' || nodeKey === 'doi:aff130c76e68ead3862e#has_format') ? (
                   <JsonTable data={nodeValue} />
                 ) : (
                   Object.entries(nodeValue).map(([key, value], index) => (
@@ -357,7 +359,7 @@ const JsonTabsViewer = ({ contributions, tab }) => {
     <div style={styles.container}>
       <div style={styles.tabContainer}>
         <div style={styles.tabList}>
-          {visibleTabs.map((file, index) => (
+          {visibleTabs.map((statement, index) => (
             <div
               key={index}
               style={{
@@ -366,9 +368,9 @@ const JsonTabsViewer = ({ contributions, tab }) => {
                 ...(index === visibleTabs.length - 1 && !dropdownTabs.length ? styles.lastTab : {})
               }}
               onClick={() => setActiveTab(index)}
-              title={file.label} // Add tooltip for full name
+              title={statement.content['doi:a72ca256dc49e55a1a57#has_notation']['doi:44164d31a37c28d8efbf#label']} // Add tooltip for full name
             >
-              <span style={styles.tabText}>{file.label}</span>
+              <span style={styles.tabText}>{statement.content['doi:a72ca256dc49e55a1a57#has_notation']['doi:44164d31a37c28d8efbf#label']}</span>
             </div>
           ))}
         </div>
@@ -385,7 +387,7 @@ const JsonTabsViewer = ({ contributions, tab }) => {
             </div>
             {showDropdown && (
               <div style={styles.dropdown}>
-                {dropdownTabs.map((file, index) => (
+                {dropdownTabs.map((statement, index) => (
                   <div
                     key={index}
                     style={{
@@ -397,7 +399,7 @@ const JsonTabsViewer = ({ contributions, tab }) => {
                       setShowDropdown(false);
                     }}
                   >
-                    {file.label}
+                    {statement.content['doi:a72ca256dc49e55a1a57#has_notation']['doi:44164d31a37c28d8efbf#label']}
                   </div>
                 ))}
               </div>
@@ -405,15 +407,20 @@ const JsonTabsViewer = ({ contributions, tab }) => {
           </div>
         )}
       </div>
-      <div style={styles.treeContainer}>
-        {Object.entries(jsonFiles[activeTab]).map(([key, value], index) => (
-          <TreeNode
-            key={`${key}-${index}`}
-            nodeKey={key}
-            nodeValue={value}
-            parentBackground={""}
-          />
-        ))}
+      <StatementInfo author={jsonFiles[activeTab].author} concept={jsonFiles[activeTab].concept} title={jsonFiles[activeTab].content['doi:a72ca256dc49e55a1a57#has_notation']['doi:44164d31a37c28d8efbf#label']} />
+      {/* <div style={styles.treeContainer}> */}
+      <div>
+        <JsonTreeViewer jsonData={jsonFiles[activeTab].content} />
+        {/* {Object.entries(jsonFiles[activeTab].content).map(([key, value], index) => (
+          <span id={key} key={key} >
+            <TreeNode
+              key={`${key}-${index}`}
+              nodeKey={key}
+              nodeValue={value}
+              parentBackground={""}
+            />
+          </span>
+        ))} */}
       </div>
     </div>
   );

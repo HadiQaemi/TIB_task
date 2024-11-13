@@ -1,15 +1,18 @@
-import { Col, Row } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-import StatementPredicate from "./StatementPredicate";
-import { Card, Badge } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
+import ConceptItemsList from "./ConceptItemsList";
 
 // Import the useNavigate hook from the react-router-dom library
 const StatementCard = (props) => {
-    const { info, entity, author, title, contribution, tab } = props
+    const { statement, tab } = props
     const navigate = useNavigate();
 
-    const handleCardClick = (paper, tab) => {
-        navigate(`/statement/${paper}/${tab}`); // Replace with your desired route
+    const handleStatementClick = (statement, tab) => {
+        navigate(`/statement/${statement}`); // Replace with your desired route
+    };
+
+    const handlePaperClick = (statement, tab) => {
+        navigate(`/paper/${statement}`); // Replace with your desired route
     };
 
     function analyzeJSONStructure(jsonElement) {
@@ -54,32 +57,28 @@ const StatementCard = (props) => {
             }
         }
     }
+
     return (
         <>
             <Card className="m-2">
-                <Card.Body className="pointer" onClick={() => handleCardClick(title, tab)}>
-                    <Card.Title>{contribution["label"]}</Card.Title>
-                    <blockquote className="blockquote mb-3">
-                        <Card.Subtitle className="mb-4 mt-3 text-muted">
-                            {info['title']}
-                        </Card.Subtitle>
-                        <footer className="blockquote-footer italic">
-                            By:
-                            {
-                                analyzeJSONStructure(info) === 'Object with mixed value types' && (
-                                    info['author'].map((row, rowIndex) => (
-                                        <span key={rowIndex}> {row},</span>
+                <Card.Body>
+                    <Card.Title className="pointer" onClick={() => handleStatementClick(statement._id, tab)}>{statement.label}</Card.Title>
+                    <div className="custom-blockquote">
+                        <blockquote className="blockquote pointer" onClick={() => handlePaperClick(statement.article.id, tab)}>
+                            <Card.Subtitle className="mb-4 mt-3 text-muted">
+                                {statement.article.name}
+                            </Card.Subtitle>
+                            <footer className="blockquote-footer italic">
+                                By:
+                                {
+                                    statement.article.author.map((row, rowIndex) => (
+                                        <span key={rowIndex}> {row.givenName} {row.familyName},</span>
                                     ))
-                                )
-                            }
-                            {
-                                analyzeJSONStructure(info) === 'The input is not a JSON object' && (
-                                    <span> {author}</span>
-                                )
-                            }
-                        </footer>
-                    </blockquote>
-                    <StatementPredicate obj={contribution} />
+                                }
+                            </footer>
+                        </blockquote>
+                    </div>
+                    <ConceptItemsList concepts={statement.concepts} />
                 </Card.Body>
             </Card>
         </>
