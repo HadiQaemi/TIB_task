@@ -181,6 +181,8 @@ class MongoDBClient(DatabaseInterface):
                         "publisher": 1,
                         "author": 1,
                         "version": 1,
+                        "article_id": 1,
+                        "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
                         "concepts": {
                             "$map": {

@@ -6,6 +6,7 @@ from urllib.parse import unquote
 # from pymongo import MongoClient
 from infrastructure.repositories.data_repository import DataRepository
 import math
+from collections import defaultdict
 
 
 class PaperService:
@@ -87,6 +88,14 @@ class PaperService:
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
 
+    def group_articles(self, data):
+        grouped = defaultdict(list)
+
+        for item in data:
+            article_id = item["article_id"]
+            grouped[article_id].append(item)
+        return dict(grouped)
+
     def get_statement_by_id(self, entity_id):
         try:
             statement = self.db_client.find_one_statement("statements", entity_id)
@@ -117,6 +126,7 @@ class PaperService:
                 page,
                 per_page,
             )
+            data = self.group_articles(data)
             return {"success": True, "result": data, "total_count": len(data)}
 
         except Exception as e:
