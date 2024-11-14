@@ -9,8 +9,8 @@ export default function AppHeader() {
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
         <Navbar.Brand href="/" className='relative'>
-          <img src={OrkgLogo} alt="ORKG Logo" width="100" />
-          <div className='title absolute block'>Reborn</div>
+          <img src={OrkgLogo} alt="ORKG Logo" width="120" />
+          <div className='title absolute block'><span className='bold'>Re</span>born</div>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
