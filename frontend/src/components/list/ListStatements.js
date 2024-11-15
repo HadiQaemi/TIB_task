@@ -1,9 +1,11 @@
 // Frontend - ListStatements.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Card, Container } from 'react-bootstrap';
 import { paperServices } from '../../services/paperServices';
 import StatementCard from './StatementCard';
 import SearchStatementsForm from './SearchStatementsForm';
+import PaperInfo from '../paper/PaperInfo';
+import JsonTreeViewer from '../paper/JsonTreeViewer';
 
 const ListStatements = () => {
   const [statements, setStatements] = useState([]);
@@ -113,21 +115,23 @@ const ListStatements = () => {
           "The list is empty"
         ) : (
           <>
-            {statements.map((statement, index) => (
-              // <StatementCard key={index} {...paper} />
+            {Object.entries(statements).map((items, index) => (
               <React.Fragment key={index}>
-                {(() => {
-                  if (title === statement.title) {
-                    number = number + 1
-                  } else {
-                    title = statement.title
-                    number = 1
-                  }
-                  return <StatementCard key={index} statement={statement} tab={number} />;
-                })()}
+                <Card className="m-2">
+                  <Card.Header className="bg-light">
+                    <PaperInfo paper={items[1][0]['article']} />
+                  </Card.Header>
+                  <Card.Body>
+                    {items[1].map((statement, key) => (
+                      <React.Fragment key={`list-${key}`}>
+                        {/* <StatementCard key={key} statement={statement} tab={number} /> */}
+                        <JsonTreeViewer jsonData={statement.content['doi:a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
+                      </React.Fragment>
+                    ))}
+                  </Card.Body>
+                </Card>
               </React.Fragment>
             ))}
-
             <div className="mt-4 flex items-center justify-center space-x-2">
               <button
                 onClick={() => {

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Badge, Popover, OverlayTrigger, Button } from 'react-bootstrap';
 import { X } from 'lucide-react';
+import { FaTag } from 'react-icons/fa';
 
-const ConceptItemsList = ({concepts}) => {
+const ConceptItemsList = ({ concepts }) => {
   const [activePopover, setActivePopover] = useState(null);
 
   const renderPopover = (identifiers, label) => (
@@ -44,7 +45,7 @@ const ConceptItemsList = ({concepts}) => {
     <div className="p-6">
       <div className="flex flex-wrap gap-3">
         {concepts.map((item, index) => (
-          <div key={index} className="inline-block m-1">
+          <div key={index} className="inline-block m-1 concepts">
             {item.identifier.length > 0 ? (
               <OverlayTrigger
                 trigger="click"
@@ -54,20 +55,10 @@ const ConceptItemsList = ({concepts}) => {
                 onToggle={() => handleClick(item.label, item.identifier)}
                 rootClose
               >
-                <Badge
-                  bg="primary"
-                  className="pointer px-3 py-2 text-sm hover:bg-blue-600 transition-colors duration-200"
-                >
-                  {item.label}
-                </Badge>
+                <span key={index} className="badge bg-light me-2 mb-2 text-secondary text-underline pointer"><FaTag className='me-1 font-red' />{item.label}</span>
               </OverlayTrigger>
             ) : (
-              <Badge
-                bg="secondary"
-                className="px-3 py-2 text-sm"
-              >
-                {item.label}
-              </Badge>
+              <span key={index} className="badge bg-light me-2 mb-2 text-secondary"><FaTag className='me-1 font-red' />{item.label}</span>
             )}
           </div>
         ))}

@@ -14,7 +14,6 @@ const StatementDetails = (props) => {
     if (_localStorage == null)
         _localStorage = []
     const { paper, tab, paperId } = props
-    console.log(paper)
     const [activeTab, setAtiveTab] = useState(tab > 0 ? tab - 1 : 0)
     const [activeContribution, setActiveContribution] = useState([])
     const [selectedTitle, setSelectedTitle] = useState([activeTab])
@@ -80,7 +79,7 @@ const StatementDetails = (props) => {
                 <Card.Body>
                     <Row>
                         {paper.result && (
-                            <JsonTreeViewer jsonData={paper.result.statement.content} single={true} statement={paper.result.statement} />
+                            <JsonTreeViewer jsonData={paper.result.statement.content['doi:a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={paper.result.statement} />
                         )}
                     </Row>
                 </Card.Body>
