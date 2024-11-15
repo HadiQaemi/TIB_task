@@ -1,23 +1,33 @@
 import React from 'react';
+import { Col, Row } from 'react-bootstrap';
+import { helper } from '../../services/helper';
 
-const URLOrText = ({ content, styles }) => {
-    const isURL = (str) => {
-        try {
-            new URL(str);
-            return true;
-        } catch {
-            return false;
-        }
-    };
+const URLOrText = ({ content, button = null, styles, color }) => {
 
-    return isURL(content) ? (
-        <a href={content} style={styles.linkLabel} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-            {content}
-        </a>
+    return helper.validURL(content) ? (
+        <Row>
+            <Col xs={10}>
+                <a href={content} style={styles.linkLabel} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    {content}
+                </a>
+            </Col>
+            {button && (
+                <Col xs={2} className='text-end'>
+                    <span style={{ ...styles.buttonLabel, backgroundColor: color }}>{button}</span>
+                </Col>
+            )}
+        </Row>
     ) : (
-        <>
-            <span style={styles.textLabel}>{content}</span>
-        </>
+        <Row>
+            <Col xs={10}>
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+            </Col>
+            {button && (
+                <Col xs={2} className='text-end'>
+                    <span style={{ ...styles.buttonLabel, backgroundColor: color }}>{button}</span>
+                </Col>
+            )}
+        </Row>
     );
 };
 
