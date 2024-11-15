@@ -33,6 +33,40 @@ export const helper = {
                 return colorMap[key].backgroundColor;
         // return helper.adjustColorOpacity(colorMap[key].backgroundColor);
     },
+    analyzeJSONStructure: (jsonElement) => {
+        if (typeof jsonElement !== 'object' || jsonElement === null) {
+            return "The input is not a JSON object";
+        }
+
+        if (Array.isArray(jsonElement)) {
+            if (jsonElement.length === 0) {
+                return "Empty array";
+            }
+
+            const allObjects = jsonElement.every(item => typeof item === 'object' && item !== null && !Array.isArray(item));
+
+            if (allObjects) {
+                return "Array of objects";
+            } else {
+                return "Array of mixed types";
+            }
+        } else {
+            const keys = Object.keys(jsonElement);
+
+            if (keys.length === 0) {
+                return "Empty object";
+            }
+            const allPrimitive = Object.values(jsonElement).every(value =>
+                typeof value !== 'object' || value === null
+            );
+
+            if (allPrimitive) {
+                return "Key-value pairs";
+            } else {
+                return "Object with mixed value types";
+            }
+        }
+    },
     validURL: (str) => {
         if (typeof str !== 'string') {
             return false;
@@ -126,6 +160,9 @@ export const helper = {
     },
     capitalizeFirstLetter: (val) => {
         return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+    },
+    cleanFirstLetter: (val) => {
+        return String(val).replace('_', ' ');
     },
     newGetLevelColor: (color, level) => {
         return helper.adjustColorOpacity(color, (level + 1) * 0.05);
@@ -318,6 +355,18 @@ export const styles = {
     },
     textLabel: {
         color: '#000',
+        width: '90%',
+        display: 'inline-block',
+    },
+    buttonLabel: {
+        padding: '5px',
+        border: '1px solid #555',
+        borderRadius: '5px',
+        margin: '0px 10px',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        color: "#fff",
+        fontWeight: "400"
     },
     linkLabel: {
         color: 'rgb(15 74 161)',
