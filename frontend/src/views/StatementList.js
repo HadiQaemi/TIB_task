@@ -10,7 +10,7 @@ const StatementList = () => {
   return (
     <>
       {/* <MyBreadcrumb breadcrumb={["Statements", "List of statements"]} /> */}
-      <NavTitle title="List of statements" dropdown={false}/>
+      {/* <NavTitle title="List of statements" dropdown={false}/> */}
       <ListStatements />
     </>
   );

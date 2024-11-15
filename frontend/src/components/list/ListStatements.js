@@ -109,8 +109,8 @@ const ListStatements = () => {
   let number = 1
   return (
     <Container className="p-0">
-      <SearchStatementsForm onSubmit={handleSubmit} />
-      <div className="bg-white p-3 rounded shadow">
+      {/* <SearchStatementsForm onSubmit={handleSubmit} /> */}
+      <div className="bg-white p-3 rounded shadow mt-4">
         {totalElements === 0 ? (
           "The list is empty"
         ) : (
