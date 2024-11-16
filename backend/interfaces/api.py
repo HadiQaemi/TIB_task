@@ -108,6 +108,58 @@ class AddPaper(Resource):
         paper = paper_service.extract_paper(url)
         return {"result": True}
 
+
+# Define the endpoint for adding a new paper by its URL.
+@api.route("/api/authors")
+@api.param("url", "The author entity name")
+class Authors(Resource):
+    @api.doc("authors_by_name")
+    def get(self):
+        search_term = request.args.get("name", "")
+        if not search_term:
+            return jsonify([])
+        regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
+        authors = paper_service.get_authors(regex_pattern)
+        results = [
+            {"id": str(author["_id"]), "name": author["label"]} for author in authors
+        ]
+        return jsonify(results)
+
+
+# Define the endpoint for adding a new paper by its URL.
+@api.route("/api/journals")
+@api.param("url", "The concept entity title")
+class journals(Resource):
+    @api.doc("journals_by_name")
+    def get(self):
+        search_term = request.args.get("name", "")
+        if not search_term:
+            return jsonify([])
+        regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
+        journals = paper_service.get_journals(regex_pattern)
+        results = [
+            {"id": str(journal["journal"]), "name": journal["journal"]}
+            for journal in journals
+        ]
+        return jsonify(results)
+
+
+# Define the endpoint for adding a new paper by its URL.
+@api.route("/api/concepts")
+@api.param("url", "The concept entity title")
+class concepts(Resource):
+    @api.doc("concepts_by_name")
+    def get(self):
+        search_term = request.args.get("name", "")
+        if not search_term:
+            return jsonify([])
+        regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
+        concepts = paper_service.get_concepts(regex_pattern)
+        results = [
+            {"id": str(concept["_id"]), "name": concept["label"]}
+            for concept in concepts
+        ]
+        return jsonify(results)
 # Define the endpoint for searching.
 @api.route("/api/query-data")
 @api.param("url", "The paper entity URL")

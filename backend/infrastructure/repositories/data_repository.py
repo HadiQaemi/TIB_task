@@ -30,6 +30,15 @@ class DataRepository:
             author_ids, concept_ids, statement_filters, article_filters, page, per_page
         )
 
+    def search_authors(self, search_term):
+        return self.db.search_authors(search_term)
+
+    def search_journals(self, search_term):
+        return self.db.search_journals(search_term)
+
+    def search_concepts(self, search_term):
+        return self.db.search_concepts(search_term)
+
     def add_item(self, collection_name, item_data):
         return self.db.insert_one(collection_name, item_data)
 

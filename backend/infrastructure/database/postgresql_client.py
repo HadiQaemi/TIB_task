@@ -88,6 +88,15 @@ class PostgreSQLClient(DatabaseInterface):
         # self.cur.execute(sql, list(query.values()) if query else None)
         # return self.cur.fetchone()
 
+    def search_concepts(self, search_term):
+        pass
+
+    def search_journals(self, search_term):
+        pass
+
+    def search_authors(self, search_term):
+        pass
+
     def find_one_statement(self, table_name, entity_id):
         pass
         # select_clause = "*" if not projection else ", ".join(projection)

@@ -132,6 +132,18 @@ class PaperService:
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
 
+    def get_authors(self, search_term):
+        authors = self.db_client.search_authors(search_term)
+        return authors
+
+    def get_journals(self, search_term):
+        authors = self.db_client.search_journals(search_term)
+        return authors
+
+    def get_concepts(self, search_term):
+        concepts = self.db_client.search_concepts(search_term)
+        return concepts
+
     def search_by_title(self, search_title):
         search_title = unquote(search_title)
         query = {

@@ -125,6 +125,24 @@ class MongoDBClient(DatabaseInterface):
 
         return [{k: convert_value(v) for k, v in d.items()} for d in data]
 
+    def search_authors(self, search_term):
+        db = self.db
+        authors = db.authors.find({"label": search_term}, {"label": 1, "_id": 1}).limit(
+            10
+        )
+        return authors
+
+    def search_journals(self, journals):
+        db = self.db
+        journals = db.articles.find({"journal": journals}, {"journal": 1}).limit(10)
+        return journals
+
+    def search_concepts(self, search_term):
+        db = self.db
+        authors = db.concepts.find(
+            {"label": search_term}, {"label": 1, "_id": 1}
+        ).limit(10)
+        return authors
     def query_search(
         self,
         author_ids: List[int],

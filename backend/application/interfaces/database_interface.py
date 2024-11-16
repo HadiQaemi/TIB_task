@@ -25,12 +25,25 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def search_authors(self, search_term):
+        pass
+
+    @abstractmethod
+    def search_journals(self, search_term):
+        pass
+
+    @abstractmethod
+    def search_concepts(self, search_term):
+        pass
+
+    @abstractmethod
     def query_search(
         self,
+        start_year,
+        end_year,
         author_ids,
+        journal_names,
         concept_ids,
-        statement_filters,
-        article_filters,
         page,
         per_page,
     ):
