@@ -189,13 +189,14 @@ class PostgreSQLClient(DatabaseInterface):
         return True
 
     def query_search(
-        self, 
+        self,
+        start_year: int,
+        end_year: int,
         author_ids: List[int],
+        journal_names: List[str],
         concept_ids: List[int],
-        statement_filters: dict[str, str],
-        article_filters: Dict[str, str],
         page: int,
-        per_page: int
+        per_page: int,
     ) -> Tuple[List[Dict], int]:
         conn = self.conn
         cursor = self.cur
@@ -236,12 +237,12 @@ class PostgreSQLClient(DatabaseInterface):
                 query += " AND aa.author_id IN %(author_ids)s"
             if concept_ids:
                 query += " AND c.id IN %(concept_ids)s"
-            if statement_filters:
-                for key, value in statement_filters.items():
-                    query += f" AND s.{key} LIKE %(statement_{key})s"
-            if article_filters:
-                for key, value in article_filters.items():
-                    query += f" AND a.{key} LIKE %(article_{key})s"
+            # if statement_filters:
+            #     for key, value in statement_filters.items():
+            #         query += f" AND s.{key} LIKE %(statement_{key})s"
+            # if article_filters:
+            #     for key, value in article_filters.items():
+            #         query += f" AND a.{key} LIKE %(article_{key})s"
 
             query += """
                 GROUP BY a.id
@@ -253,8 +254,8 @@ class PostgreSQLClient(DatabaseInterface):
             params = {
                 'author_ids': tuple(author_ids) if author_ids else None,
                 'concept_ids': tuple(concept_ids) if concept_ids else None,
-                **{f'statement_{key}': f'%{value}%' for key, value in statement_filters.items()},
-                **{f'article_{key}': f'%{value}%' for key, value in article_filters.items()},
+                # **{f'statement_{key}': f'%{value}%' for key, value in statement_filters.items()},
+                # **{f'article_{key}': f'%{value}%' for key, value in article_filters.items()},
                 'limit': per_page,
                 'offset': (page - 1) * per_page
             }

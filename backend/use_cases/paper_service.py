@@ -112,17 +112,30 @@ class PaperService:
         self,
         author_ids,
         concept_ids,
-        statement_filters,
-        article_filters,
         page,
         per_page,
+        start_year="2000",
+        end_year="2025",
+        journal_names=[],
     ):
+        data = self.db_client.query_search(
+            start_year,
+            end_year,
+            author_ids,
+            journal_names,
+            concept_ids,
+            page,
+            per_page,
+        )
+        data = self.group_articles(data)
+        return {"success": True, "result": data, "total_count": len(data)}
         try:
             data = self.db_client.query_search(
+                start_year,
+                end_year,
                 author_ids,
+                journal_names,
                 concept_ids,
-                statement_filters,
-                article_filters,
                 page,
                 per_page,
             )

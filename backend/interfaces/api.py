@@ -1,3 +1,4 @@
+import re
 from flask import request, jsonify
 from flask_restx import Api, Resource, fields
 from use_cases.paper_service import PaperService
@@ -87,6 +88,7 @@ class PaperById(Resource):
         paper = paper_service.get_paper_by_id(entity_id)
         return paper
 
+
 # Define the endpoint for retrieving a paper by its entity ID.
 @api.route("/api/statement")
 @api.param("id", "The paper entity ID")
@@ -160,6 +162,42 @@ class concepts(Resource):
             for concept in concepts
         ]
         return jsonify(results)
+
+
+# Define the endpoint for searching.
+@api.route("/api/filter-statement")
+@api.param("url", "The paper entity URL")
+class filter_statement(Resource):
+    @api.doc("filter_statement")
+    def post(self):
+        data = request.get_json()
+        # Extract query parameters
+        time_range = data.get("timeRange", {})
+        start_year = time_range.get('start')
+        end_year = time_range.get('end')
+        
+        author_ids = data.get("authors", [])
+        journal_names = data.get("journals", [])
+        concept_ids = data.get("concepts", [])
+        per_page = data.get("per_page", [])
+        page = data.get("page", [])
+        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names)
+        status_code = (
+            HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
+        )
+        response = jsonify(
+            {
+                "content": response["result"],
+                "totalElements": response["total_count"],
+                "page": page,
+                "per_page": per_page,
+                "totalPages": math.ceil(response["total_count"] / per_page),
+            }
+        )
+        response.status_code = status_code
+        return response
+
+
 # Define the endpoint for searching.
 @api.route("/api/query-data")
 @api.param("url", "The paper entity URL")
@@ -170,31 +208,23 @@ class get_data(Resource):
         concept_ids = [
             int(id) for id in request.args.getlist("concept_ids[]", type=int)
         ]
-        statement_filters = {
-            key.split("_", 1)[1]: value
-            for key, value in request.args.items()
-            if key.startswith("statement_")
-        }
-        article_filters = {
-            key.split("_", 1)[1]: value
-            for key, value in request.args.items()
-            if key.startswith("article_")
-        }
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
 
         response = paper_service.query_data(
-            author_ids, concept_ids, statement_filters, article_filters, page, per_page
+            author_ids, concept_ids, page, per_page
         )
-        status_code = HTTPStatus.OK if response['success'] else HTTPStatus.FAILED_DEPENDENCY
+        status_code = (
+            HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
+        )
         response = jsonify(
             {
-                "content": response['result'],
-                "totalElements": response['total_count'],
+                "content": response["result"],
+                "totalElements": response["total_count"],
                 "page": page,
                 "per_page": per_page,
-                "totalPages": math.ceil(response['total_count'] / per_page),
+                "totalPages": math.ceil(response["total_count"] / per_page),
             }
         )
         response.status_code = status_code
-        return response 
+        return response

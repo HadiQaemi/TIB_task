@@ -4,14 +4,19 @@ import { Fullscreen, Minimize } from 'lucide-react';
 import { utils, writeFile } from 'xlsx';
 
 const JsonTable = ({ data, styles }) => {
-  const columns = data.columns.sort((a, b) => a.number - b.number);
-  const rows = data.rows.sort((a, b) => {
-    // Handle cases where number might be undefined
-    if (!a.number && !b.number) return 0;
-    if (!a.number) return 1;
-    if (!b.number) return -1;
-    return a.number - b.number;
-  });
+  let columns = []
+  let rows = []
+  if (typeof data === 'object') {
+    columns = data.columns.sort((a, b) => a.number - b.number);
+    rows = data.rows.sort((a, b) => {
+      // Handle cases where number might be undefined
+      if (!a.number && !b.number) return 0;
+      if (!a.number) return 1;
+      if (!b.number) return -1;
+      return a.number - b.number;
+    });
+  }
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -40,7 +45,7 @@ const JsonTable = ({ data, styles }) => {
         return acc;
       }, {})
     );
-    
+
     const ws = utils.json_to_sheet(wsData);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, "Data");
@@ -66,7 +71,7 @@ const JsonTable = ({ data, styles }) => {
 
   const renderPaginationItems = () => {
     const items = [];
-    
+
     items.push(
       <Pagination.Item
         key="page-1"
@@ -129,24 +134,24 @@ const JsonTable = ({ data, styles }) => {
   };
 
   return (
-    <div 
-      ref={tableContainerRef} 
+    <div
+      ref={tableContainerRef}
       className={`table-container ${isFullscreen ? 'fullscreen' : ''} w-100`}
-      style={isFullscreen ? { 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0, 
-        zIndex: 1050, 
-        background: 'white', 
-        padding: '1rem' 
+      style={isFullscreen ? {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1050,
+        background: 'white',
+        padding: '1rem'
       } : {}}
     >
       <div className="mb-3 d-flex justify-content-between align-items-center">
-        <Form.Select 
+        <Form.Select
           style={{ width: 'auto' }}
-          value={pageSize} 
+          value={pageSize}
           onChange={handlePageSizeChange}
         >
           {pageSizes.map(size => (

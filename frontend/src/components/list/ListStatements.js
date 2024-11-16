@@ -1,11 +1,12 @@
 // Frontend - ListStatements.jsx
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Container } from 'react-bootstrap';
+import { Card, Col, Container, Row } from 'react-bootstrap';
 import { paperServices } from '../../services/paperServices';
 import StatementCard from './StatementCard';
 import SearchStatementsForm from './SearchStatementsForm';
 import PaperInfo from '../paper/PaperInfo';
 import JsonTreeViewer from '../paper/JsonTreeViewer';
+import SideSearchForm from './SideSearchForm';
 
 const ListStatements = () => {
   const [statements, setStatements] = useState([]);
@@ -15,6 +16,8 @@ const ListStatements = () => {
   const [totalPages, setTotalPages] = useState(1);
   const effectRan = useRef(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const pageSizeOptions = [5, 10, 20, 50];
 
   useEffect(() => {
@@ -44,6 +47,23 @@ const ListStatements = () => {
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred while submitting the paper title');
+    }
+  };
+
+  const handleFilter = async (queryData) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const result = await paperServices.searchStatements(queryData);
+      console.log(result)
+      setStatements(result.content);
+      setTotalElements(result.totalElements);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.error('Error submitting query:', error);
+      setSubmitError('Failed to submit query. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -108,75 +128,83 @@ const ListStatements = () => {
   let title = ""
   let number = 1
   return (
-    <Container className="p-0">
+    // <Container fluid>
+    <Container className="p-5" fluid>
       {/* <SearchStatementsForm onSubmit={handleSubmit} /> */}
-      <div className="bg-white p-3 rounded shadow mt-4">
-        {totalElements === 0 ? (
-          "The list is empty"
-        ) : (
-          <>
-            {Object.entries(statements).map((items, index) => (
-              <React.Fragment key={index}>
-                <Card className="m-2">
-                  <Card.Header className="bg-light">
-                    <PaperInfo paper={items[1][0]['article']} />
-                  </Card.Header>
-                  <Card.Body>
-                    {items[1].map((statement, key) => (
-                      <React.Fragment key={`list-${key}`}>
-                        {/* <StatementCard key={key} statement={statement} tab={number} /> */}
-                        <JsonTreeViewer jsonData={statement.content['doi:a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
-                      </React.Fragment>
-                    ))}
-                  </Card.Body>
-                </Card>
-              </React.Fragment>
-            ))}
-            <div className="mt-4 flex items-center justify-center space-x-2">
-              <button
-                onClick={() => {
-                  setCurrentPage((prev) => Math.max(1, prev - 1))
-                  effectRan.current = false
-                }}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded border disabled:opacity-50"
-              >
-                Previous
-              </button>
-
-              <div className="flex items-center space-x-1 inline-block">
-                {renderPageNumbers()}
-              </div>
-
-              <button
-                onClick={() => {
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  effectRan.current = false
-                }}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded border disabled:opacity-50"
-              >
-                Next
-              </button>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setCurrentPage(1);
-                  effectRan.current = false
-                }}
-                className="p-2 border rounded right"
-              >
-                {pageSizeOptions.map((size) => (
-                  <option key={size} value={size}>
-                    {size} per page
-                  </option>
+      <Row>
+        <Col md={2}>
+          <SideSearchForm handleFilter={handleFilter} currentPage={currentPage} pageSize={pageSize} isSubmitting={isSubmitting} submitError={submitError} />
+        </Col>
+        <Col md={10}>
+          <div className="bg-white p-3 rounded shadow mt-4">
+            {totalElements === 0 ? (
+              "The list is empty"
+            ) : (
+              <>
+                {Object.entries(statements).map((items, index) => (
+                  <React.Fragment key={index}>
+                    <Card className="m-2">
+                      <Card.Header className="bg-light">
+                        <PaperInfo paper={items[1][0]['article']} />
+                      </Card.Header>
+                      <Card.Body>
+                        {items[1].map((statement, key) => (
+                          <React.Fragment key={`list-${key}`}>
+                            {/* <StatementCard key={key} statement={statement} tab={number} /> */}
+                            <JsonTreeViewer jsonData={statement.content['doi:a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
+                          </React.Fragment>
+                        ))}
+                      </Card.Body>
+                    </Card>
+                  </React.Fragment>
                 ))}
-              </select>
-            </div>
-          </>
-        )}
-      </div>
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <button
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                      effectRan.current = false
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded border disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+
+                  <div className="flex items-center space-x-1 inline-block">
+                    {renderPageNumbers()}
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                      effectRan.current = false
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded border disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                      effectRan.current = false
+                    }}
+                    className="p-2 border rounded right"
+                  >
+                    {pageSizeOptions.map((size) => (
+                      <option key={size} value={size}>
+                        {size} per page
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+        </Col>
+      </Row>
     </Container>
   );
 };

@@ -19,15 +19,16 @@ class DataRepository:
 
     def query_search(
         self,
+        start_year,
+        end_year,
         author_ids,
+        journal_names,
         concept_ids,
-        statement_filters,
-        article_filters,
         page,
         per_page,
     ):
         return self.db.query_search(
-            author_ids, concept_ids, statement_filters, article_filters, page, per_page
+            start_year, end_year, author_ids, journal_names, concept_ids, page, per_page
         )
 
     def search_authors(self, search_term):

@@ -9,6 +9,7 @@ from typing import List, Dict, Tuple
 from dataclasses import dataclass
 from bson import ObjectId, json_util
 import json
+from datetime import datetime
 
 
 @dataclass
@@ -143,33 +144,48 @@ class MongoDBClient(DatabaseInterface):
             {"label": search_term}, {"label": 1, "_id": 1}
         ).limit(10)
         return authors
+
+    # start_year, end_year, author_ids, journal_names, concept_ids, page, per_page
     def query_search(
         self,
-        author_ids: List[int],
-        concept_ids: List[int],
-        statement_filters: Dict[str, str],
-        article_filters: Dict[str, str],
-        page: int,
-        per_page: int,
-    ) -> Tuple[List[Dict], int]:
+        start_year,
+        end_year,
+        author_ids,
+        journal_names,
+        concept_ids,
+        page,
+        per_page,
+    ):
         db = self.db
 
         try:
             # Build the query
             match = {}
             if author_ids:
-                match["author_ids"] = {"$in": author_ids}
+                authors = []
+                for key, value in enumerate(author_ids):
+                    authors.append(ObjectId(value))
+                match["author_ids"] = {"$in": authors}
             if concept_ids:
-                match["concept_ids"] = {"$in": concept_ids}
-            if statement_filters:
-                for key, value in statement_filters.items():
-                    match[key] = {"$regex": value, "$options": "i"}
-            if article_filters:
-                for key, value in article_filters.items():
-                    match[key] = {"$regex": value, "$options": "i"}
+                concepts = []
+                for key, value in enumerate(concept_ids):
+                    concepts.append(ObjectId(value))
+                match["concept_ids"] = {"$in": concepts}
+            if start_year and end_year:
+                match["datePublished"] = {
+                    "$gte": datetime(int(start_year), 12, 31),
+                    "$lte": datetime(int(end_year), 12, 31),
+                }
+            # "article.datePublished": {"$gte": start_date, "$lte": end_date}
+            print("match", match)
+            # if statement_filters:
+            #     for key, value in statement_filters.items():
+            #         match[key] = {"$regex": value, "$options": "i"}
+            # if article_filters:
+            #     for key, value in article_filters.items():
+            #         match[key] = {"$regex": value, "$options": "i"}
 
             pipeline = [
-                {"$match": match},
                 {
                     "$lookup": {
                         "from": "concepts",
@@ -192,6 +208,7 @@ class MongoDBClient(DatabaseInterface):
                         "preserveNullAndEmptyArrays": True,  # Keep articles even if they have no concept
                     }
                 },
+                {"$match": match},
                 {
                     "$project": {
                         "_id": 1,
@@ -245,7 +262,7 @@ class MongoDBClient(DatabaseInterface):
                 {"$skip": (page - 1) * per_page},
                 {"$limit": per_page},
             ]
-            # Execute the query
+            print(pipeline)
             docs = list(db.statements.aggregate(pipeline))
             converted_data = self.convert_objectid_to_string(docs)
 
@@ -262,18 +279,26 @@ class MongoDBClient(DatabaseInterface):
             authors = {}
             for item in data["@graph"]:
                 for author in item.get("author", []):
-                    if author.get("@id"):
-                        result = db.authors.find_one({"identifier": author["@id"]})
-                        if result:
-                            authors[author["@id"]] = result["_id"]
-                        else:
-                            author_result = db.authors.insert_one(
-                                {
-                                    "label": f"{author.get('givenName', '')} {author.get('familyName', '')}",
-                                    "identifier": author["@id"],
-                                }
-                            )
-                            authors[author["@id"]] = author_result.inserted_id
+                    result = db.authors.find_one(
+                        {
+                            "label": f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                        }
+                    )
+                    if result:
+                        authors[
+                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                        ] = result["_id"]
+                    else:
+                        author_result = db.authors.insert_one(
+                            {
+                                "label": f"{author.get('givenName', '')} {author.get('familyName', '')}",
+                                "identifier": author["@id"],
+                            }
+                        )
+                        authors[
+                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                        ] = author_result.inserted_id
+            print(authors)
             # Insert concepts and create mapping
             concepts = {}
             for item in data["@graph"]:
@@ -299,9 +324,9 @@ class MongoDBClient(DatabaseInterface):
                 if item.get("@type") == "ScholarlyArticle"
             )
             article["author_ids"] = [
-                authors[author["@id"]]
+                authors[f"{author.get('givenName', '')} {author.get('familyName', '')}"]
                 for author in article.get("author", [])
-                if author.get("@id") in authors
+                if f"{author.get('givenName', '')} {author.get('familyName', '')}" in authors
             ]
             article_result = db.articles.insert_one(article)
             article_id = article_result.inserted_id
@@ -311,14 +336,18 @@ class MongoDBClient(DatabaseInterface):
                 if "Statement" in item.get("@type", []):
                     item["article_id"] = article_id
                     item["author_ids"] = [
-                        authors[author["@id"]]
+                        authors[f"{author.get('givenName', '')} {author.get('familyName', '')}"]
                         for author in item.get("author", [])
-                        if author.get("@id") in authors
+                        if f"{author.get('givenName', '')} {author.get('familyName', '')}" in authors
                     ]
                     content = scraper.load_json_from_url(
                         json_files[item.get("name", "")]
                     )
                     item["content"] = content
+                    item["datePublished"] = datetime(
+                        int(article["datePublished"]), 6, 6
+                    )
+                    item["journal"] = article["journal"]
                     item["concept_ids"] = [
                         concepts[concept["label"]]
                         for concept in item.get("concept", [])

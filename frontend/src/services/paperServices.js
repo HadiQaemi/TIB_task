@@ -25,6 +25,40 @@ export const paperServices = {
             });
         return res
     },
+    searchStatements: async (queryData) => {
+        const api = axios.create({
+            baseURL: SERVER_ADDRESS,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const defaultParams = {
+            timeRange: {
+                start: 2000,
+                end: 2025
+            },
+            authors: [],
+            journals: [],
+            concepts: []
+        };
+
+        const response = await api.post('/api/filter-statement',
+            queryData || defaultParams
+        );
+        // console.log(response)
+        // let response = await fetch(SERVER_ADDRESS + '/api/filter-statement', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(queryData)
+        // }).then(response => {
+        //     return response.data;
+        // }).catch(error => {
+        //     console.error(error);
+        // });
+        return response.data
+    },
     getList: async () => {
         let res = await axios.get(SERVER_ADDRESS + '/api/all-paper')
             .then(response => {

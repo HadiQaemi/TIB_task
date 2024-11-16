@@ -266,7 +266,7 @@ const TreeNode = ({ data, label = null, source_url = null, button = null, toolti
           transform: level ? 'translateY(0)' : (isOpen ? 'translateY(0)' : 'translateY(-10px)'),
         }}
       >
-        {typeInfo !== null && typeInfo.name === 'Table' && (
+        {typeof data === 'object' && typeInfo !== null && typeInfo.name === 'Table' && (
           <div className="ps-4">
             <div style={{ backgroundColor: returnBackground(level + 1), width: '100%' }}>
               <div
@@ -277,7 +277,7 @@ const TreeNode = ({ data, label = null, source_url = null, button = null, toolti
                   marginLeft: '10px'
                 }}
               >
-                <JsonTable data={data} />
+                {typeof data === 'string' ? <URLOrText content={String(data)} button={button} styles={styles} color={color} /> : <JsonTable data={data} />}
               </div>
               <div
                 className="d-flex align-items-center p-2 transition-all hover:bg-gray-50"
@@ -320,17 +320,25 @@ const TreeNode = ({ data, label = null, source_url = null, button = null, toolti
                   // const has_expression = data[data['@type'] + '#' + 'has_input'][doi + '#' + 'has_expression']
                   return (
                     <React.Fragment key={`has_input-fragment-${key}`}>
-                      {source_table && (
-                        <Row key={`has_input-source_url-${key}`} className="mx-0">
+                      {typeof source_table === 'object' ? (
+                        <Row key={`has_input-source_url-object-${key}`} className="mx-0">
                           <Col className="px-0">
                             <div className="d-flex border-card" style={{ borderLeft: '10px solid #00b050' }}>
                               <TreeNode tooltip={'Input data'} label={label} button={'Input data'} data={source_table} level={level + 1} color={'#00b050'} />
                             </div>
                           </Col>
                         </Row>
+                      ) : (
+                        <Row key={`has_input-source_url-${key}`} className="mx-0">
+                          <Col className="px-0">
+                            <div className="d-flex border-card" style={{ borderLeft: '10px solid #c00000' }}>
+                              <TreeNode tooltip={'Input data'} data={source_table} button={'Input data'} level={level + 2} color={'#c00000'} />
+                            </div>
+                          </Col>
+                        </Row>
                       )}
                       {source_url && (
-                        <Row key={`has_input-source_url-${key}`} className="mx-0">
+                        <Row key={`has_input-source_url-image-${key}`} className="mx-0">
                           <Col className="px-0">
                             <div className="d-flex border-card" style={{ borderLeft: '10px solid #00b050' }}>
                               <TreeNode tooltip={'Input data'} label={label} button={'Input data'} data={source_url} level={level + 1} color={'#00b050'} />
@@ -423,6 +431,8 @@ const TreeNode = ({ data, label = null, source_url = null, button = null, toolti
                 } else if (key === 'evaluates') {
                   // const label = data[data['@type'] + '#' + key][data[data['@type'] + '#' + key]['@type'] + '#label']
                   const evaluates = data[`${data['@type']}#evaluates`]
+                  if (data[`${data['@type']}#evaluates`] === undefined)
+                    return true
                   const doi = evaluates['@type']
 
                   const label = evaluates[`${doi}#label`]
@@ -432,6 +442,8 @@ const TreeNode = ({ data, label = null, source_url = null, button = null, toolti
                   evaluate = `Evaluates: ${requires_label}`
                 } else if (key === 'difference_between') {
                   const difference_between = data[`${data['@type']}#difference_between`]
+                  if (data[`${data['@type']}#difference_between`] === undefined)
+                    return true
                   const doi_2 = difference_between['@type']
 
                   const requires_2 = difference_between[`${doi_2}#requires`]
