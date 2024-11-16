@@ -45,6 +45,36 @@ export const paperServices = {
             });
         return res
     },
+    getAuthors: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/authors?name=' + data, { name: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
+    getConcepts: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/concepts?name=' + data, { name: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
+    getJournals: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/journals?name=' + data, { name: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
     getStatement: async (data) => {
         let res = await axios.get(SERVER_ADDRESS + '/api/statement?id=' + data, { id: data })
             .then(response => {
