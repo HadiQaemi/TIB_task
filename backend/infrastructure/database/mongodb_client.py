@@ -236,8 +236,12 @@ class MongoDBClient(DatabaseInterface):
                             "datePublished": "$article.datePublished",
                             "identifier": "$article.identifier",
                             "journal": "$article.journal",
+                            "abstract": "$article.abstract",
+                            "conference": "$article.conference",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
+                            "research_field": "$article.research_field",
+                            "paper_type": "$article.paper_type",
                             "id": "$article._id",
                         },
                         # "articles": {
@@ -298,7 +302,6 @@ class MongoDBClient(DatabaseInterface):
                         authors[
                             f"{author.get('givenName', '')} {author.get('familyName', '')}"
                         ] = author_result.inserted_id
-            print(authors)
             # Insert concepts and create mapping
             concepts = {}
             for item in data["@graph"]:
@@ -326,8 +329,23 @@ class MongoDBClient(DatabaseInterface):
             article["author_ids"] = [
                 authors[f"{author.get('givenName', '')} {author.get('familyName', '')}"]
                 for author in article.get("author", [])
-                if f"{author.get('givenName', '')} {author.get('familyName', '')}" in authors
+                if f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                in authors
             ]
+
+            if "journal" in article:
+                paper_type = "journal"
+                journal_result = db.journals.insert_one(article["journal"])
+                journal_id = journal_result.inserted_id
+            else:
+                paper_type = "conference"
+                conference_result = db.conferences.insert_one(article["conference"])
+                conference_id = conference_result.inserted_id
+
+            research_result = db.research_fields.insert_one(article["research_field"])
+            research_field = research_result.inserted_id
+
+            article["paper_type"] = paper_type
             article_result = db.articles.insert_one(article)
             article_id = article_result.inserted_id
 
@@ -336,9 +354,12 @@ class MongoDBClient(DatabaseInterface):
                 if "Statement" in item.get("@type", []):
                     item["article_id"] = article_id
                     item["author_ids"] = [
-                        authors[f"{author.get('givenName', '')} {author.get('familyName', '')}"]
+                        authors[
+                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                        ]
                         for author in item.get("author", [])
-                        if f"{author.get('givenName', '')} {author.get('familyName', '')}" in authors
+                        if f"{author.get('givenName', '')} {author.get('familyName', '')}"
+                        in authors
                     ]
                     content = scraper.load_json_from_url(
                         json_files[item.get("name", "")]
@@ -346,8 +367,15 @@ class MongoDBClient(DatabaseInterface):
                     item["content"] = content
                     item["datePublished"] = datetime(
                         int(article["datePublished"]), 6, 6
-                    )
-                    item["journal"] = article["journal"]
+                    )                 
+                    if "journal" in article:
+                        item["type"] = "journal"
+                        item["journal"] = journal_id
+                    else:
+                        item["type"] = "conference"
+                        item["conference"] = conference_id
+
+                    item["research_field"] = research_field
                     item["concept_ids"] = [
                         concepts[concept["label"]]
                         for concept in item.get("concept", [])
@@ -357,7 +385,7 @@ class MongoDBClient(DatabaseInterface):
 
             # Insert files
             for item in data["@graph"]:
-                if "Statement" not in item.get("@type", []):
+                if ("Statement" not in item.get("@type", []) or "ScholarlyArticle" not in item.get("@type", [])):
                     item["article_id"] = article_id
                     item["author_ids"] = [
                         authors[author["@id"]]
