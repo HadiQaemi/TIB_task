@@ -567,12 +567,15 @@ pre.show-all {
 
 .title {
   padding: 1px 2px;
-  background: #e9ebf2;
   border-radius: 2px;
   font-size: 13px;
   bottom: -4px;
   right: 0px;
   font-weight: 600;
+}
+
+.color-coral {
+  color: #e86161;
 }
 
 .header-link {
@@ -657,7 +660,6 @@ pre.show-all {
 }
 
 .statement .statement-title {
-  border-bottom: 1px dashed;
   padding-bottom: 10px;
   margin-bottom: 5px;
 }
