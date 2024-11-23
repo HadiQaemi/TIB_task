@@ -150,8 +150,7 @@ const ListStatements = () => {
                       <Card.Body>
                         {items[1].map((statement, key) => (
                           <React.Fragment key={`list-${key}`}>
-                            {/* <StatementCard key={key} statement={statement} tab={number} /> */}
-                            <JsonTreeViewer jsonData={statement.content['doi:a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
+                            <JsonTreeViewer jsonData={statement.content['doi:21.T11969/a72ca256dc49e55a1a57#is_supported_by'] === undefined ? statement.content['doi:a72ca256dc49e55a1a57#is_supported_by'] : statement.content['doi:21.T11969/a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
                           </React.Fragment>
                         ))}
                       </Card.Body>

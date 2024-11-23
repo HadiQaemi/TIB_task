@@ -10,7 +10,7 @@ export default function AppHeader() {
       <Container>
         <Navbar.Brand href="/" className='relative'>
           <img src={OrkgLogo} alt="ORKG Logo" width="120" />
-          <div className='title absolute block'><span className='bold'>Re</span>born</div>
+          <div className='title absolute block'><span className='bold color-coral'>re</span>born</div>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
