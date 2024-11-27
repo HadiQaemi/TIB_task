@@ -118,10 +118,53 @@ class MongoDBClient(DatabaseInterface):
         )
         return authors
 
-    def search_journals(self, journals):
+    def search_publications(self, journals):
         db = self.db
-        journals = db.articles.find({"journal": journals}, {"journal": 1}).limit(10)
+        journals = db.journals.find({"label": journals}, {"label": 1, "_id": 1}).limit(
+            10
+        )
         return journals
+
+    def search_journals(self, query_term):
+        db = self.db
+        pipeline = [
+            {
+                "$unionWith": {
+                    "coll": "conferences",
+                    "pipeline": [
+                        {"$match": {"label": query_term}},
+                        {
+                            "$project": {
+                                "label": 1,
+                                "_id": 1,
+                                "type": {"$literal": "conference"},
+                            }
+                        },
+                        {"$limit": 10},
+                    ],
+                }
+            },
+            {"$match": {"label": query_term}},
+            {"$project": {"label": 1, "_id": 1, "type": {"$literal": "journal"}}},
+            {"$limit": 10},
+            {"$sort": {"label": 1}},
+        ]
+
+        return list(db.journals.aggregate(pipeline))
+
+    def search_titles(self, search_term):
+        db = self.db
+        authors = db.articles.find({"name": search_term}, {"name": 1, "_id": 1}).limit(
+            10
+        )
+        return authors
+
+    def search_research_fields(self, search_term):
+        db = self.db
+        fields = db.research_fields.find(
+            {"label": search_term}, {"label": 1, "_id": 1}
+        ).limit(10)
+        return fields
 
     def search_concepts(self, search_term):
         db = self.db
@@ -139,17 +182,31 @@ class MongoDBClient(DatabaseInterface):
         concept_ids,
         page,
         per_page,
+        conference_names,
+        title,
     ):
         db = self.db
 
         try:
-            # Build the query
             match = {}
+            if title:
+                match["$or"] = [
+                    {"article.name": {"$regex": title, "$options": "i"}},
+                    {"article.identifier": {"$regex": title, "$options": "i"}}
+                ]
             if author_ids:
                 authors = []
                 for key, value in enumerate(author_ids):
                     authors.append(ObjectId(value))
                 match["author_ids"] = {"$in": authors}
+            if journal_names:
+                journals = []
+                for key, value in enumerate(journal_names):
+                    journals.append(ObjectId(value))
+                match["$or"] = [
+                    {"journal": {"$in": journals}},
+                    {"conference": {"$in": journals}},
+                ]
             if concept_ids:
                 concepts = []
                 for key, value in enumerate(concept_ids):
@@ -181,7 +238,7 @@ class MongoDBClient(DatabaseInterface):
                 {
                     "$unwind": {
                         "path": "$article",
-                        "preserveNullAndEmptyArrays": True,  # Keep articles even if they have no concept
+                        "preserveNullAndEmptyArrays": True,
                     }
                 },
                 {"$match": match},
@@ -322,7 +379,7 @@ class MongoDBClient(DatabaseInterface):
                     item["content"] = content
                     item["datePublished"] = datetime(
                         int(article["datePublished"]), 6, 6
-                    )                 
+                    )
                     if "journal" in article:
                         item["type"] = "journal"
                         item["journal"] = journal_id
@@ -338,9 +395,10 @@ class MongoDBClient(DatabaseInterface):
                     ]
                     db.statements.insert_one(item)
 
-            # Insert files
             for item in data["@graph"]:
-                if ("Statement" not in item.get("@type", []) or "ScholarlyArticle" not in item.get("@type", [])):
+                if "Statement" not in item.get(
+                    "@type", []
+                ) or "ScholarlyArticle" not in item.get("@type", []):
                     item["article_id"] = article_id
                     item["author_ids"] = [
                         authors[author["@id"]]

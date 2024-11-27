@@ -5,9 +5,9 @@ import { helper } from '../../services/helper';
 const URLOrText = ({ content, button = null, styles, color }) => {
 
     return helper.validURL(content) ? (
-        <Row>
+        <Row className='mb-2'>
             <Col xs={10}>
-                <a href={content} style={styles.linkLabel} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                <a href={content} style={styles.linkLabel} target="_blank">
                     {content}
                 </a>
             </Col>
@@ -18,8 +18,8 @@ const URLOrText = ({ content, button = null, styles, color }) => {
             )}
         </Row>
     ) : (
-        <Row>
-            <Col xs={10}>
+        <Row className='mb-2'>
+            <Col xs={10} style={{ fontWeight: 'bold' }}>
                 <div dangerouslySetInnerHTML={{ __html: content }} />
             </Col>
             {button && (

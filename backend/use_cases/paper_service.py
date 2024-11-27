@@ -105,6 +105,8 @@ class PaperService:
         start_year="2000",
         end_year="2025",
         journal_names=[],
+        conference_names=[], 
+        title="",
     ):
         data = self.db_client.query_search(
             start_year,
@@ -114,32 +116,27 @@ class PaperService:
             concept_ids,
             page,
             per_page,
+            conference_names,
+            title
         )
         data = self.group_articles(data)
         return {"success": True, "result": data, "total_count": len(data)}
-        try:
-            data = self.db_client.query_search(
-                start_year,
-                end_year,
-                author_ids,
-                journal_names,
-                concept_ids,
-                page,
-                per_page,
-            )
-            data = self.group_articles(data)
-            return {"success": True, "result": data, "total_count": len(data)}
-
-        except Exception as e:
-            return {"success": False, "result": str(e), "total_count": 0}
 
     def get_authors(self, search_term):
         authors = self.db_client.search_authors(search_term)
         return authors
 
+    def get_titles(self, search_term):
+        titles = self.db_client.search_titles(search_term)
+        return titles
+
+    def get_research_fields(self, search_term):
+        research_fields = self.db_client.search_research_fields(search_term)
+        return research_fields
+
     def get_journals(self, search_term):
-        authors = self.db_client.search_journals(search_term)
-        return authors
+        journals = self.db_client.search_journals(search_term)
+        return journals
 
     def get_concepts(self, search_term):
         concepts = self.db_client.search_concepts(search_term)

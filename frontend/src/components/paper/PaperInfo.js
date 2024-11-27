@@ -23,6 +23,11 @@ function PaperInfo({ paper }) {
                     })}
                 </Col>
             </Row>
+            <Row className="mb-3">
+                <Col className='paper-abstract'>
+                    {paper && paper.abstract}
+                </Col>
+            </Row>
             <Row>
                 {paper.paper_type === 'journal' ? (
                     <>

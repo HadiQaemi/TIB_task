@@ -6,6 +6,7 @@ import { FaTimes } from 'react-icons/fa';
 
 const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, handleFilter }) => {
     const [timeRange, setTimeRange] = useState([2020, 2025]);
+    const [titleSearch, setTitleSearch] = useState('');
     const [authorSearch, setAuthorSearch] = useState('');
     const [journalSearch, setJournalSearch] = useState('');
     const [conceptSearch, setConceptSearch] = useState('');
@@ -100,6 +101,7 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
     const handleSubmit = async (e) => {
         e.preventDefault();
         const queryData = {
+            title: titleSearch,
             timeRange: {
                 start: timeRange[0],
                 end: timeRange[1]
@@ -262,6 +264,16 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
                     </div>
                 </Form.Group>
             </Row>
+            
+            <Form.Group className="mb-4">
+                <Form.Label>Title/DOI</Form.Label>
+                <Form.Control
+                    type="text"
+                    value={titleSearch}
+                    onChange={(e) => setTitleSearch(e.target.value)}
+                    placeholder="Search by title/DOI..."
+                />
+            </Form.Group>
 
             <AutocompleteField
                 label="Authors"
@@ -279,7 +291,7 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
             />
 
             <AutocompleteField
-                label="Journals"
+                label="Journals/Conference"
                 value={journalSearch}
                 inputRef={journalsRef}
                 onChange={(e) => {

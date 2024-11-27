@@ -240,7 +240,6 @@ uncontrolled-tab-example .nav-item button {
 
 .app-footer {
   background-color: rgb(224, 226, 234) !important;
-  margin-top: 75px;
   border-top: 1px solid rgb(209, 211, 217) !important;
 }
 
@@ -578,6 +577,15 @@ pre.show-all {
   color: #e86161;
 }
 
+.big-title {
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-size: 20px;
+  bottom: -45px;
+  right: 0px;
+  font-weight: 600;
+}
+
 .header-link {
   margin: 0px 10px;
   text-decoration: none;
@@ -704,4 +712,24 @@ pre.show-all {
   width: 100%;
   padding: 5px;
   border-radius: 5px;
+}
+
+.paper-abstract {
+  text-align: justify;
+  font-size: small;
+}
+
+.buttonLabel {
+  border: 1px solid #555;
+  border-radius: 5px;
+  margin: 5px 2px 5px 5px;
+  display: inline-block;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 400;
+}
+
+.line-height {
+  line-height: 30px;
+  height: 30px;
 }

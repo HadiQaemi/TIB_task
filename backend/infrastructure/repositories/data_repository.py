@@ -23,13 +23,29 @@ class DataRepository:
         concept_ids,
         page,
         per_page,
+        conference_names,
+        title,
     ):
         return self.db.query_search(
-            start_year, end_year, author_ids, journal_names, concept_ids, page, per_page
+            start_year,
+            end_year,
+            author_ids,
+            journal_names,
+            concept_ids,
+            page,
+            per_page,
+            conference_names,
+            title,
         )
 
     def search_authors(self, search_term):
         return self.db.search_authors(search_term)
+
+    def search_titles(self, search_term):
+        return self.db.search_titles(search_term)
+
+    def search_research_fields(self, search_term):
+        return self.db.search_research_fields(search_term)
 
     def search_journals(self, search_term):
         return self.db.search_journals(search_term)

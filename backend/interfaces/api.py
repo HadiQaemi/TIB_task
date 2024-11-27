@@ -112,8 +112,37 @@ class Authors(Resource):
         ]
         return jsonify(results)
 
+@api.route("/api/titles")
+@api.param("title", "The article title")
+class ArticleTitles(Resource):
+    @api.doc("article_by_titles")
+    def get(self):
+        search_term = request.args.get("title", "")
+        if not search_term:
+            return jsonify([])
+        regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
+        articles = paper_service.get_titles(regex_pattern)
+        results = [
+            {"id": str(article["_id"]), "name": article["name"]} for article in articles
+        ]
+        return jsonify(results)
 
-# Define the endpoint for adding a new paper by its URL.
+@api.route("/api/research_fields")
+@api.param("label", "The article title")
+class ResearchFields(Resource):
+    @api.doc("research_fields")
+    def get(self):
+        search_term = request.args.get("label", "")
+        if not search_term:
+            return jsonify([])
+        regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
+        research_fields = paper_service.get_research_fields(regex_pattern)
+        results = [
+            {"id": str(research_field["_id"]), "name": research_field["label"]} for research_field in research_fields
+        ]
+        return jsonify(results)
+
+
 @api.route("/api/journals")
 @api.param("url", "The concept entity title")
 class journals(Resource):
