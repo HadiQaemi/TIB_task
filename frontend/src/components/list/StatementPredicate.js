@@ -35,7 +35,7 @@ const StatementPredicate = ({ concepts }) => {
                             })
                             .catch(error => {
                                 console.error(`Error fetching label for ${predicateKey}:`, error);
-                                newLabels[predicateKey] = predicateKey; // Fallback to key if fetch fails
+                                newLabels[predicateKey] = predicateKey;
                             })
                     );
                 }

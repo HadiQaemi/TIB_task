@@ -8,25 +8,12 @@ from typing import List, Dict, Tuple
 
 
 class PostgreSQLClient(DatabaseInterface):
-    """
-    A class for interacting with a PostgreSQL database.
-    This class provides methods for finding, inserting, and closing the database connection.
-    """
-
     def __init__(self):
-        # self.conn = pg8000.native.Connection(
-        #     host=Config.PG_HOST,
-        #     database=Config.PG_DATABASE,
-        #     user=Config.PG_USER,
-        #     password=Config.PG_PASSWORD
-        # )
-        # self.conn.autocommit = True
-        # self.cur = self.conn.cursor()
         self.conn = pg8000.connect(
             host=Config.PG_HOST,
             user=Config.PG_USER,
             password=Config.PG_PASSWORD,
-            database=Config.PG_DATABASE,  # Connect to default database first
+            database=Config.PG_DATABASE,
         )
         self.conn.autocommit = True
         self.cur = self.conn.cursor()
@@ -34,15 +21,12 @@ class PostgreSQLClient(DatabaseInterface):
     def find_all_paginated(
         self, table_name, query=None, projection=None, page=1, page_size=10
     ):
-        # Calculate offset
         offset = (page - 1) * page_size
 
-        # Build the base query
         select_clause = "*" if not projection else ", ".join(projection)
         count_sql = f"SELECT COUNT(*) FROM {table_name}"
         select_sql = f"SELECT {select_clause} FROM {table_name}"
 
-        # Add WHERE clause if query parameters exist
         where_clause = ""
         params = []
         if query:
@@ -50,11 +34,9 @@ class PostgreSQLClient(DatabaseInterface):
             where_clause = " WHERE " + " AND ".join(where_conditions)
             params = list(query.values())
 
-        # Execute count query
         self.cur.execute(count_sql + where_clause, params)
         total_elements = self.cur.fetchone()[0]
 
-        # Execute paginated query
         final_sql = f"{select_sql}{where_clause} LIMIT %s OFFSET %s"
         self.cur.execute(final_sql, params + [page_size, offset])
         content = self.cur.fetchall()
@@ -79,14 +61,6 @@ class PostgreSQLClient(DatabaseInterface):
 
     def find_one(self, table_name, entity_id):
         pass
-        # select_clause = "*" if not projection else ", ".join(projection)
-        # sql = f"SELECT {select_clause} FROM {table_name}"
-        # if query:
-        #     where_clause = " AND ".join([f"{k} = %s" for k in query.keys()])
-        #     sql += f" WHERE {where_clause}"
-        # sql += " LIMIT 1"
-        # self.cur.execute(sql, list(query.values()) if query else None)
-        # return self.cur.fetchone()
 
     def search_concepts(self, search_term):
         pass
@@ -97,28 +71,16 @@ class PostgreSQLClient(DatabaseInterface):
     def search_authors(self, search_term):
         pass
 
+    def search_titles(self, search_term):
+        pass
+
+    def search_research_fields(self, search_term):
+        pass
+
     def find_one_statement(self, table_name, entity_id):
         pass
-        # select_clause = "*" if not projection else ", ".join(projection)
-        # sql = f"SELECT {select_clause} FROM {table_name}"
-        # if query:
-        #     where_clause = " AND ".join([f"{k} = %s" for k in query.keys()])
-        #     sql += f" WHERE {where_clause}"
-        # sql += " LIMIT 1"
-        # self.cur.execute(sql, list(query.values()) if query else None)
-        # return self.cur.fetchone()
 
     def process_json(self, json_data):
-        """
-        Process JSON data by separating common fields and P-prefixed predicates.
-
-        Args:
-            json_data: Input JSON dictionary
-
-        Returns:
-            Dictionary with separated common fields and predicates
-        """
-        # Initialize result dictionary with None values for common fields
         result = {
             "json_id": None,
             "json_type": None,
@@ -128,7 +90,6 @@ class PostgreSQLClient(DatabaseInterface):
             "predicates": {},
         }
 
-        # Map JSON keys to database fields
         field_mapping = {
             "@id": "json_id",
             "@type": "json_type",
@@ -137,13 +98,10 @@ class PostgreSQLClient(DatabaseInterface):
             "_id": "mongo_id",
         }
 
-        # Process each key-value pair
         for key, value in json_data.items():
             if key in field_mapping:
-                # Handle common fields
                 result[field_mapping[key]] = value
             elif key.startswith("P"):
-                # Store P-prefixed predicates with processed values
                 result["predicates"][key] = value
 
         return result
@@ -153,7 +111,6 @@ class PostgreSQLClient(DatabaseInterface):
             if isinstance(paper_data[key], (dict, list)):
                 paper_data[key] = json.dumps(paper_data[key])
 
-        # Create the INSERT query
         fields = ", ".join(paper_data.keys())
         placeholders = ", ".join(["%s"] * len(paper_data))
         query = f"""
@@ -197,12 +154,13 @@ class PostgreSQLClient(DatabaseInterface):
         concept_ids: List[int],
         page: int,
         per_page: int,
+        conference_names,
+        title,
     ) -> Tuple[List[Dict], int]:
         conn = self.conn
         cursor = self.cur
 
         try:
-            # Build the query
             query = """
                 SELECT
                     a.id, a.name, a.publisher, a.journal, a.identifier, a.date_published,
@@ -232,54 +190,41 @@ class PostgreSQLClient(DatabaseInterface):
                 WHERE 1 = 1
             """
 
-            # Apply filters
             if author_ids:
                 query += " AND aa.author_id IN %(author_ids)s"
             if concept_ids:
                 query += " AND c.id IN %(concept_ids)s"
-            # if statement_filters:
-            #     for key, value in statement_filters.items():
-            #         query += f" AND s.{key} LIKE %(statement_{key})s"
-            # if article_filters:
-            #     for key, value in article_filters.items():
-            #         query += f" AND a.{key} LIKE %(article_{key})s"
-
             query += """
                 GROUP BY a.id
                 ORDER BY a.id
                 LIMIT %(limit)s OFFSET %(offset)s;
             """
 
-            # Execute the query
             params = {
-                'author_ids': tuple(author_ids) if author_ids else None,
-                'concept_ids': tuple(concept_ids) if concept_ids else None,
-                # **{f'statement_{key}': f'%{value}%' for key, value in statement_filters.items()},
-                # **{f'article_{key}': f'%{value}%' for key, value in article_filters.items()},
-                'limit': per_page,
-                'offset': (page - 1) * per_page
+                "author_ids": tuple(author_ids) if author_ids else None,
+                "concept_ids": tuple(concept_ids) if concept_ids else None,
+                "limit": per_page,
+                "offset": (page - 1) * per_page,
             }
             cursor.execute(query, params)
             result = cursor.fetchall()
 
-            # Process the result
             articles = []
             for row in result:
                 article = {
-                    'id': row[0],
-                    'name': row[1],
-                    'publisher': row[2],
-                    'journal': row[3],
-                    'identifier': row[4],
-                    'date_published': row[5],
-                    'authors': json.loads(row[6]) if row[6] else [],
-                    'concepts': json.loads(row[7]) if row[7] else [],
-                    'statements': json.loads(row[8]) if row[8] else [],
-                    'files': json.loads(row[9]) if row[9] else []
+                    "id": row[0],
+                    "name": row[1],
+                    "publisher": row[2],
+                    "journal": row[3],
+                    "identifier": row[4],
+                    "date_published": row[5],
+                    "authors": json.loads(row[6]) if row[6] else [],
+                    "concepts": json.loads(row[7]) if row[7] else [],
+                    "statements": json.loads(row[8]) if row[8] else [],
+                    "files": json.loads(row[9]) if row[9] else [],
                 }
                 articles.append(article)
 
-            # Get the total count
             cursor.execute("SELECT COUNT(*) FROM test.articles a WHERE 1 = 1", params)
             total_count = cursor.fetchone()[0]
 
@@ -297,46 +242,53 @@ class PostgreSQLClient(DatabaseInterface):
         scraper = NodeExtractor()
 
         try:
-            # Insert or get existing authors
-            author_map = {}  # Map to store author_id by identifier
+            author_map = {}
             for item in paper_data["@graph"]:
                 authors = item.get("author", [])
                 for author in authors:
                     if author.get("@id") and author["@id"] not in author_map:
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             SELECT id 
                             FROM authors
                             WHERE identifier = %s
-                        """, (author['@id'],))
+                        """,
+                            (author["@id"],),
+                        )
                         result = cursor.fetchone()
                         if result:
-                            author_map[author['@id']] = result[0]
+                            author_map[author["@id"]] = result[0]
                         else:
-                            cursor.execute("""
+                            cursor.execute(
+                                """
                                 INSERT INTO authors (label, identifier)
                                 VALUES (%s, %s)
                                 RETURNING id
-                            """, (
-                                f"{author.get('givenName', '')} {author.get('familyName', '')}",
-                                author['@id']
-                            ))
-                            author_map[author['@id']] = cursor.fetchone()[0]
+                            """,
+                                (
+                                    f"{author.get('givenName', '')} {author.get('familyName', '')}",
+                                    author["@id"],
+                                ),
+                            )
+                            author_map[author["@id"]] = cursor.fetchone()[0]
 
-            # Insert concepts
-            concept_map = {}  # Map to store concept_id by label
+            concept_map = {}
             for item in paper_data["@graph"]:
                 if "Statement" in item.get("@type", []):
                     for concept in item.get("concept", []):
                         if concept.get("label") and concept["label"] not in concept_map:
-                            if concept.get('label'):
-                                cursor.execute("""
+                            if concept.get("label"):
+                                cursor.execute(
+                                    """
                                     SELECT id
                                     FROM concepts
                                     WHERE label = %s
-                                """, (concept['label'],))
+                                """,
+                                    (concept["label"],),
+                                )
                                 result = cursor.fetchone()
                                 if result:
-                                    concept_map[concept['label']] = result[0]
+                                    concept_map[concept["label"]] = result[0]
                                 else:
                                     cursor.execute(
                                         """
@@ -351,7 +303,6 @@ class PostgreSQLClient(DatabaseInterface):
                                     )
                                     concept_map[concept["label"]] = cursor.fetchone()[0]
 
-            # Insert article
             article = next(
                 item
                 for item in paper_data["@graph"]
@@ -373,7 +324,6 @@ class PostgreSQLClient(DatabaseInterface):
             )
             article_id = cursor.fetchone()[0]
 
-            # Link article authors
             for author in article.get("author", []):
                 if author.get("@id") and author["@id"] in author_map:
                     cursor.execute(
@@ -384,10 +334,11 @@ class PostgreSQLClient(DatabaseInterface):
                         (article_id, author_map[author["@id"]]),
                     )
 
-            # Insert statements and their relationships
             for item in paper_data["@graph"]:
                 if "Statement" in item.get("@type", []):
-                    content = scraper.load_json_from_url(json_files[item.get("name", "")])
+                    content = scraper.load_json_from_url(
+                        json_files[item.get("name", "")]
+                    )
                     cursor.execute(
                         """
                         INSERT INTO statements (version, name, content, article_id)
@@ -403,7 +354,6 @@ class PostgreSQLClient(DatabaseInterface):
                     )
                     statement_id = cursor.fetchone()[0]
 
-                    # Link statement authors
                     for author in item.get("author", []):
                         if author.get("@id") and author["@id"] in author_map:
                             cursor.execute(
@@ -414,7 +364,6 @@ class PostgreSQLClient(DatabaseInterface):
                                 (statement_id, author_map[author["@id"]]),
                             )
 
-                    # Link statement concepts
                     for concept in item.get("concept", []):
                         if concept.get("label") and concept["label"] in concept_map:
                             cursor.execute(
@@ -425,7 +374,6 @@ class PostgreSQLClient(DatabaseInterface):
                                 (statement_id, concept_map[concept["label"]]),
                             )
 
-            # Insert files and their relationships
             for item in paper_data["@graph"]:
                 if "File" in item.get("@type", []):
                     cursor.execute(
@@ -444,7 +392,6 @@ class PostgreSQLClient(DatabaseInterface):
                     )
                     file_id = cursor.fetchone()[0]
 
-                    # Link file authors
                     for author in item.get("author", []):
                         if author.get("@id") and author["@id"] in author_map:
                             cursor.execute(
@@ -461,15 +408,10 @@ class PostgreSQLClient(DatabaseInterface):
             raise e
         finally:
             print("It is finally")
-            # cursor.close()
-            # conn.close()
 
     def aggregate(self, query):
-        # PostgreSQL doesn't have a direct equivalent to MongoDB's aggregate.
-        # You would need to translate MongoDB aggregation pipeline to SQL.
-        # This is a placeholder and would need to be implemented based on specific needs.
         raise NotImplementedError(
-            "Aggregate functionality needs to be implemented specifically for your use case"
+            "Aggregate functionality"
         )
 
     def close(self):

@@ -1,4 +1,3 @@
-// Frontend - ListStatements.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Col, Container, Row } from 'react-bootstrap';
 import { paperServices } from '../../services/paperServices';
@@ -72,7 +71,6 @@ const ListStatements = () => {
     const leftBound = Math.max(1, currentPage - 5);
     const rightBound = Math.min(totalPages, currentPage + 4);
 
-    // Add first page if not in range
     if (leftBound > 1) {
       pages.push(
         <button
@@ -89,7 +87,6 @@ const ListStatements = () => {
       if (leftBound > 2) pages.push(<span key="leftDots">...</span>);
     }
 
-    // Add pages in range
     for (let i = leftBound; i <= rightBound; i++) {
       pages.push(
         <button
@@ -106,7 +103,6 @@ const ListStatements = () => {
       );
     }
 
-    // Add last page if not in range
     if (rightBound < totalPages) {
       if (rightBound < totalPages - 1) pages.push(<span key="rightDots">...</span>);
       pages.push(
@@ -125,12 +121,14 @@ const ListStatements = () => {
 
     return pages;
   };
-  let title = ""
-  let number = 1
   return (
     // <Container fluid>
     <Container className="p-5" fluid>
-      {/* <SearchStatementsForm onSubmit={handleSubmit} /> */}
+      {/* <Row>
+        <Col md={12}>
+          <SearchStatementsForm onSubmit={handleSubmit} />
+        </Col>
+      </Row> */}
       <Row>
         <Col md={2}>
           <SideSearchForm handleFilter={handleFilter} currentPage={currentPage} pageSize={pageSize} isSubmitting={isSubmitting} submitError={submitError} />
@@ -143,7 +141,7 @@ const ListStatements = () => {
               <>
                 {Object.entries(statements).map((items, index) => (
                   <React.Fragment key={index}>
-                    <Card className="m-2">
+                    <Card className="m-2 mb-4">
                       <Card.Header className="bg-light">
                         <PaperInfo paper={items[1][0]['article']} />
                       </Card.Header>

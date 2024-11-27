@@ -15,13 +15,10 @@ export const helper = {
             'P32': { backgroundColor: '#2ECC71', color: '#ffffff' },
             'PWC_HAS_BENCHMARK': { backgroundColor: '#E74C3C', color: '#ffffff' },
             'P110081': { backgroundColor: '#F1C40F', color: '#000000' },
-            // 'P117003': { backgroundColor: '#1ABC9C', color: '#ffffff' },
             'P135053': { backgroundColor: '#8E44AD', color: '#ffffff' },
-            // 'P135054': { backgroundColor: '#D35400', color: '#ffffff' },
             'P135055': { backgroundColor: '#2C3E50', color: '#ffffff' },
             'P135056': { backgroundColor: '#7F8C8D', color: '#ffffff' },
             'P4015': { backgroundColor: '#16A085', color: '#ffffff' },
-            // 'P149023': { backgroundColor: '#C0392B', color: '#ffffff' },
             'P4003': { backgroundColor: '#27AE60', color: '#ffffff' }
         };
         if (typeof colorMap[key] !== 'object')
@@ -31,7 +28,6 @@ export const helper = {
                 return colorMap[key];
             else if (typeof colorMap[key] == 'object')
                 return colorMap[key].backgroundColor;
-        // return helper.adjustColorOpacity(colorMap[key].backgroundColor);
     },
     analyzeJSONStructure: (jsonElement) => {
         if (typeof jsonElement !== 'object' || jsonElement === null) {
@@ -73,31 +69,29 @@ export const helper = {
         }
 
         const urlPattern = new RegExp(
-            '^' + // Start of string
-            '(?:(?:https?|ftp)://)?' + // Protocol (optional)
-            '(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})' + // Exclude private networks
+            '^' +
+            '(?:(?:https?|ftp)://)?' +
+            '(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})' +
             '(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})' +
             '(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})' +
-            '(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])' + // IP address
+            '(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])' +
             '(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}' +
             '(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))' +
-            '|' + // OR
-            '(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)' + // Domain name
+            '|' +
+            '(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)' +
             '(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*' +
-            '(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))' + // Top level domain
+            '(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))' +
             ')' +
-            '(?::\\d{2,5})?' + // Port (optional)
-            '(?:[/?#][^\\s]*)?$', // Path, query params, hash (optional)
-            'i' // Case-insensitive
+            '(?::\\d{2,5})?' +
+            '(?:[/?#][^\\s]*)?$',
+            'i'
         );
 
         try {
-            // First check: Basic pattern matching
             if (!urlPattern.test(str)) {
                 return false;
             }
 
-            // Second check: Try creating URL object
             new URL(str.startsWith('http') ? str : `http://${str}`);
             return true;
         } catch (err) {
@@ -158,8 +152,24 @@ export const helper = {
         ];
         return colors[level % colors.length];
     },
+    checkType: (key, data, key_data) => {
+        let newKey = ''
+        let newType = ''
+        if (key === undefined || data === undefined || data['@type'] === undefined)
+            return false
+        if (data[data['@type'] + '#' + key] === undefined) {
+            newKey = data['@type'].replace('doi:', 'doi:21.T11969/') + '#' + key
+            newType = data['@type'].replace('doi:', 'doi:21.T11969/')
+        } else {
+            newKey = data['@type'] + '#' + key
+            newType = data['@type']
+        }
+        if (key_data)
+            return data[newKey]
+        return newKey
+    },
     capitalizeFirstLetter: (val) => {
-        return String(val).charAt(0).toUpperCase() + String(val).slice(1);
+        return String(val).charAt(0).toUpperCase() + String(val).slice(1).toLowerCase();
     },
     cleanFirstLetter: (val) => {
         return String(val).replace('_', ' ');
@@ -370,6 +380,7 @@ export const styles = {
     },
     linkLabel: {
         color: 'rgb(15 74 161)',
+        fontWeight: '800',
     },
     nodeLabel: {
         color: '#555',

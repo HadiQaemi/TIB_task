@@ -1,15 +1,13 @@
 import { Col, Row } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
-// Import the useNavigate hook from the react-router-dom library
 const PaperCard = (props) => {
     const { info, entity, author, title } = props
     const navigate = useNavigate();
 
     const handleCardClick = (cardId) => {
-        navigate(`/paper/${cardId}`); // Replace with your desired route
+        navigate(`/paper/${cardId}`);
     };
 
-    // Define a function to truncate a string if it's longer than the specified maximum length
     function truncateString(str, maxLength) {
         return str.length > maxLength ? str.substring(0, maxLength) + "..." : str;
     }

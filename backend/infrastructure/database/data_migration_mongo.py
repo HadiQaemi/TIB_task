@@ -5,13 +5,11 @@ from ..config import Config
 fake = Faker()
 
 def connect_to_mongodb():
-    """Establish connection to MongoDB and return database object."""
     client = MongoClient(Config.MONGO_URI)
     db = client[Config.MONGO_DB]
     return db, client
 
 def create_collections_if_not_exist(db):
-    """Create collections if they don't exist."""
     if "papers" not in db.list_collection_names():
         db.create_collection("papers")
         print("Collection 'papers' created.")
@@ -21,7 +19,6 @@ def create_collections_if_not_exist(db):
         print("Collection 'contributions' created.")
 
 def generate_fake_context_json():
-    """Generate fake JSON context with 10 string fields."""
     return {
         "version": f"v{fake.random_int(min=1, max=5)}.{fake.random_int(min=0, max=9)}",
         "domain": fake.domain_name(),
@@ -38,7 +35,6 @@ def generate_fake_context_json():
     }
 
 def generate_fake_contribution(paper_id):
-    """Generate fake data for a contribution."""
     return {
         "paper_id": paper_id,
         "json_id": f"contribution_{fake.uuid4()}",
@@ -72,11 +68,9 @@ def generate_fake_contribution(paper_id):
     }
 
 def insert_fake_data(db):
-    """Insert fake data into MongoDB collections."""
     papers_collection = db.papers
     contributions_collection = db.contributions
     
-    # Insert fake papers
     paper_ids = []
     for _ in range(10):
         paper = {
@@ -92,7 +86,6 @@ def insert_fake_data(db):
         result = papers_collection.insert_one(paper)
         paper_ids.append(result.inserted_id)
     
-    # Insert fake contributions (2-4 contributions per paper)
     for paper_id in paper_ids:
         num_contributions = fake.random_int(min=2, max=4)
         for _ in range(num_contributions):
@@ -102,14 +95,12 @@ def insert_fake_data(db):
     print(f"{len(paper_ids)} fake papers and their contributions inserted into collections.")
 
 def create_indexes(db):
-    """Create necessary indexes for better query performance."""
     db.papers.create_index("dois", unique=True)
     db.contributions.create_index("paper_id")
     db.contributions.create_index("json_id", unique=True)
     print("Indexes created successfully.")
 
 def run_mongo_migration():
-    """Run the complete migration process."""
     try:
         db, client = connect_to_mongodb()
         create_collections_if_not_exist(db)
@@ -119,7 +110,6 @@ def run_mongo_migration():
     except Exception as e:
         print(f"Error during migration: {str(e)}")
     finally:
-        # client.close()
         print("Data migration completed successfully.")
 
 if __name__ == "__main__":

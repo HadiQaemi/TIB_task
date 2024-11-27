@@ -21,7 +21,6 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
     const authorsRef = useRef(null);
     const journalsRef = useRef(null);
     const conceptRef = useRef(null);
-    // Dual range slider styles
     const sliderStyles = `
     .dual-range {
       position: relative;
@@ -54,7 +53,6 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
     }
   `;
 
-    // Debounced search functions
     const fetchAuthors = debounce(async (search) => {
         if (!search) return;
         try {

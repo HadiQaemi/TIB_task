@@ -1,4 +1,3 @@
-# src/infrastructure/database/data_migration.py
 import pg8000
 from faker import Faker
 from ..config import Config
@@ -12,19 +11,17 @@ def create_database_if_not_exists():
         host=Config.PG_HOST,
         user=Config.PG_USER,
         password=Config.PG_PASSWORD,
-        database="postgres",  # Connect to default database first
+        database="postgres",
     )
     conn.autocommit = True
     cur = conn.cursor()
 
-    # Check if database exists
     cur.execute(
         f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{Config.PG_DATABASE}'"
     )
     exists = cur.fetchone()
 
     if not exists:
-        # Need to use format here as pg8000 doesn't support parameterized DDL
         cur.execute(f"CREATE DATABASE {Config.PG_DATABASE}")
         print(f"Database '{Config.PG_DATABASE}' created.")
 
@@ -81,7 +78,6 @@ def create_table_if_not_exists():
 
 
 def generate_fake_context_json():
-    """Generate fake JSON context with 10 string fields."""
     return {
         "version": f"v{fake.random_int(min=1, max=5)}.{fake.random_int(min=0, max=9)}",
         "domain": fake.domain_name(),
@@ -99,7 +95,6 @@ def generate_fake_context_json():
 
 
 def generate_fake_contribution(paper_id):
-    """Generate fake data for a contribution."""
     return {
         "paper_id": paper_id,
         "json_id": f"contribution_{fake.uuid4()}",
@@ -148,7 +143,6 @@ def insert_fake_data():
         paper_id = cur.fetchone()[0]
         paper_ids.append(paper_id)
 
-    # Insert fake contributions (2-4 contributions per paper)
     for paper_id in paper_ids:
         num_contributions = fake.random_int(min=2, max=4)
         for _ in range(num_contributions):

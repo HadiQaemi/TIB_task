@@ -13,19 +13,14 @@ const getTextColor = (level) => {
 };
 
 function analyzeJSONStructure(jsonElement) {
-  // Check if the input is not an object or is null
   if (typeof jsonElement !== 'object' || jsonElement === null) {
     return "The input is not a JSON object";
   }
 
-  // Check if it's an array
   if (Array.isArray(jsonElement)) {
-    // Check if it's an empty array
     if (jsonElement.length === 0) {
       return "Empty array";
     }
-
-    // Check if all elements are objects
     const allObjects = jsonElement.every(item => typeof item === 'object' && item !== null && !Array.isArray(item));
 
     if (allObjects) {
@@ -34,15 +29,10 @@ function analyzeJSONStructure(jsonElement) {
       return "Array of mixed types";
     }
   } else {
-    // It's an object, so we'll check its structure
     const keys = Object.keys(jsonElement);
-
-    // Check if it's an empty object
     if (keys.length === 0) {
       return "Empty object";
     }
-
-    // Check if all values are primitive (not objects or arrays)
     const allPrimitive = Object.values(jsonElement).every(value =>
       typeof value !== 'object' || value === null
     );
@@ -54,8 +44,6 @@ function analyzeJSONStructure(jsonElement) {
     }
   }
 }
-
-// Modified TreeNode component for individual node control
 const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackground, level = 0 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [fetchedData, setFetchedData] = useState(null);
@@ -103,11 +91,8 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
     setShowAllCode(!showAllCode);
   };
 
-  // const backgroundColor = helper.getLevelColor(level);
   const textColor = getTextColor(level);
 
-  // const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label + ',' + nodeKey + ',' + analyzeJSONStructure(nodeValue) : nodeKey);
-  // const displayKey = label !== '' ? (fetchedData ? label + ':' + fetchedData.label : nodeKey + ':' + label) : (fetchedData ? fetchedData.label : nodeKey);
   const nodeLabel = typeof (nodeValue) === 'object' ? (nodeValue.label === undefined ? '' : nodeValue.label) : '';
   const displayKey = label !== '' ? label : (fetchedData ? fetchedData.label : nodeKey);
 
@@ -117,7 +102,6 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
     </Tooltip>
   );
 
-  // Hide nodes with keys "@id" and "@type"
   const hiddenNodes = ['@type', 'columns', 'rows', '@context', '_id']
   const idNodes = ['P2005', 'P45074', 'P45076', 'P1004', 'P32', '@context', '_id']
   if (hiddenNodes.includes(nodeKey) || (nodeKey === 'label' && parentKey !== '') || (nodeKey === '@id' && !idNodes.includes(parentKey))) {
@@ -193,7 +177,6 @@ const TreeNode = ({ label = '', parentKey = '', nodeKey, nodeValue, parentBackgr
                   <span style={{
                     ...styles.label
                   }}>
-                    {/* 000----{parentKey}---{displayKey}--- */}
                     <>
                       <URLOrText content={nodeValue} styles={styles} nodeLabel={nodeLabel} />
                     </>
@@ -346,7 +329,6 @@ const JsonTabsViewer = ({ contributions, tab }) => {
   const dropdownRef = useRef(null);
   const MAX_VISIBLE_TABS = 3;
 
-  // Example JSON files array with long names
   const jsonFiles = contributions;
   const visibleTabs = jsonFiles.slice(0, MAX_VISIBLE_TABS);
   const dropdownTabs = jsonFiles.slice(MAX_VISIBLE_TABS);

@@ -4,11 +4,6 @@ from infrastructure.config import Config
 
 
 class PostgreSQLClient____:
-    """
-    A class for interacting with a PostgreSQL database.
-    This class provides methods for finding, inserting, and closing the database connection.
-    """
-
     def __init__(self):
         self.conn = pg8000.native.Connection(
             host=Config.PG_HOST,
@@ -45,10 +40,7 @@ class PostgreSQLClient____:
         return self.cur.fetchone()['id']
 
     def aggregate(self, query):
-        # PostgreSQL doesn't have a direct equivalent to MongoDB's aggregate.
-        # You would need to translate MongoDB aggregation pipeline to SQL.
-        # This is a placeholder and would need to be implemented based on specific needs.
-        raise NotImplementedError("Aggregate functionality needs to be implemented specifically for your use case")
+        raise NotImplementedError("Aggregate")
 
     def close(self):
         self.cur.close()
@@ -56,11 +48,6 @@ class PostgreSQLClient____:
 
 
 class MongoDBClient____:
-    """
-    A class for interacting with a MongoDB database.
-    This class provides methods for finding, inserting, and closing the database connection.
-    """
-
     def __init__(self):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]

@@ -3,13 +3,12 @@ import { Card, Col, Row } from 'react-bootstrap';
 import ConceptItemsList from "./ConceptItemsList";
 import { FaTag, FaUser } from 'react-icons/fa';
 
-// Import the useNavigate hook from the react-router-dom library
 const StatementCard = (props) => {
     const { statement, tab } = props
     const navigate = useNavigate();
 
     const handleStatementClick = (statement) => {
-        navigate(`/statement/${statement}`); // Replace with your desired route
+        navigate(`/statement/${statement}`);
     };
 
     const handlePaperClick = (statement) => {

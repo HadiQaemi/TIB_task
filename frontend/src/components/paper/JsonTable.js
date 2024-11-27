@@ -3,13 +3,12 @@ import { Table, Pagination, Form, Button } from 'react-bootstrap';
 import { Fullscreen, Minimize } from 'lucide-react';
 import { utils, writeFile } from 'xlsx';
 
-const JsonTable = ({ data, styles }) => {
+const JsonTable = ({ data, styles, button, color }) => {
   let columns = []
   let rows = []
   if (typeof data === 'object') {
     columns = data.columns.sort((a, b) => a.number - b.number);
     rows = data.rows.sort((a, b) => {
-      // Handle cases where number might be undefined
       if (!a.number && !b.number) return 0;
       if (!a.number) return 1;
       if (!b.number) return -1;
@@ -120,14 +119,12 @@ const JsonTable = ({ data, styles }) => {
     return items;
   };
 
-  // Generate a unique key for each row
   const getRowKey = (row, index) => {
     if (row.id) return `row-${row.id}`;
     if (row.number) return `row-${row.number}`;
     return `row-index-${index}`;
   };
 
-  // Generate a unique key for each cell
   const getCellKey = (row, column, rowIndex) => {
     const rowId = row.id || row.number || rowIndex;
     return `cell-${rowId}-${column['@id']}`;
@@ -148,6 +145,11 @@ const JsonTable = ({ data, styles }) => {
         padding: '1rem'
       } : {}}
     >
+      {button && (
+        <div style={{ textAlign: 'end' }}>
+          <span className="buttonLabel" style={{ backgroundColor: color }}>{button}</span>
+        </div>)
+      }
       <div className="mb-3 d-flex justify-content-between align-items-center">
         <Form.Select
           style={{ width: 'auto' }}

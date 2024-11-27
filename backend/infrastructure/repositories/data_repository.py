@@ -6,9 +6,6 @@ class DataRepository:
         self.db = DatabaseFactory.get_database()
 
     def get_all_items(self, table_name, query=None, projection=None):
-        # return self.db.find_all_paginated(
-        #     table_name, query, projection, page, page_size
-        # )
         return self.db.find_all(table_name, query, projection)
 
     def get_item(self, collection_name, item_id):

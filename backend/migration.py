@@ -6,13 +6,11 @@ from infrastructure.database.data_migration_mongo import run_mongo_migration
 
 
 def main():
-    # Run data migration
     if Config.DATABASE_TYPE == 'mongodb':
         return run_mongo_migration()
     elif Config.DATABASE_TYPE == 'postgresql':
         return run_postgre_migration()
 
-    # Use repository to interact with your data
     repo = DataRepository()
     items = repo.get_all_items('papers')
     print(f"Number of papers: {len(items)}")

@@ -20,7 +20,7 @@ const SearchStatementsForm = ({ onSubmit }) => {
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter paper Entity, Doi or Title"
+            placeholder="Find statements"
             className="rounded-start rounded-0"
           />
         </Col>

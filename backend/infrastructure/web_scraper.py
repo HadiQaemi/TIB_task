@@ -1,11 +1,3 @@
-# The NodeExtractor class is responsible for extracting various data points from a given URL, including:
-# - The title of the page
-# - The URLs of any JSON files associated with the page
-# - The DOI (Digital Object Identifier) of the paper
-# - Additional information about the paper, such as the abstract, authors, journal, etc.
-# - The timeline of the paper, including the creation and last update dates
-# - Generating a unique ID based on a timestamp and random string
-
 import requests
 from bs4 import BeautifulSoup
 import time

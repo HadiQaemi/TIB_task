@@ -29,6 +29,14 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def search_titles(self, search_term):
+        pass
+
+    @abstractmethod
+    def search_research_fields(self, search_term):
+        pass
+
+    @abstractmethod
     def search_journals(self, search_term):
         pass
 
@@ -46,6 +54,8 @@ class DatabaseInterface(ABC):
         concept_ids,
         page,
         per_page,
+        conference_names,
+        title,
     ):
         pass
 

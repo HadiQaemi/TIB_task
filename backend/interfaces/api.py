@@ -5,15 +5,11 @@ from use_cases.paper_service import PaperService
 from http import HTTPStatus
 import math
 
-# Create the Flask-RESTX API object with version, title, and description.
 api = Api(
     version="1.0", title="TIB API", description="API for TIB data", doc="/api/swagger"
 )
 
-# Create an instance of the PaperService, which handles the business logic for paper data.
 paper_service = PaperService()
-
-# Define the model for a Paper object, which includes fields like contributions, title, author, dois, entity, external information, and timeline.
 paper_model = api.model(
     "Paper",
     {
@@ -33,25 +29,19 @@ paper_model = api.model(
 )
 
 
-# Define the endpoint for retrieving all papers.
-@api.route("/api/all-paper")
+@api.route("/api/all_paper")
 @api.param("currentPage", "The current page in list")
 @api.param("pageSize", "The size of pages ")
 class AllPapers(Resource):
     @api.doc("get_all_papers")
     def get(self):
-        # page = request.args.get("currentPage")
-        # page_size = request.args.get("pageSize")
-        # papers = paper_service.get_all_papers(page, page_size)
         papers = paper_service.get_all_papers()
         return {
-            # 'content': [vars(paper) for paper in papers],
             "content": papers,
             "totalElements": len(papers),
         }
 
 
-# Define the endpoint for retrieving all papers.
 @api.route("/api/all-statements")
 @api.param("currentPage", "The current page in list")
 @api.param("pageSize", "The size of pages ")
@@ -64,7 +54,6 @@ class AllStatements(Resource):
         return statements
 
 
-# Define the endpoint for retrieving all papers.
 @api.route("/api/search")
 @api.param("title", "The paper title")
 class Search(Resource):
@@ -78,7 +67,6 @@ class Search(Resource):
         }
 
 
-# Define the endpoint for retrieving a paper by its entity ID.
 @api.route("/api/paper")
 @api.param("id", "The paper entity ID")
 class PaperById(Resource):
@@ -89,7 +77,6 @@ class PaperById(Resource):
         return paper
 
 
-# Define the endpoint for retrieving a paper by its entity ID.
 @api.route("/api/statement")
 @api.param("id", "The paper entity ID")
 class StatementById(Resource):
@@ -100,7 +87,6 @@ class StatementById(Resource):
         return paper
 
 
-# Define the endpoint for adding a new paper by its URL.
 @api.route("/api/add-paper")
 @api.param("url", "The paper entity URL")
 class AddPaper(Resource):
@@ -111,7 +97,6 @@ class AddPaper(Resource):
         return {"result": True}
 
 
-# Define the endpoint for adding a new paper by its URL.
 @api.route("/api/authors")
 @api.param("url", "The author entity name")
 class Authors(Resource):
@@ -140,13 +125,12 @@ class journals(Resource):
         regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
         journals = paper_service.get_journals(regex_pattern)
         results = [
-            {"id": str(journal["journal"]), "name": journal["journal"]}
+            {"id": str(journal["_id"]), "name": journal["label"]}
             for journal in journals
         ]
         return jsonify(results)
 
 
-# Define the endpoint for adding a new paper by its URL.
 @api.route("/api/concepts")
 @api.param("url", "The concept entity title")
 class concepts(Resource):
@@ -164,24 +148,24 @@ class concepts(Resource):
         return jsonify(results)
 
 
-# Define the endpoint for searching.
 @api.route("/api/filter-statement")
 @api.param("url", "The paper entity URL")
 class filter_statement(Resource):
     @api.doc("filter_statement")
     def post(self):
         data = request.get_json()
-        # Extract query parameters
         time_range = data.get("timeRange", {})
         start_year = time_range.get('start')
         end_year = time_range.get('end')
         
+        title = data.get('title')
         author_ids = data.get("authors", [])
         journal_names = data.get("journals", [])
+        conference_names = data.get("conferences", [])
         concept_ids = data.get("concepts", [])
         per_page = data.get("per_page", [])
         page = data.get("page", [])
-        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names)
+        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names, conference_names, title)
         status_code = (
             HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
         )
@@ -198,7 +182,6 @@ class filter_statement(Resource):
         return response
 
 
-# Define the endpoint for searching.
 @api.route("/api/query-data")
 @api.param("url", "The paper entity URL")
 class get_data(Resource):

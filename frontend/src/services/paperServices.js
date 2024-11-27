@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { SERVER_ADDRESS } from '../constants/configs';
 
-// Define an object called paperServices that exports four methods:
-// getList, getPaper, getPredicate, and getFile.
 export const paperServices = {
     search: async (title) => {
         let res = await axios.get(SERVER_ADDRESS + `/api/search?title=${encodeURIComponent(title)}`)
@@ -15,7 +13,6 @@ export const paperServices = {
         return res
     },
     getStatements: async (currentPage, pageSize) => {
-        // let res = await axios.get(SERVER_ADDRESS + `/api/all-statements?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
         let res = await axios.get(SERVER_ADDRESS + `/api/query-data?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
             .then(response => {
                 return response.data;
@@ -45,22 +42,10 @@ export const paperServices = {
         const response = await api.post('/api/filter-statement',
             queryData || defaultParams
         );
-        // console.log(response)
-        // let response = await fetch(SERVER_ADDRESS + '/api/filter-statement', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(queryData)
-        // }).then(response => {
-        //     return response.data;
-        // }).catch(error => {
-        //     console.error(error);
-        // });
         return response.data
     },
     getList: async () => {
-        let res = await axios.get(SERVER_ADDRESS + '/api/all-paper')
+        let res = await axios.get(SERVER_ADDRESS + '/api/all_paper')
             .then(response => {
                 return response.data;
             })
@@ -81,6 +66,26 @@ export const paperServices = {
     },
     getAuthors: async (data) => {
         let res = await axios.get(SERVER_ADDRESS + '/api/authors?name=' + data, { name: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
+    getTitles: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/titles?title=' + data, { name: data })
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
+    getResearchFields: async (data) => {
+        let res = await axios.get(SERVER_ADDRESS + '/api/research_fields?label=' + data, { name: data })
             .then(response => {
                 return response.data;
             })

@@ -15,21 +15,14 @@ from datetime import datetime
 @dataclass
 class MongoDocument:
     _id: ObjectId
-    # other fields
 
     def to_dict(self):
         return {
             "_id": str(self._id),
-            # convert other fields as needed
         }
 
 
 class MongoDBClient(DatabaseInterface):
-    """
-    A class for interacting with a MongoDB database.
-    This class provides methods for finding, inserting, and closing the database connection.
-    """
-
     def __init__(self):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]
@@ -38,21 +31,13 @@ class MongoDBClient(DatabaseInterface):
         self, collection_name, query=None, projection=None, page=1, page_size=10
     ):
         collection = self.db[collection_name]
-
-        # Calculate skip value
         skip = (page - 1) * page_size
-
-        # Get total count for pagination
         total_elements = collection.count_documents(query if query else {})
-
-        # Fetch paginated results
         cursor = (
             collection.find(filter=query if query else {}, projection=projection)
             .skip(skip)
             .limit(page_size)
         )
-
-        # Convert cursor to list
         content = list(cursor)
 
         return {
@@ -145,7 +130,6 @@ class MongoDBClient(DatabaseInterface):
         ).limit(10)
         return authors
 
-    # start_year, end_year, author_ids, journal_names, concept_ids, page, per_page
     def query_search(
         self,
         start_year,
@@ -176,14 +160,6 @@ class MongoDBClient(DatabaseInterface):
                     "$gte": datetime(int(start_year), 12, 31),
                     "$lte": datetime(int(end_year), 12, 31),
                 }
-            # "article.datePublished": {"$gte": start_date, "$lte": end_date}
-            print("match", match)
-            # if statement_filters:
-            #     for key, value in statement_filters.items():
-            #         match[key] = {"$regex": value, "$options": "i"}
-            # if article_filters:
-            #     for key, value in article_filters.items():
-            #         match[key] = {"$regex": value, "$options": "i"}
 
             pipeline = [
                 {
@@ -244,33 +220,16 @@ class MongoDBClient(DatabaseInterface):
                             "paper_type": "$article.paper_type",
                             "id": "$article._id",
                         },
-                        # "articles": {
-                        #     "$map": {
-                        #         "input": "$articles",
-                        #         "as": "article",
-                        #         "in": {
-                        #             "doi": "$$article.@id",
-                        #             "type": "$$article.@type",
-                        #             "author": "$$article.author",
-                        #             "datePublished": "$$article.datePublished",
-                        #             "identifier": "$$article.identifier",
-                        #             "journal": "$$article.journal",
-                        #             "name": "$$article.name",
-                        #             "publisher": "$$article.publisher",
-                        #         },
-                        #     }
-                        # },
                     }
                 },
                 {"$sort": {"_id": 1}},
                 {"$skip": (page - 1) * per_page},
                 {"$limit": per_page},
             ]
-            print(pipeline)
             docs = list(db.statements.aggregate(pipeline))
             converted_data = self.convert_objectid_to_string(docs)
 
-            return converted_data  # , total_count
+            return converted_data
 
         except Exception as e:
             raise e
@@ -279,7 +238,6 @@ class MongoDBClient(DatabaseInterface):
         scraper = NodeExtractor()
         db = self.db
         try:
-            # Insert authors and create mapping
             authors = {}
             for item in data["@graph"]:
                 for author in item.get("author", []):
@@ -302,7 +260,6 @@ class MongoDBClient(DatabaseInterface):
                         authors[
                             f"{author.get('givenName', '')} {author.get('familyName', '')}"
                         ] = author_result.inserted_id
-            # Insert concepts and create mapping
             concepts = {}
             for item in data["@graph"]:
                 if "Statement" in item.get("@type", []):
@@ -320,7 +277,6 @@ class MongoDBClient(DatabaseInterface):
                                 )
                                 concepts[concept["label"]] = concept_result.inserted_id
 
-            # Insert article
             article = next(
                 item
                 for item in data["@graph"]
@@ -349,7 +305,6 @@ class MongoDBClient(DatabaseInterface):
             article_result = db.articles.insert_one(article)
             article_id = article_result.inserted_id
 
-            # Insert statements
             for item in data["@graph"]:
                 if "Statement" in item.get("@type", []):
                     item["article_id"] = article_id
