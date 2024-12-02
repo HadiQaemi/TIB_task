@@ -1,0 +1,853 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/stockerm/ontologies/2024/9/untitled-ontology-2/"
+     xml:base="http://www.semanticweb.org/stockerm/ontologies/2024/9/untitled-ontology-2/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://reborn.orkg.org/ontology">
+        <owl:versionIRI rdf:resource="http://reborn.orkg.org/ontology/1.0.0"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#differenceBetween -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#differenceBetween">
+        <rdfs:label xml:lang="en">difference between</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#evaluates -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#evaluates">
+        <rdfs:label xml:lang="en">evaluates</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#evaluatesForTask -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#evaluatesForTask">
+        <rdfs:label xml:lang="en">evaluates for task</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#executes -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#executes">
+        <rdfs:label xml:lang="en">executes</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasCharacteristic -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasCharacteristic">
+        <rdfs:label xml:lang="en">has characteristic</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasFormat -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasFormat">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasMember -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasMember">
+        <rdfs:label xml:lang="en">has member</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasPart -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasPart">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <owl:inverseOf rdf:resource="http://reborn.orkg.org/ontology#partOf"/>
+        <rdfs:label xml:lang="en">has part</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasSpecifiedInput -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasSpecifiedInput">
+        <rdfs:label xml:lang="en">has specified input</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasSpecifiedOutput -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#hasSpecifiedOutput">
+        <rdfs:label xml:lang="en">has specified output</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#isSupportedBy -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#isSupportedBy">
+        <rdfs:comment xml:lang="en">Relation between a proposition and something that supports the truth of the assertion.</rdfs:comment>
+        <rdfs:label xml:lang="en">is supported by</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://semanticscience.org/resource/SIO_000206</rdfs:seeAlso>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#partOf -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#partOf">
+        <rdfs:label xml:lang="en">part of</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#relatesFrom -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#relatesFrom">
+        <rdfs:label xml:lang="en">relates from</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#relatesTo -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#relatesTo">
+        <rdfs:label xml:lang="en">relates to</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#requires -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#requires">
+        <rdfs:label xml:lang="en">requires</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#usesSoftware -->
+
+    <owl:ObjectProperty rdf:about="http://reborn.orkg.org/ontology#usesSoftware">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:label xml:lang="en">uses software</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#comment -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#comment">
+        <rdfs:label xml:lang="en">comment</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasDescription -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#hasDescription">
+        <rdfs:label xml:lang="en">has description</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasFormat -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#hasFormat"/>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasSpecifiedNumericValue -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#hasSpecifiedNumericValue">
+        <rdfs:label xml:lang="en">has specified numeric value</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#hasSupportURL -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#hasSupportURL">
+        <rdfs:label xml:lang="en">has support URL</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#isImplementedBy -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#isImplementedBy">
+        <rdfs:label xml:lang="en">is implemented by</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#seeAlso -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#seeAlso">
+        <rdfs:label xml:lang="en">see also</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#source -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#source">
+        <rdfs:label xml:lang="en">source</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#versionInfo -->
+
+    <owl:DatatypeProperty rdf:about="http://reborn.orkg.org/ontology#versionInfo">
+        <rdfs:label xml:lang="en">version info</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Algorithm -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Algorithm">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:comment xml:lang="en">A plan specification (information content entity) which describes the inputs and output of mathematical functions as well as workflow of execution for achieving an predefined objective. Algorithms are realized usually by means of implementation as computer programs for execution by automata.</rdfs:comment>
+        <rdfs:label xml:lang="en">Algorithm</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/IAO_0000064</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#AlgorithmEvaluation -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#AlgorithmEvaluation">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataAnalysis"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#evaluates"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#Algorithm"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#evaluatesForTask"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#Task"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedInput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataInputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedOutput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataOutputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Algorithm evaluation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Continuant -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Continuant">
+        <rdfs:comment xml:lang="en">An entity that exists in full at any time in which it exists at all, persists through time while maintaining its identity and has no temporal parts.</rdfs:comment>
+        <rdfs:label xml:lang="en">Continuant</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/BFO_0000002</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#CovariateSpecification -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#CovariateSpecification">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Covariate specification</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DataAnalysis -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DataAnalysis">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Process"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#executes"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#SoftwareMethod"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Data analysis</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DataInputRole -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DataInputRole">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataItem"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasCharacteristic"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#SampleSize"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasFormat"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#TabularData"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasPart"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#source"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">Data input role is a type of contextual role of an information artifact that is the input of a process.</rdfs:comment>
+        <rdfs:label>Data input role</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DataItem -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DataItem">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:comment xml:lang="en">An information content entity that is intended to be a truthful statement about something (modulo, e.g., measurement precision or other systematic errors) and is constructed/acquired by a method which reliably tends to produce (approximately) truthful statements.</rdfs:comment>
+        <rdfs:label xml:lang="en">Data item</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/IAO_0000027</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DataOutputRole -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DataOutputRole">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataItem"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasFormat"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#TabularData"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#comment"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasDescription"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Data output role</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DataPreprocessing -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DataPreprocessing">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Process"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#executes"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#SoftwareMethod"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedInput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataInputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedOutput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataOutputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Data preprocessing</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#DescriptiveStatisticalCalculation -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#DescriptiveStatisticalCalculation">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#StatisticalCalculation"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedInput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataInputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedOutput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataOutputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Descriptive statistical calculation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#GroupingFactor -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#GroupingFactor">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Grouping factor</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#InferentialStatisticalTest -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#InferentialStatisticalTest">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#StatisticalCalculation"/>
+        <rdfs:label xml:lang="en">Inferential statistical test</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#InformationContentEntity -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#InformationContentEntity">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Continuant"/>
+        <rdfs:label xml:lang="en">Information content entity</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#InteractionEffect -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#InteractionEffect">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Interaction effect</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Occurrent -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Occurrent">
+        <rdfs:label xml:lang="en">Occurrent</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/BFO_0000003</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#OutcomeVariable -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#OutcomeVariable">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Outcome variable</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Process -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Process">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Occurrent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasPart"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#Process"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Process</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#RandomIntercepts -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#RandomIntercepts">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#GroupingFactor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Random intercepts</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#RandomSlopes -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#RandomSlopes">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#relatesFrom"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#requires"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#GroupingFactor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Random slopes</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#SampleSize -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#SampleSize">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataItem"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedNumericValue"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A count which represents the subset of a collection chosen for an investigation, survey, or assay.</rdfs:comment>
+        <rdfs:label xml:lang="en">Sample size</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/GECKO_0000106</rdfs:seeAlso>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/NCIT_C53190</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Software -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Software">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#versionInfo"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">Software is a plan specification (information content entity) composed of a series of instructions that can be interpreted by or directly executed by a processing unit.</rdfs:comment>
+        <rdfs:label xml:lang="en">Software</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/IAO_0000010</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#SoftwareLibrary -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#SoftwareLibrary">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Software"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#partOf"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#Software"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSupportURL"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A software library is software composed of a collection of software modules and/or software methods in a form that can be statically or dynamically linked to some software application.</rdfs:comment>
+        <rdfs:label xml:lang="en">Software library</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/IAO_0000593</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#SoftwareMethod -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#SoftwareMethod">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#Software"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#usesSoftware"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#SoftwareLibrary"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSupportURL"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#isImplementedBy"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A software method (also called subroutine, subprogram, procedure, method, function, or routine) is software designed to execute a specific task.</rdfs:comment>
+        <rdfs:label xml:lang="en">Software method</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/IAO_0000591</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Statement -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Statement">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#isSupportedBy"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#Process"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasFormat"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">An information content entity expressing a declarative sentence that is either true or false.</rdfs:comment>
+        <rdfs:label xml:lang="en">Statement</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/SEPIO_0000174</rdfs:seeAlso>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://semanticscience.org/resource/SIO_001183</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#StatisticalCalculation -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#StatisticalCalculation">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataAnalysis"/>
+        <rdfs:label xml:lang="en">Statistical calculation</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#StatisticalTestOfDifference -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#StatisticalTestOfDifference">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InferentialStatisticalTest"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#differenceBetween"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#GroupingFactor"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#evaluates"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#OutcomeVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasCharacteristic"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#CovariateSpecification"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasPart"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#InteractionEffect"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedInput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataInputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedOutput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataOutputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Statistical test of difference</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#StatisticalTestOfRelationship -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#StatisticalTestOfRelationship">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InferentialStatisticalTest"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasCharacteristic"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#RandomSlopes"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasMember"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#RandomIntercepts"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasPart"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#InteractionEffect"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedInput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataInputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasSpecifiedOutput"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#DataOutputRole"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#relatesFrom"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#relatesTo"/>
+                <owl:someValuesFrom rdf:resource="http://reborn.orkg.org/ontology#StatisticalVariable"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label xml:lang="en">Statistical test of relationship</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#StatisticalVariable -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#StatisticalVariable">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#hasFormat"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://reborn.orkg.org/ontology#seeAlso"/>
+                <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#anyURI"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:comment xml:lang="en">A directive information entity that specifies a data item that can be measured or counted and is used in a statistical analysis.</rdfs:comment>
+        <rdfs:label xml:lang="en">Statistical variable</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://purl.obolibrary.org/obo/OBCS_0000038</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#TabularData -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#TabularData">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#DataItem"/>
+        <rdfs:comment xml:lang="en">Tabular data represented as values in a text file delimited by some character.</rdfs:comment>
+        <rdfs:label xml:lang="en">Tabular data</rdfs:label>
+        <rdfs:seeAlso rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">http://edamontology.org/format_3751</rdfs:seeAlso>
+    </owl:Class>
+    
+
+
+    <!-- http://reborn.orkg.org/ontology#Task -->
+
+    <owl:Class rdf:about="http://reborn.orkg.org/ontology#Task">
+        <rdfs:subClassOf rdf:resource="http://reborn.orkg.org/ontology#InformationContentEntity"/>
+        <rdfs:label xml:lang="en">Task</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="http://reborn.orkg.org/ontology#hasFormat">
+        <rdfs:label xml:lang="en">has format</rdfs:label>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->
+
