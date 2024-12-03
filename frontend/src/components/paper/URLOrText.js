@@ -5,7 +5,7 @@ import { helper } from '../../services/helper';
 const URLOrText = ({ content, button = null, styles, color }) => {
 
     return helper.validURL(content) ? (
-        <Row className='mb-2'>
+        <Row className='d-flex mb-2 inline'>
             <Col xs={10}>
                 <a href={content} style={styles.linkLabel} target="_blank">
                     {content}

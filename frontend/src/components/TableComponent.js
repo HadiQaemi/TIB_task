@@ -31,7 +31,7 @@ const TableComponent = ({ data }) => {
       <FullScreen handle={fullScreenHandle}>
         <Row className="my-4">
           <Col>
-            <Button onClick={exportToExcel} className="me-2">Export to Excel</Button>
+            <Button onClick={exportToExcel} className="me-2 button-coral">Export to Excel</Button>
             <Button onClick={fullScreenHandle.enter}>
               {fullScreenHandle.active ? "Exit Full Screen" : "Enter Full Screen"}
             </Button>

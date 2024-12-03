@@ -1,28 +1,39 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useImperativeHandle } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import debounce from 'lodash/debounce';
 import { paperServices } from '../../services/paperServices';
 import { FaTimes } from 'react-icons/fa';
 
-const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, handleFilter }) => {
+const SideSearchForm = React.forwardRef(({ currentPage, pageSize, submitError, isSubmitting, handleFilter }, ref) => {
     const [timeRange, setTimeRange] = useState([2020, 2025]);
     const [titleSearch, setTitleSearch] = useState('');
     const [authorSearch, setAuthorSearch] = useState('');
     const [journalSearch, setJournalSearch] = useState('');
+    const [researchFieldSearch, setResearchFieldSearch] = useState('');
     const [conceptSearch, setConceptSearch] = useState('');
 
     const [authorSuggestions, setAuthorSuggestions] = useState([]);
     const [journalSuggestions, setJournalSuggestions] = useState([]);
+    const [researchFieldSuggestions, setResearchFieldSuggestions] = useState([]);
     const [conceptSuggestions, setConceptSuggestions] = useState([]);
 
     const [selectedAuthors, setSelectedAuthors] = useState([]);
     const [selectedJournals, setSelectedJournals] = useState([]);
+    const [selectedResearchFields, setSelectedResearchFields] = useState([]);
     const [selectedConcepts, setSelectedConcepts] = useState([]);
 
     const authorsRef = useRef(null);
     const journalsRef = useRef(null);
+    const research_fieldsRef = useRef(null);
     const conceptRef = useRef(null);
+
     const sliderStyles = `
+    .sticky-form {
+      position: sticky;
+      top: 20px; /* Adjust this value to control the distance from the top of the viewport */
+      max-height: calc(100vh - 40px); /* Viewport height minus top and bottom margins */
+      overflow-y: auto;
+    }
     .dual-range {
       position: relative;
       height: 30px;
@@ -54,6 +65,36 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
     }
   `;
 
+    const handleReset = () => {
+        setTimeRange([2020, 2025]);
+        setTitleSearch('');
+        setAuthorSearch('');
+        setJournalSearch('');
+        setResearchFieldSearch('');
+        setConceptSearch('');
+        setSelectedAuthors([]);
+        setSelectedJournals([]);
+        setSelectedResearchFields([]);
+        setSelectedConcepts([]);
+        setAuthorSuggestions([]);
+        setJournalSuggestions([]);
+        setResearchFieldSuggestions([]);
+        setConceptSuggestions([]);
+
+        const resetData = {
+            title: '',
+            timeRange: {
+                start: 2020,
+                end: 2025
+            },
+            page: currentPage,
+            per_page: pageSize,
+            authors: [],
+            journals: [],
+            concepts: []
+        };
+        handleFilter(resetData);
+    };
     const fetchAuthors = debounce(async (search) => {
         if (!search) return;
         try {
@@ -61,6 +102,16 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
             setAuthorSuggestions(response);
         } catch (error) {
             console.error('Error fetching authors:', error);
+        }
+    }, 300);
+
+    const fetchResearchFields = debounce(async (search) => {
+        if (!search) return;
+        try {
+            const response = await paperServices.getResearchFields(search);
+            setResearchFieldSuggestions(response);
+        } catch (error) {
+            console.error('Error fetching journals:', error);
         }
     }, 300);
 
@@ -92,6 +143,9 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
             case 'journal':
                 setSelectedJournals(selectedJournals.filter(journal => journal.id !== id));
                 break;
+            case 'Research_field':
+                setSelectedResearchFields(selectedResearchFields.filter(Research_field => Research_field.id !== id));
+                break;
             case 'concept':
                 setSelectedConcepts(selectedConcepts.filter(concept => concept.id !== id));
                 break;
@@ -110,6 +164,7 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
             per_page: pageSize,
             authors: selectedAuthors.map(author => author.id),
             journals: selectedJournals.map(journal => journal.id),
+            research_fields: selectedResearchFields.map(research_fields => research_fields.id),
             concepts: selectedConcepts.map(concept => concept.id)
         };
         handleFilter(queryData)
@@ -169,7 +224,7 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
         type,
         placeholder
     }) => (
-        <Form.Group className="mb-4" style={{ borderTop: '1px dashed #555', paddingTop: '5px' }}>
+        <Form.Group className="mb-2" style={{ paddingTop: '5px' }}>
             <Form.Label>{label}</Form.Label>
             <div style={{ position: 'relative' }}>
                 <Form.Control
@@ -196,6 +251,11 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
                                     setSelectedJournals([...selected, item]);
                                     setJournalSearch('');
                                     setJournalSuggestions([]);
+                                    break;
+                                case 'Research_field':
+                                    setSelectedResearchFields([...selected, item]);
+                                    setResearchFieldSearch('');
+                                    setResearchFieldSuggestions([]);
                                     break;
                                 case 'concept':
                                     setSelectedConcepts([...selected, item]);
@@ -228,113 +288,161 @@ const SideSearchForm = ({ currentPage, pageSize, submitError, isSubmitting, hand
         </Form.Group>
     );
 
+    useImperativeHandle(ref, () => ({
+        setSelectedConcepts: (concepts) => {
+            setSelectedConcepts(concepts);
+        },
+        setSelectedResearchFields: (concepts) => {
+            setSelectedResearchFields(concepts);
+        },
+        setSelectedAuthors: (concepts) => {
+            setSelectedAuthors(concepts);
+        },
+        setSelectedJournals: (concepts) => {
+            setSelectedJournals(concepts);
+        },
+        handleSubmit: (e) => {
+            handleSubmit(e);
+        }
+    }));
+
     return (
-        <Form onSubmit={handleSubmit} className="bg-white p-3 rounded shadow mt-4">
-            <style>{sliderStyles}</style>
-            <Row className="mb-4">
-                <Form.Group>
-                    <Form.Label>Time Range: {timeRange[0]} - {timeRange[1]}</Form.Label>
-                    <div className="dual-range">
-                        <input
-                            type="range"
-                            min={2000}
-                            max={2025}
-                            className='range'
-                            value={timeRange[0]}
-                            onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                if (value < timeRange[1]) {
-                                    setTimeRange([value, timeRange[1]]);
-                                }
-                            }}
-                        />
-                        <input
-                            type="range"
-                            min={2000}
-                            max={2025}
-                            className='range'
-                            value={timeRange[1]}
-                            onChange={(e) => {
-                                const value = parseInt(e.target.value);
-                                if (value > timeRange[0]) {
-                                    setTimeRange([timeRange[0], value]);
-                                }
-                            }}
-                        />
-                    </div>
+        <div className="sticky-form">
+            <Form onSubmit={handleSubmit} className="bg-white p-3 rounded shadow mt-4">
+                <style>{sliderStyles}</style>
+                <Row className="mb-2">
+                    <Form.Group>
+                        <Form.Label>Time Range: {timeRange[0]} - {timeRange[1]}</Form.Label>
+                        <div className="dual-range">
+                            <input
+                                type="range"
+                                min={2000}
+                                max={2025}
+                                className='range'
+                                value={timeRange[0]}
+                                onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    if (value < timeRange[1]) {
+                                        setTimeRange([value, timeRange[1]]);
+                                    }
+                                }}
+                            />
+                            <input
+                                type="range"
+                                min={2000}
+                                max={2025}
+                                className='range'
+                                value={timeRange[1]}
+                                onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    if (value > timeRange[0]) {
+                                        setTimeRange([timeRange[0], value]);
+                                    }
+                                }}
+                            />
+                        </div>
+                    </Form.Group>
+                </Row>
+
+                <Form.Group className="mb-2">
+                    <Form.Label>Title or DOI</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={titleSearch}
+                        onChange={(e) => setTitleSearch(e.target.value)}
+                        placeholder="Search by Title or DOI..."
+                    />
                 </Form.Group>
-            </Row>
-            
-            <Form.Group className="mb-4">
-                <Form.Label>Title/DOI</Form.Label>
-                <Form.Control
-                    type="text"
-                    value={titleSearch}
-                    onChange={(e) => setTitleSearch(e.target.value)}
-                    placeholder="Search by title/DOI..."
+
+                <AutocompleteField
+                    label="Authors"
+                    value={authorSearch}
+                    inputRef={authorsRef}
+                    onChange={(e) => {
+                        setAuthorSearch(e.target.value);
+                        fetchAuthors(e.target.value);
+                    }}
+                    suggestions={authorSuggestions}
+                    selected={selectedAuthors}
+                    onRemove={(id) => removeItem(id, 'author')}
+                    type="author"
+                    placeholder="Search authors..."
                 />
-            </Form.Group>
 
-            <AutocompleteField
-                label="Authors"
-                value={authorSearch}
-                inputRef={authorsRef}
-                onChange={(e) => {
-                    setAuthorSearch(e.target.value);
-                    fetchAuthors(e.target.value);
-                }}
-                suggestions={authorSuggestions}
-                selected={selectedAuthors}
-                onRemove={(id) => removeItem(id, 'author')}
-                type="author"
-                placeholder="Search authors..."
-            />
+                <AutocompleteField
+                    label="Journals or Conferences"
+                    value={journalSearch}
+                    inputRef={journalsRef}
+                    onChange={(e) => {
+                        setJournalSearch(e.target.value);
+                        fetchJournals(e.target.value);
+                    }}
+                    suggestions={journalSuggestions}
+                    selected={selectedJournals}
+                    onRemove={(id) => removeItem(id, 'journal')}
+                    type="journal"
+                    placeholder="Search Journals or Conferences..."
+                />
 
-            <AutocompleteField
-                label="Journals/Conference"
-                value={journalSearch}
-                inputRef={journalsRef}
-                onChange={(e) => {
-                    setJournalSearch(e.target.value);
-                    fetchJournals(e.target.value);
-                }}
-                suggestions={journalSuggestions}
-                selected={selectedJournals}
-                onRemove={(id) => removeItem(id, 'journal')}
-                type="journal"
-                placeholder="Search journals..."
-            />
+                <AutocompleteField
+                    label="Research fields"
+                    value={researchFieldSearch}
+                    inputRef={research_fieldsRef}
+                    onChange={(e) => {
+                        setResearchFieldSearch(e.target.value);
+                        fetchResearchFields(e.target.value);
+                    }}
+                    suggestions={researchFieldSuggestions}
+                    selected={selectedResearchFields}
+                    onRemove={(id) => removeItem(id, 'Research_field')}
+                    type="Research_field"
+                    placeholder="Search Research fields..."
+                />
 
-            <AutocompleteField
-                label="Concepts"
-                value={conceptSearch}
-                inputRef={conceptRef}
-                onChange={(e) => {
-                    setConceptSearch(e.target.value);
-                    fetchConcepts(e.target.value);
-                }}
-                suggestions={conceptSuggestions}
-                selected={selectedConcepts}
-                onRemove={(id) => removeItem(id, 'concept')}
-                type="concept"
-                placeholder="Search concepts..."
-            />
+                <AutocompleteField
+                    label="Keywords"
+                    value={conceptSearch}
+                    inputRef={conceptRef}
+                    onChange={(e) => {
+                        setConceptSearch(e.target.value);
+                        fetchConcepts(e.target.value);
+                    }}
+                    suggestions={conceptSuggestions}
+                    selected={selectedConcepts}
+                    onRemove={(id) => removeItem(id, 'concept')}
+                    type="concept"
+                    placeholder="Search Keywords..."
+                />
 
-            {submitError && (
-                <div className="alert alert-danger mb-3">
-                    {submitError}
+                {submitError && (
+                    <div className="alert alert-danger mb-3">
+                        {submitError}
+                    </div>
+                )}
+
+                <div className="d-flex">
+                    <Button
+                        variant="primary"
+                        type="submit"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Filtering...' : 'Filter'}
+                    </Button>
+
+                    <Button
+                        variant="secondary"
+                        type="button"
+                        style={{ marginLeft: '10px' }}
+                        onClick={handleReset}
+                        disabled={isSubmitting}
+                    >
+                        Reset
+                    </Button>
                 </div>
-            )}
 
-            <Button
-                variant="primary"
-                type="submit"
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? 'Filtering...' : 'Filter'}
-            </Button>
-        </Form>
+            </Form>
+        </div>
     );
-};
+});
 
 export default SideSearchForm;

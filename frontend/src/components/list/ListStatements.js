@@ -6,6 +6,7 @@ import SearchStatementsForm from './SearchStatementsForm';
 import PaperInfo from '../paper/PaperInfo';
 import JsonTreeViewer from '../paper/JsonTreeViewer';
 import SideSearchForm from './SideSearchForm';
+import { helper } from '../../services/helper';
 
 const ListStatements = () => {
   const [statements, setStatements] = useState([]);
@@ -54,7 +55,6 @@ const ListStatements = () => {
     setSubmitError(null);
     try {
       const result = await paperServices.searchStatements(queryData);
-      console.log(result)
       setStatements(result.content);
       setTotalElements(result.totalElements);
       setTotalPages(result.totalPages);
@@ -121,17 +121,74 @@ const ListStatements = () => {
 
     return pages;
   };
+  const sideSearchFormRef = useRef();
+
+  const handleConceptSelect = async (concept) => {
+    const formattedConcept = {
+      id: concept.id,
+      name: concept.label
+    };
+    if (sideSearchFormRef.current) {
+      sideSearchFormRef.current.setSelectedConcepts([formattedConcept]);
+
+      const fakeEvent = new Event('submit', { cancelable: true });
+      setTimeout(function () {
+        sideSearchFormRef.current.handleSubmit(fakeEvent);
+      }, 100);
+    }
+  };
+
+  const handleAuthorSelect = async (author) => {
+    const formattedAuthor = {
+      id: author.id,
+      name: `${author.label}`
+    };
+    if (sideSearchFormRef.current) {
+      sideSearchFormRef.current.setSelectedAuthors([formattedAuthor]);
+
+      const fakeEvent = new Event('submit', { cancelable: true });
+      setTimeout(function () {
+        sideSearchFormRef.current.handleSubmit(fakeEvent);
+      }, 100);
+    }
+  };
+
+  const handleJournalSelect = async (journal) => {
+    const formattedJournal = {
+      id: journal._id,
+      name: `${journal.label}`
+    };
+    if (sideSearchFormRef.current) {
+      sideSearchFormRef.current.setSelectedJournals([formattedJournal]);
+
+      const fakeEvent = new Event('submit', { cancelable: true });
+      setTimeout(function () {
+        sideSearchFormRef.current.handleSubmit(fakeEvent);
+      }, 100);
+    }
+  };
+
+  const handleResearchFieldSelect = async (field) => {
+    const formattedField = {
+      id: field._id,
+      name: `${field.label}`
+    };
+    if (sideSearchFormRef.current) {
+      sideSearchFormRef.current.setSelectedResearchFields([formattedField]);
+
+      const fakeEvent = new Event('submit', { cancelable: true });
+      setTimeout(function () {
+        sideSearchFormRef.current.handleSubmit(fakeEvent);
+      }, 100);
+    }
+  };
+
   return (
     // <Container fluid>
     <Container className="p-5" fluid>
-      {/* <Row>
-        <Col md={12}>
-          <SearchStatementsForm onSubmit={handleSubmit} />
-        </Col>
-      </Row> */}
       <Row>
         <Col md={2}>
-          <SideSearchForm handleFilter={handleFilter} currentPage={currentPage} pageSize={pageSize} isSubmitting={isSubmitting} submitError={submitError} />
+          <SideSearchForm ref={sideSearchFormRef} handleFilter={handleFilter} currentPage={currentPage} pageSize={pageSize} isSubmitting={isSubmitting} submitError={submitError} />
         </Col>
         <Col md={10}>
           <div className="bg-white p-3 rounded shadow mt-4">
@@ -143,12 +200,12 @@ const ListStatements = () => {
                   <React.Fragment key={index}>
                     <Card className="m-2 mb-4">
                       <Card.Header className="bg-light">
-                        <PaperInfo paper={items[1][0]['article']} />
+                        <PaperInfo onJournalSelect={handleJournalSelect} onAuthorSelect={handleAuthorSelect} onResearchFieldSelect={handleResearchFieldSelect} onConceptSelect={handleConceptSelect} paper={items[1][0]['article']} />
                       </Card.Header>
                       <Card.Body>
                         {items[1].map((statement, key) => (
                           <React.Fragment key={`list-${key}`}>
-                            <JsonTreeViewer jsonData={statement.content['doi:21.T11969/a72ca256dc49e55a1a57#is_supported_by'] === undefined ? statement.content['doi:a72ca256dc49e55a1a57#is_supported_by'] : statement.content['doi:21.T11969/a72ca256dc49e55a1a57#is_supported_by']} single={true} statement={statement} />
+                            <JsonTreeViewer onJournalSelect={handleJournalSelect} onAuthorSelect={handleAuthorSelect} onConceptSelect={handleConceptSelect} jsonData={helper.checkType('is_supported_by', statement.content, 1)} single={true} statement={statement} />
                           </React.Fragment>
                         ))}
                       </Card.Body>

@@ -3,7 +3,7 @@ import { Table, Pagination, Form, Button } from 'react-bootstrap';
 import { Fullscreen, Minimize } from 'lucide-react';
 import { utils, writeFile } from 'xlsx';
 
-const JsonTable = ({ data, styles, button, color }) => {
+const JsonTable = ({ data, styles, button, color, Components }) => {
   let columns = []
   let rows = []
   if (typeof data === 'object') {
@@ -40,11 +40,10 @@ const JsonTable = ({ data, styles, button, color }) => {
     const wsData = rows.map(row =>
       columns.reduce((acc, col) => {
         const cell = row.cells.find(c => c.column === col['@id']);
-        acc[col.titles] = cell ? cell.value : '';
+        acc[col.col_titles] = cell ? cell.value : '';
         return acc;
       }, {})
     );
-
     const ws = utils.json_to_sheet(wsData);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, "Data");
@@ -163,7 +162,7 @@ const JsonTable = ({ data, styles, button, color }) => {
           ))}
         </Form.Select>
         <div>
-          <Button variant="primary" className="me-2" onClick={exportToExcel}>
+          <Button className="me-2 button-coral" onClick={exportToExcel}>
             Export to Excel
           </Button>
           <Button variant="secondary" onClick={toggleFullscreen}>
@@ -178,7 +177,13 @@ const JsonTable = ({ data, styles, button, color }) => {
             <tr>
               {columns.map((column) => (
                 <th key={`header-${column['@id']}`}>
-                  {column.col_titles}
+                  {
+                    Components === undefined ?
+                      column.col_titles : (
+                        Components[column.col_titles] === undefined ?
+                          column.col_titles : <a target="_blank" href={Components[column.col_titles]}>{column.col_titles}</a>
+                      )
+                  }
                 </th>
               ))}
             </tr>

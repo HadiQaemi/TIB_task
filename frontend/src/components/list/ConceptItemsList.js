@@ -1,64 +1,86 @@
-import React, { useState } from 'react';
-import { Badge, Popover, OverlayTrigger, Button } from 'react-bootstrap';
-import { X } from 'lucide-react';
+import React from 'react';
 import { FaTag } from 'react-icons/fa';
+import CustomPopover from './CustomPopover';
+import { usePopoverManager } from './hooks/usePopoverManager';
 
-const ConceptItemsList = ({ concepts }) => {
-  const [activePopover, setActivePopover] = useState(null);
+const ConceptItemsList = ({ concepts, onConceptSelect }) => {
+  const { activePopover, containerRef, handlePopoverToggle } = usePopoverManager();
 
-  const renderPopover = (identifiers, label) => (
-    <Popover id={`popover-${label}`} className="popover-width">
-      <Popover.Header as="h3" className="title flex items-center justify-between bg-gray-50">
-        <span>Identifiers for {label}</span>
-        <Button
-          variant="link"
-          className="p-0 text-gray-600 hover:text-gray-900"
-          onClick={() => setActivePopover(null)}
-        >
-          <X size={20} />
-        </Button>
-      </Popover.Header>
-      <Popover.Body>
-        {identifiers.map((id, index) => (
-          <div key={index} className="mb-3 last:mb-0">
+  const renderIdentifiersList = (identifiers) => (
+    <>
+      {identifiers.length > 0 && <div className='mt-2'>See also</div>}
+      {
+        identifiers.map((id, index) => (
+          <div key={index} className="mb-1 p-3 pt-0 pb-0">
             <a
               href={id}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 hover:underline break-all"
+              className="text-blue-600 break-all"
+              onClick={(e) => {
+                if (e.target.closest('.overlay-trigger')) {
+                  e.stopPropagation();
+                  handlePopoverToggle(null, false);
+                }
+              }}
             >
               {id}
             </a>
           </div>
-        ))}
-      </Popover.Body>
-    </Popover>
+        ))
+      }
+    </>
   );
 
-  const handleClick = (label, identifiers) => {
-    if (identifiers.length > 0) {
-      setActivePopover(label);
-    }
-  };
-
   return (
-    <div className="p-6">
+    <div className="p-6" ref={containerRef}>
       <div className="flex flex-wrap gap-3">
         {concepts.map((item, index) => (
           <div key={index} className="inline-block m-1 concepts">
             {item.identifier.length > 0 ? (
-              <OverlayTrigger
-                trigger="click"
-                placement="bottom"
+              <CustomPopover
+                id={`popover-${item.label}`}
+                subTitle='Show content in '
+                title={`${item.label}`}
                 show={activePopover === item.label}
-                overlay={renderPopover(item.identifier, item.label)}
-                onToggle={() => handleClick(item.label, item.identifier)}
-                rootClose
+                onToggle={(show) => handlePopoverToggle(item.label, show)}
+                icon={FaTag}
+                onSelect={() => onConceptSelect(item)}
+                trigger={
+                  <span
+                    className="badge bg-light me-2 mb-2 text-secondary text-underline pointer overlay-trigger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePopoverToggle(item.label, activePopover !== item.label);
+                    }}
+                  >
+                    <FaTag className="me-1 font-red" />{item.label}
+                  </span>
+                }
               >
-                <span key={index} className="badge bg-light me-2 mb-2 text-secondary text-underline pointer"><FaTag className='me-1 font-red' />{item.label}</span>
-              </OverlayTrigger>
+                {renderIdentifiersList(item.identifier)}
+              </CustomPopover>
             ) : (
-              <span key={index} className="badge bg-light me-2 mb-2 text-secondary"><FaTag className='me-1 font-red' />{item.label}</span>
+              <CustomPopover
+                id={`popover-${item.label}`}
+                subTitle='Show content in '
+                title={`${item.label}`}
+                show={activePopover === item.label}
+                onToggle={(show) => handlePopoverToggle(item.label, show)}
+                trigger={
+                  <span
+                    className="badge bg-light me-2 mb-2 text-secondary pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePopoverToggle(item.label, activePopover !== item.label);
+                    }}
+                  >
+                    <FaTag className="me-1 font-red" />{item.label}
+                  </span>
+                }
+              >
+                {renderIdentifiersList(item.identifier)}
+              </CustomPopover>
             )}
           </div>
         ))}

@@ -561,7 +561,11 @@ pre.show-all {
 }
 
 .inline-block {
-  display: inline-block;
+  display: inline-block !important;
+}
+
+.inline {
+  display: inline !important;
 }
 
 .title {
@@ -575,6 +579,10 @@ pre.show-all {
 
 .color-coral {
   color: #e86161;
+}
+
+.color-gray {
+  color: #333;
 }
 
 .big-title {
@@ -685,6 +693,10 @@ pre.show-all {
   text-decoration: underline;
 }
 
+.text-none-underline {
+  text-decoration: none;
+}
+
 .concepts span {
   padding: 5px;
   border: 1px solid #999;
@@ -732,4 +744,37 @@ pre.show-all {
 .line-height {
   line-height: 30px;
   height: 30px;
+}
+
+.show-more-abstract {
+  border: 1px solid #555;
+  border-radius: 5px;
+}
+
+.popover-width {
+  max-width: 500px !important;
+}
+
+.popover-width h3 {
+  white-space: nowrap;
+}
+
+.highlight-pattern {
+  color: #e86161;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.highlight-word {
+  color: rgb(74, 172, 54);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.button-coral {
+  right: 2em;
+  background-color: #e86161 !important;
+  border: 1px solid #eee !important;
 }

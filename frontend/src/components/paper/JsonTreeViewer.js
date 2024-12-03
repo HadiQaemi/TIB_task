@@ -15,6 +15,7 @@ import Executes from './nodes/Executes';
 import IsImplementedBy from './nodes/IsImplementedBy';
 import Targets from './nodes/Targets';
 import Level from './nodes/Level';
+import { paperServices } from '../../services/paperServices';
 
 const getTypeFromStorage = (nodeKey) => {
   try {
@@ -64,7 +65,7 @@ const saveTypeToStorage = (nodeKey, typeInfo) => {
 
 const fetchTypeInfo = async (nodeKey) => {
   try {
-    const response = await fetch(`https://typeregistry.lab.pidconsortium.net/objects/21.T11969/${nodeKey}`);
+    const response = await paperServices.getTypeInfo(nodeKey);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -86,7 +87,7 @@ const fetchTypeInfo = async (nodeKey) => {
   }
 };
 
-const TreeNode = ({ data, statement, parent = null, label = null, source_url = null, button = null, tooltip = null, level = 0, color = '#bbb' }) => {
+const TreeNode = ({ data, onConceptSelect, onAuthorSelect, statement, parent = null, label = null, source_url = null, button = null, tooltip = null, level = 0, color = '#bbb' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [typeInfo, setTypeInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -135,7 +136,8 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
 
   const renderTooltip = (props) => (
     <Tooltip id="type-id-tooltip" {...props}>
-      {tooltip ? tooltip : (typeInfo.name === 'Correlation_Test' ? helper.cleanFirstLetter(helper.capitalizeFirstLetter(typeInfo.name)) : "tooltip")}
+      {/* {tooltip ? tooltip : (typeInfo.name === 'Correlation_Test' ? helper.cleanFirstLetter(helper.capitalizeFirstLetter(typeInfo.name)) : helper.cleanFirstLetter(helper.capitalizeFirstLetter(typeInfo.name)))} */}
+      {tooltip ? `tooltip${tooltip}` : (!level ? 'Show data' : '')}
     </Tooltip>
   );
   let evaluate = ""
@@ -160,7 +162,7 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
               :
               (
                 <div style={{ position: 'absolute', top: '20px' }} className={`me-2 transition-transform duration-300 ${isOpen ? 'rotate-0' : '-rotate-90'}`}>
-                  {isOpen ? <FaAngleDoubleUp size={16} className='font-red' /> : <FaAngleDoubleDown size={16} className='font-green' />}
+                  {isOpen ? <FaAngleDoubleUp size={16} className='font-red' onClick={toggleNode} /> : <FaAngleDoubleDown size={16} className='font-green' onClick={toggleNode} />}
                 </div>
               )
             // ''
@@ -171,7 +173,8 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
           <Spinner animation="border" size="sm" variant="secondary" />
         ) : typeInfo ? (
           <Label tooltip={tooltip} renderTooltip={renderTooltip} parent={parent} typeInfo={typeInfo}
-            color={color} button={button} toggleNode={toggleNode} statement={statement} ConceptItemsList={ConceptItemsList}
+            onConceptSelect={onConceptSelect} onAuthorSelect={onAuthorSelect}
+            color={color} button={button} toggleNode={toggleNode} statement={statement}
             label={label} />
         ) : (
           <>
@@ -182,6 +185,7 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
 
       <div
         className={`transition-all duration-300 ease-in-out ${animation}`}
+        key={`div-${level}-${label}`}
         style={{
           maxHeight: level ? '100%' : (isOpen ? '100%' : '0'),
           opacity: level ? 1 : (isOpen ? 1 : 0),
@@ -189,7 +193,7 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
         }}
       >
         {hasChildren && typeInfo !== null && typeInfo.name !== 'Table' && (
-          <div className="ps-4">
+          <div className="ps-4" key={`div-hasChildren-${level}-${label}`}>
             {typeInfo.properties.map((key, value) => {
               if (data['@type']) {
                 if (key === 'label') return null;
@@ -198,10 +202,10 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
                   const has_part = checkType('has_part', data, 1)
                   let label = checkType('label', has_part, 1)
                   return (
-                    <Row key={key} className="mx-0">
+                    <Row key={`has_part--${key}`} className="mx-0">
                       <Col className="px-0">
                         <div className="d-flex border-card" style={{ borderLeft: '10px solid #5b9bd5' }}>
-                          <TreeNode data={has_part} level={level + 1} parent={"has_part"} label={label} tooltip={"has_part"} button={label} color={'#5b9bd5'} />
+                          <TreeNode key={`has_part-TreeNode-${key}`} data={has_part} level={level + 1} parent={"has_part"} label={label + 1} tooltip={"has_part"} button={label} color={'#5b9bd5'} />
                         </div>
                       </Col>
                     </Row>
@@ -252,7 +256,6 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
                   const difference_between_text = `Difference between: ${requires_2_label}`
                   return (
                     <React.Fragment key={`difference_between-fragment-${key}`}>
-                      difference_between
                       {requires_2_label && (
                         <Row key={`has_output-source_table-${key}`} className="mx-0">
                           <Col className="px-0">
@@ -265,16 +268,16 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
                     </React.Fragment>
                   );
                 } else if (key === 'is_implemented_by') {
-                  return <IsImplementedBy renderTooltip={renderTooltip} data={data} styles={styles} />
+                  return <IsImplementedBy key={`is_implemented_by-${level}-${label}`} renderTooltip={renderTooltip} data={data} styles={styles} />
                 } else if (key === 'targets') {
                   if (!level_targets) {
                     level_targets = 1
-                    return <Level data={data} styles={styles} />
+                    return <Level key={`targets-${label}-${level}`} data={data} styles={styles} />
                   }
                 } else if (key === 'level') {
                   if (!level_targets) {
                     level_targets = 1
-                    return <Level data={data} styles={styles} />
+                    return <Level key={`level-${label}-${level}`} data={data} styles={styles} />
                   }
                 } else if (key === 'relates_from') {
                   const relates_from = data[`${data['@type']}#relates_from`]
@@ -297,7 +300,6 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
                   relate.push(`Has member: ${label}`)
                   return (
                     <React.Fragment key={`difference_between-fragment-${key}`}>
-                      has_member
                       {relate.length && (
                         <Row key={`has_output-source_table-${key}`} className="mx-0">
                           <Col className="px-0">
@@ -314,7 +316,6 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
                   return (
                     <Row key={key} className="mx-0">
                       <Col className="px-0">
-                        {key}
                         <div className="d-flex">
                           <TreeNode data={data[newKey]} level={level + 1} label={newKey} />
                         </div>
@@ -331,7 +332,7 @@ const TreeNode = ({ data, statement, parent = null, label = null, source_url = n
   );
 };
 
-const JsonTreeViewer = ({ jsonData, single = false, statement = null }) => {
+const JsonTreeViewer = ({ jsonData, onConceptSelect, onAuthorSelect, single = false, statement = null }) => {
   return (
     <>
       <style>
@@ -359,7 +360,7 @@ const JsonTreeViewer = ({ jsonData, single = false, statement = null }) => {
           }
         `}
       </style>
-      <TreeNode data={jsonData} statement={statement} />
+      <TreeNode data={jsonData} statement={statement} onConceptSelect={onConceptSelect} onAuthorSelect={onAuthorSelect} />
     </>
   );
 };
