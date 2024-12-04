@@ -4,9 +4,7 @@ import ListStatements from '../components/list/ListStatements';
 const StatementList = () => {
 
   return (
-    <>
-      <ListStatements />
-    </>
+    <ListStatements />
   );
 };
 

@@ -12,6 +12,16 @@ export const paperServices = {
             });
         return res
     },
+    getTypeInfo: async (nodeKey) => {
+        let res = await fetch(`https://typeregistry.lab.pidconsortium.net/objects/21.T11969/${nodeKey}`)
+            .then(response => {
+                return response;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        return res
+    },
     getStatements: async (currentPage, pageSize) => {
         let res = await axios.get(SERVER_ADDRESS + `/api/query-data?currentPage=${encodeURIComponent(currentPage)}&pageSize=${encodeURIComponent(pageSize)}`)
             .then(response => {

@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import URLOrText from '../URLOrText';
 import { helper } from '../../../services/helper';
+import JsonSourceCode from '../JsonSourceCode';
 
 const Executes = ({ data, styles }) => {
     const executes = helper.checkType('executes', data, 1)
@@ -42,6 +43,7 @@ const Executes = ({ data, styles }) => {
                 <Col className="px-0">
                     <div className="border-card p-2" style={{ borderLeft: '10px solid #c00000' }}>
                         <URLOrText content={String(text)} styles={styles} tooltip={'Executes'} />
+                        {is_implemented_by !== undefined && <JsonSourceCode highlightCode={is_implemented_by} styles={styles} isCodeLoading={false} sourceCode={is_implemented_by} showAllCode={true} />}
                     </div>
                 </Col>
             </Row>

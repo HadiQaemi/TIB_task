@@ -34,6 +34,68 @@ const IsImplementedBy = ({ data, styles, renderTooltip }) => {
         setShowAllCode(!showAllCode);
     };
     const is_implemented_by = helper.checkType('is_implemented_by', data, 1)
+
+    function createSearchPattern(searchText) {
+        const escaped = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return escaped.replace(/([(),=])\s*/g, '$1\\s*').replace(/[\n]\s*/g, '\\s*')
+            .replace(/\s*,\s*/g, '\\s*,\\s*')
+            .replace(/\s+/g, '\\s+');
+    }
+
+    function highlightCode(sourceCode, searchText) {
+        const pattern = createSearchPattern(searchText);
+        const regex = new RegExp(pattern, 'g');
+        const matches = [];
+        let match;
+        while ((match = regex.exec(sourceCode)) !== null) {
+            matches.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                text: match[0]
+            });
+        }
+        return highlightLongWords(sourceCode, searchText, matches);
+    }
+
+    function highlightLongWords(sourceCode, searchText, patternMatches) {
+        const searchWords = searchText.split(/[.\s(),=]+/)
+            .filter(word => word.length > 3)
+            .map(word => word.replace(/[*+?^${}()[\]\\]/g, '\\$&'));
+        let result = '';
+        let lastIndex = 0;
+
+        patternMatches.forEach(match => {
+            let start = sourceCode.slice(lastIndex, match.start);
+            searchWords.forEach(word => {
+                const wordRegex = new RegExp(word, 'g');
+                start = start.replace(wordRegex,
+                    `<span class="highlight-word">$&</span>`);
+            });
+            result += start;
+            result += `<span class="highlight-pattern">${match.text}</span>`;
+            lastIndex = match.end;
+        });
+
+        let remainingText = sourceCode.slice(lastIndex);
+
+        searchWords.forEach(word => {
+            const wordRegex = new RegExp(word, 'g');
+            remainingText = remainingText.replace(wordRegex,
+                `<span class="highlight-word">$&</span>`);
+        });
+        result += remainingText;
+        return result;
+    }
+
+
+    let executes_is_implemented_by = ''
+    const has_part = helper.checkType('has_part', data, 1)
+    if (has_part !== undefined) {
+        const executes = helper.checkType('executes', has_part, 1)
+        if (executes !== undefined) {
+            executes_is_implemented_by = helper.checkType('is_implemented_by', executes, 1)
+        }
+    }
     return (
         <React.Fragment>
             <Row className="mx-0">
@@ -41,17 +103,16 @@ const IsImplementedBy = ({ data, styles, renderTooltip }) => {
                     <div className="border-card p-2" style={{ borderLeft: '10px solid #c40dfd' }}>
                         {
                             stringType.fileType === 'sourceCode' ?
-                                <JsonSourceCode styles={styles} isCodeLoading={isCodeLoading} sourceCode={sourceCode} showAllCode={showAllCode} toggleShowAllCode={toggleShowAllCode} /> :
+                                <JsonSourceCode highlightCode={highlightCode(sourceCode, executes_is_implemented_by)} styles={styles} isCodeLoading={isCodeLoading} sourceCode={sourceCode} showAllCode={showAllCode} toggleShowAllCode={toggleShowAllCode} /> :
                                 (
                                     <OverlayTrigger
                                         placement="top"
                                         delay={{ show: 250, hide: 400 }}
                                         overlay={renderTooltip}
                                     >
-                                        <span className="fw-bold w-100" style={{ cursor: 'help' }}>
-                                            Source code: <br />
-                                            <URLOrText content={String(is_implemented_by)} button={""} styles={styles} />
-                                        </span>
+                                        <div className="fw-bold" style={{ cursor: 'help' }}>
+                                            Source code: <URLOrText content={String(is_implemented_by)} button={""} styles={styles} />
+                                        </div>
                                     </OverlayTrigger>
                                 )
                         }
