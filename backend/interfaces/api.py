@@ -112,6 +112,7 @@ class Authors(Resource):
         ]
         return jsonify(results)
 
+
 @api.route("/api/titles")
 @api.param("title", "The article title")
 class ArticleTitles(Resource):
@@ -127,6 +128,7 @@ class ArticleTitles(Resource):
         ]
         return jsonify(results)
 
+
 @api.route("/api/research_fields")
 @api.param("label", "The article title")
 class ResearchFields(Resource):
@@ -138,7 +140,8 @@ class ResearchFields(Resource):
         regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
         research_fields = paper_service.get_research_fields(regex_pattern)
         results = [
-            {"id": str(research_field["_id"]), "name": research_field["label"]} for research_field in research_fields
+            {"id": str(research_field["_id"]), "name": research_field["label"]}
+            for research_field in research_fields
         ]
         return jsonify(results)
 
@@ -156,6 +159,54 @@ class journals(Resource):
         results = [
             {"id": str(journal["_id"]), "name": journal["label"]}
             for journal in journals
+        ]
+        return jsonify(results)
+
+@api.route("/api/get-statement")
+@api.param("id", "ID")
+class getStatement(Resource):
+    @api.doc("get_statement")
+    def get(self):
+        id = request.args.get("id", "")
+        statement = paper_service.get_statement(id)
+        return jsonify(statement)
+
+@api.route("/api/latest-concepts")
+class latestConcepts(Resource):
+    @api.doc("latest_concepts")
+    def get(self):
+        concepts = paper_service.get_latest_concepts()
+        results = [
+            {
+                "id": str(concept["_id"]),
+                "name": concept["label"],
+                "identifier": concept["identifier"],
+            }
+            for concept in concepts
+        ]
+        return jsonify(results)
+
+@api.route("/api/latest-statements")
+class latestStatements(Resource):
+    @api.doc("latest_concepts")
+    def get(self):
+        statements = paper_service.get_latest_statements()
+        results = [
+            {
+                "id": str(statement["_id"]),
+                "name": statement["content"]
+                .get("doi:21.T11969/a72ca256dc49e55a1a57#has_notation", {})
+                .get(
+                    "doi:21.T11969/44164d31a37c28d8efbf#label",
+                    statement["content"]
+                    .get("doi:a72ca256dc49e55a1a57#has_notation", {})
+                    .get(
+                        "doi:44164d31a37c28d8efbf#label",
+                        None,
+                    ),
+                ),
+            }
+            for statement in statements
         ]
         return jsonify(results)
 
@@ -184,18 +235,29 @@ class filter_statement(Resource):
     def post(self):
         data = request.get_json()
         time_range = data.get("timeRange", {})
-        start_year = time_range.get('start')
-        end_year = time_range.get('end')
-        
-        title = data.get('title')
-        research_fields = data.get('research_fields', [])
+        start_year = time_range.get("start")
+        end_year = time_range.get("end")
+
+        title = data.get("title")
+        research_fields = data.get("research_fields", [])
         author_ids = data.get("authors", [])
         journal_names = data.get("journals", [])
         conference_names = data.get("conferences", [])
         concept_ids = data.get("concepts", [])
         per_page = data.get("per_page", [])
         page = data.get("page", [])
-        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names, conference_names, title, research_fields)
+        response = paper_service.query_data(
+            author_ids,
+            concept_ids,
+            page,
+            per_page,
+            start_year,
+            end_year,
+            journal_names,
+            conference_names,
+            title,
+            research_fields,
+        )
         status_code = (
             HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
         )
@@ -224,9 +286,7 @@ class get_data(Resource):
         page = request.args.get("page", 1, type=int)
         per_page = request.args.get("per_page", 10, type=int)
 
-        response = paper_service.query_data(
-            author_ids, concept_ids, page, per_page
-        )
+        response = paper_service.query_data(author_ids, concept_ids, page, per_page)
         status_code = (
             HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
         )

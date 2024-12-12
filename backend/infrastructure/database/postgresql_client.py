@@ -65,6 +65,15 @@ class PostgreSQLClient(DatabaseInterface):
     def search_concepts(self, search_term):
         pass
 
+    def search_latest_concepts(self):
+        pass
+
+    def search_statement(self, id):
+        pass
+
+    def search_latest_statements(self):
+        pass
+
     def search_journals(self, search_term):
         pass
 

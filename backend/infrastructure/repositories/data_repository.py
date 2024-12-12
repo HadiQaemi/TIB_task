@@ -55,6 +55,15 @@ class DataRepository:
     def search_concepts(self, search_term):
         return self.db.search_concepts(search_term)
 
+    def search_latest_concepts(self):
+        return self.db.search_latest_concepts()
+
+    def search_statement(self, id):
+        return self.db.search_statement(id)
+
+    def search_latest_statements(self):
+        return self.db.search_latest_statements()
+
     def add_item(self, collection_name, item_data):
         return self.db.insert_one(collection_name, item_data)
 

@@ -144,6 +144,18 @@ class PaperService:
         concepts = self.db_client.search_concepts(search_term)
         return concepts
 
+    def get_latest_concepts(self):
+        concepts = self.db_client.search_latest_concepts()
+        return concepts
+
+    def get_statement(self, id):
+        concepts = self.db_client.search_statement(id)
+        return concepts
+
+    def get_latest_statements(self):
+        concepts = self.db_client.search_latest_statements()
+        return concepts
+
     def search_by_title(self, search_title):
         search_title = unquote(search_title)
         query = {

@@ -154,10 +154,10 @@ class MongoDBClient(DatabaseInterface):
 
     def search_titles(self, search_term):
         db = self.db
-        authors = db.articles.find({"name": search_term}, {"name": 1, "_id": 1}).limit(
+        articles = db.articles.find({"name": search_term}, {"name": 1, "_id": 1}).limit(
             10
         )
-        return authors
+        return articles
 
     def search_research_fields(self, search_term):
         db = self.db
@@ -168,10 +168,31 @@ class MongoDBClient(DatabaseInterface):
 
     def search_concepts(self, search_term):
         db = self.db
-        authors = db.concepts.find(
+        concepts = db.concepts.find(
             {"label": search_term}, {"label": 1, "_id": 1}
         ).limit(10)
-        return authors
+        return concepts
+
+    def search_latest_concepts(self):
+        db = self.db
+        concepts = db.concepts.find().limit(8)
+        return concepts
+
+    def search_statement(self, id):
+        db = self.db
+        statement_id = ObjectId(id)
+        statement = db.statements.find_one(
+            {"_id": statement_id}
+        )
+        if statement:
+            return json.loads(json_util.dumps(statement))
+        else:
+            return None
+
+    def search_latest_statements(self):
+        db = self.db
+        statements = db.statements.find().limit(5)
+        return statements
 
     def query_search(
         self,
@@ -327,7 +348,6 @@ class MongoDBClient(DatabaseInterface):
             ]
             docs = list(db.statements.aggregate(pipeline))
             converted_data = self.convert_objectid_to_string(docs)
-
             return converted_data
 
         except Exception as e:

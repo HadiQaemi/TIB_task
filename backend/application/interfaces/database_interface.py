@@ -45,6 +45,18 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def search_latest_concepts(self):
+        pass
+
+    @abstractmethod
+    def search_statement(self, id):
+        pass
+
+    @abstractmethod
+    def search_latest_statements(self):
+        pass
+
+    @abstractmethod
     def query_search(
         self,
         start_year,
