@@ -162,14 +162,44 @@ class journals(Resource):
         ]
         return jsonify(results)
 
+
 @api.route("/api/get-statement")
 @api.param("id", "ID")
 class getStatement(Resource):
     @api.doc("get_statement")
     def get(self):
         id = request.args.get("id", "")
-        statement = paper_service.get_statement(id)
-        return jsonify(statement)
+        response = paper_service.get_statement(id)
+        status_code = (
+            HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
+        )
+        response = jsonify(
+            {
+                "content": response["result"],
+            }
+        )
+        response.status_code = status_code
+        return response
+
+
+@api.route("/api/get-paper")
+@api.param("id", "ID")
+class getPaper(Resource):
+    @api.doc("get_paper")
+    def get(self):
+        id = request.args.get("id", "")
+        response = paper_service.get_paper(id)
+        status_code = (
+            HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
+        )
+        response = jsonify(
+            {
+                "content": response["result"],
+            }
+        )
+        response.status_code = status_code
+        return response
+
 
 @api.route("/api/latest-concepts")
 class latestConcepts(Resource):
@@ -185,6 +215,7 @@ class latestConcepts(Resource):
             for concept in concepts
         ]
         return jsonify(results)
+
 
 @api.route("/api/latest-statements")
 class latestStatements(Resource):

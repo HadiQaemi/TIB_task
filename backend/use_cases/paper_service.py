@@ -149,8 +149,14 @@ class PaperService:
         return concepts
 
     def get_statement(self, id):
-        concepts = self.db_client.search_statement(id)
-        return concepts
+        statement = self.db_client.search_statement(id)
+        data = self.group_articles(statement)
+        return {"success": True, "result": data, "total_count": len(data)}
+
+    def get_paper(self, id):
+        paper = self.db_client.search_paper(id)
+        data = self.group_articles(paper)
+        return {"success": True, "result": data, "total_count": len(data)}
 
     def get_latest_statements(self):
         concepts = self.db_client.search_latest_statements()

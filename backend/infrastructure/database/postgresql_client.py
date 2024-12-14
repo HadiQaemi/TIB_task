@@ -71,6 +71,9 @@ class PostgreSQLClient(DatabaseInterface):
     def search_statement(self, id):
         pass
 
+    def search_paper(self, id):
+        pass
+
     def search_latest_statements(self):
         pass
 

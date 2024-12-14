@@ -32,22 +32,6 @@ services:
       - app-network
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - REACT_APP_API_URL=${REACT_APP_API_URL}
-    ports:
-      - "3000:80"
-    environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL}
-    depends_on:
-      - backend
-    networks:
-      - app-network
-    restart: unless-stopped
-
 networks:
   app-network:
     driver: bridge

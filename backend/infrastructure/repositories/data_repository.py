@@ -61,6 +61,9 @@ class DataRepository:
     def search_statement(self, id):
         return self.db.search_statement(id)
 
+    def search_paper(self, id):
+        return self.db.search_paper(id)
+
     def search_latest_statements(self):
         return self.db.search_latest_statements()
 

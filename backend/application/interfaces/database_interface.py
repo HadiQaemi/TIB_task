@@ -53,6 +53,10 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
+    def search_paper(self, id):
+        pass
+
+    @abstractmethod
     def search_latest_statements(self):
         pass
 

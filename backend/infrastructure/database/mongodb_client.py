@@ -180,14 +180,223 @@ class MongoDBClient(DatabaseInterface):
 
     def search_statement(self, id):
         db = self.db
-        statement_id = ObjectId(id)
-        statement = db.statements.find_one(
-            {"_id": statement_id}
-        )
-        if statement:
-            return json.loads(json_util.dumps(statement))
-        else:
-            return None
+        try:
+            pipeline = [
+                {
+                    "$lookup": {
+                        "from": "concepts",
+                        "localField": "concept_ids",
+                        "foreignField": "_id",
+                        "as": "concepts",
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "authors",
+                        "localField": "author_ids",
+                        "foreignField": "_id",
+                        "as": "authors",
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "articles",
+                        "localField": "article_id",
+                        "foreignField": "_id",
+                        "as": "article",
+                    }
+                },
+                {
+                    "$unwind": {
+                        "path": "$article",
+                        "preserveNullAndEmptyArrays": True,
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "authors",
+                        "localField": "article.author_ids",
+                        "foreignField": "_id",
+                        "as": "article_authors",
+                    }
+                },
+                {"$match": {"_id": ObjectId(id)}},
+                {
+                    "$project": {
+                        "_id": 1,
+                        "name": 1,
+                        "publisher": 1,
+                        "version": 1,
+                        "content": 1,
+                        "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
+                        "concepts": {
+                            "$map": {
+                                "input": "$concepts",
+                                "as": "concept",
+                                "in": {
+                                    "label": "$$concept.label",
+                                    "identifier": "$$concept.identifier",
+                                    "id": "$$concept._id",
+                                },
+                            }
+                        },
+                        "authors": {
+                            "$map": {
+                                "input": "$authors",
+                                "as": "author",
+                                "in": {
+                                    "label": "$$author.label",
+                                    "identifier": "$$author.identifier",
+                                    "id": "$$author._id",
+                                },
+                            }
+                        },
+                        "article": {
+                            "doi": "$article.@id",
+                            "type": "$article.@type",
+                            "datePublished": "$article.datePublished",
+                            "identifier": "$article.identifier",
+                            "journal": "$article.journal",
+                            "abstract": "$article.abstract",
+                            "conference": "$article.conference",
+                            "name": "$article.name",
+                            "publisher": "$article.publisher",
+                            "research_field": "$article.research_field",
+                            "paper_type": "$article.paper_type",
+                            "id": "$article._id",
+                            "authors": {
+                                "$map": {
+                                    "input": "$article_authors",
+                                    "as": "article_author",
+                                    "in": {
+                                        "label": "$$article_author.label",
+                                        "identifier": "$$article_author.identifier",
+                                        "id": "$$article_author._id",
+                                    },
+                                }
+                            },
+                        },
+                    }
+                },
+                {"$sort": {"_id": 1}},
+                {"$skip": 0},
+                {"$limit": 10},
+            ]
+        except Exception as e:
+            raise e
+        docs = list(db.statements.aggregate(pipeline))
+        converted_data = self.convert_objectid_to_string(docs)
+        return converted_data
+
+    def search_paper(self, id):
+        db = self.db
+        try:
+            pipeline = [
+                {
+                    "$lookup": {
+                        "from": "concepts",
+                        "localField": "concept_ids",
+                        "foreignField": "_id",
+                        "as": "concepts",
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "authors",
+                        "localField": "author_ids",
+                        "foreignField": "_id",
+                        "as": "authors",
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "articles",
+                        "localField": "article_id",
+                        "foreignField": "_id",
+                        "as": "article",
+                    }
+                },
+                {
+                    "$unwind": {
+                        "path": "$article",
+                        "preserveNullAndEmptyArrays": True,
+                    }
+                },
+                {
+                    "$lookup": {
+                        "from": "authors",
+                        "localField": "article.author_ids",
+                        "foreignField": "_id",
+                        "as": "article_authors",
+                    }
+                },
+                {"$match": {"article._id": ObjectId(id)}},
+                {
+                    "$project": {
+                        "_id": 1,
+                        "name": 1,
+                        "publisher": 1,
+                        "version": 1,
+                        "content": 1,
+                        "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
+                        "concepts": {
+                            "$map": {
+                                "input": "$concepts",
+                                "as": "concept",
+                                "in": {
+                                    "label": "$$concept.label",
+                                    "identifier": "$$concept.identifier",
+                                    "id": "$$concept._id",
+                                },
+                            }
+                        },
+                        "authors": {
+                            "$map": {
+                                "input": "$authors",
+                                "as": "author",
+                                "in": {
+                                    "label": "$$author.label",
+                                    "identifier": "$$author.identifier",
+                                    "id": "$$author._id",
+                                },
+                            }
+                        },
+                        "article": {
+                            "doi": "$article.@id",
+                            "type": "$article.@type",
+                            "datePublished": "$article.datePublished",
+                            "identifier": "$article.identifier",
+                            "journal": "$article.journal",
+                            "abstract": "$article.abstract",
+                            "conference": "$article.conference",
+                            "name": "$article.name",
+                            "publisher": "$article.publisher",
+                            "research_field": "$article.research_field",
+                            "paper_type": "$article.paper_type",
+                            "id": "$article._id",
+                            "authors": {
+                                "$map": {
+                                    "input": "$article_authors",
+                                    "as": "article_author",
+                                    "in": {
+                                        "label": "$$article_author.label",
+                                        "identifier": "$$article_author.identifier",
+                                        "id": "$$article_author._id",
+                                    },
+                                }
+                            },
+                        },
+                    }
+                },
+                {"$sort": {"_id": 1}},
+                {"$skip": 0},
+                {"$limit": 10},
+            ]
+        except Exception as e:
+            raise e
+        docs = list(db.statements.aggregate(pipeline))
+        converted_data = self.convert_objectid_to_string(docs)
+        return converted_data
 
     def search_latest_statements(self):
         db = self.db
