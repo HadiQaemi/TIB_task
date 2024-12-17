@@ -417,7 +417,7 @@ class MongoDBClient(DatabaseInterface):
                 match["$or"] = [
                     # {"article.name": {"$regex": title, "$options": "i"}},
                     {"supports.notation.label": {"$regex": title, "$options": "i"}},
-                    # {"article.identifier": {"$regex": title, "$options": "i"}},
+                    {"article.identifier": {"$regex": title, "$options": "i"}},
                 ]
             if author_ids:
                 authors = []
