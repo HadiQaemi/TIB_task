@@ -121,17 +121,17 @@ class MongoDBClient(DatabaseInterface):
 
     def search_publications(self, publications):
         db = self.db
-        journals = db.journals.find({"label": publications}, {"label": 1, "_id": 1}).limit(
-            10
-        )
+        journals = db.journals.find(
+            {"label": publications}, {"label": 1, "_id": 1}
+        ).limit(10)
         return journals
 
     def search_journals(self, query_term):
         db = self.db
         db = self.db
-        journals = db.journals_conferences.find({"label": query_term}, {"label": 1, "_id": 1}).limit(
-            10
-        )
+        journals = db.journals_conferences.find(
+            {"label": query_term}, {"label": 1, "_id": 1}
+        ).limit(10)
         return journals
 
     def search_titles(self, search_term):
@@ -326,32 +326,33 @@ class MongoDBClient(DatabaseInterface):
                     "$project": {
                         "_id": 1,
                         "name": 1,
-                        "publisher": 1,
-                        "version": 1,
+                        "author": 1,
+                        "components": 1,
+                        "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        "concepts": {
-                            "$map": {
-                                "input": "$concepts",
-                                "as": "concept",
-                                "in": {
-                                    "label": "$$concept.label",
-                                    "identifier": "$$concept.identifier",
-                                    "id": "$$concept._id",
-                                },
-                            }
-                        },
-                        "authors": {
-                            "$map": {
-                                "input": "$authors",
-                                "as": "author",
-                                "in": {
-                                    "label": "$$author.label",
-                                    "identifier": "$$author.identifier",
-                                    "id": "$$author._id",
-                                },
-                            }
-                        },
+                        # "concepts": {
+                        #     "$map": {
+                        #         "input": "$concepts",
+                        #         "as": "concept",
+                        #         "in": {
+                        #             "label": "$$concept.label",
+                        #             "identifier": "$$concept.identifier",
+                        #             "id": "$$concept._id",
+                        #         },
+                        #     }
+                        # },
+                        # "authors": {
+                        #     "$map": {
+                        #         "input": "$authors",
+                        #         "as": "author",
+                        #         "in": {
+                        #             "label": "$$author.label",
+                        #             "identifier": "$$author.identifier",
+                        #             "id": "$$author._id",
+                        #         },
+                        #     }
+                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -360,22 +361,24 @@ class MongoDBClient(DatabaseInterface):
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
+                            "researchField": "$article.researchField",
+                            "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
-                            "research_field": "$article.research_field",
                             "paper_type": "$article.paper_type",
+                            "authors": "$article.author",
                             "id": "$article._id",
-                            "authors": {
-                                "$map": {
-                                    "input": "$article_authors",
-                                    "as": "article_author",
-                                    "in": {
-                                        "label": "$$article_author.label",
-                                        "identifier": "$$article_author.identifier",
-                                        "id": "$$article_author._id",
-                                    },
-                                }
-                            },
+                            # "authors": {
+                            #     "$map": {
+                            #         "input": "$article_authors",
+                            #         "as": "article_author",
+                            #         "in": {
+                            #             "label": "$$article_author.label",
+                            #             "identifier": "$$article_author.identifier",
+                            #             "id": "$$article_author._id",
+                            #         },
+                            #     }
+                            # },
                         },
                     }
                 },
@@ -421,7 +424,7 @@ class MongoDBClient(DatabaseInterface):
                 for key, value in enumerate(author_ids):
                     authors.append(ObjectId(value))
                 match["authors_id"] = {"$in": authors}
-            
+
             if journal_names:
                 journals = []
                 for key, value in enumerate(journal_names):
@@ -613,7 +616,9 @@ class MongoDBClient(DatabaseInterface):
         authors = []
         for author in data["author"]:
             temp = author
-            temp["label"] = f"{author.get('givenName', '')} {author.get('familyName', '')}"
+            temp["label"] = (
+                f"{author.get('givenName', '')} {author.get('familyName', '')}"
+            )
             temp = db.authors.insert_one(temp)
             authors.append(temp.inserted_id)
 
@@ -760,7 +765,9 @@ class MongoDBClient(DatabaseInterface):
             temp["research_fields_id"] = research_fields
             temp["journals_conferences_id"] = journals_conferences
             temp["authors_id"] = authors
-            temp["datePublished"] = datetime(int(ScholarlyArticle[0]["datePublished"]), 6, 6)
+            temp["datePublished"] = datetime(
+                int(ScholarlyArticle[0]["datePublished"]), 6, 6
+            )
 
             article = db.statements.insert_one(temp)
         return True
