@@ -190,11 +190,7 @@ class PaperService:
 
     def extract_paper(self, url):
         self.scraper.set_url(url)
-        title = self.scraper.title()
         json_files = self.scraper.all_json_files()
-        print(json_files["ro-crate-metadata.json"])
-
         ro_crate = self.scraper.load_json_from_url(json_files["ro-crate-metadata.json"])
-        info = self.db_client.add_article(ro_crate, json_files)
-        print(info)
+        self.db_client.add_article(ro_crate, json_files)
         return True

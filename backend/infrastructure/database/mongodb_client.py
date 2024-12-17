@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from bson import ObjectId, json_util
 import json
 from datetime import datetime
+from typing import Dict, List, Union, Any
 
 
 @dataclass
@@ -118,39 +119,20 @@ class MongoDBClient(DatabaseInterface):
         )
         return authors
 
-    def search_publications(self, journals):
+    def search_publications(self, publications):
         db = self.db
-        journals = db.journals.find({"label": journals}, {"label": 1, "_id": 1}).limit(
+        journals = db.journals.find({"label": publications}, {"label": 1, "_id": 1}).limit(
             10
         )
         return journals
 
     def search_journals(self, query_term):
         db = self.db
-        pipeline = [
-            {
-                "$unionWith": {
-                    "coll": "conferences",
-                    "pipeline": [
-                        {"$match": {"label": query_term}},
-                        {
-                            "$project": {
-                                "label": 1,
-                                "_id": 1,
-                                "type": {"$literal": "conference"},
-                            }
-                        },
-                        {"$limit": 10},
-                    ],
-                }
-            },
-            {"$match": {"label": query_term}},
-            {"$project": {"label": 1, "_id": 1, "type": {"$literal": "journal"}}},
-            {"$limit": 10},
-            {"$sort": {"label": 1}},
-        ]
-
-        return list(db.journals.aggregate(pipeline))
+        db = self.db
+        journals = db.journals_conferences.find({"label": query_term}, {"label": 1, "_id": 1}).limit(
+            10
+        )
+        return journals
 
     def search_titles(self, search_term):
         db = self.db
@@ -180,6 +162,12 @@ class MongoDBClient(DatabaseInterface):
 
     def search_statement(self, id):
         db = self.db
+        statement_id = ObjectId(ObjectId(id))
+        statement = db.statements.find_one(
+            {"_id": statement_id},
+            {"author": 1, "concept": 1, "article_id": 1},
+        )
+
         try:
             pipeline = [
                 {
@@ -220,37 +208,38 @@ class MongoDBClient(DatabaseInterface):
                         "as": "article_authors",
                     }
                 },
-                {"$match": {"_id": ObjectId(id)}},
+                {"$match": {"article_id": ObjectId(statement["article_id"])}},
                 {
                     "$project": {
                         "_id": 1,
                         "name": 1,
-                        "publisher": 1,
-                        "version": 1,
+                        "author": 1,
+                        "components": 1,
+                        "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        "concepts": {
-                            "$map": {
-                                "input": "$concepts",
-                                "as": "concept",
-                                "in": {
-                                    "label": "$$concept.label",
-                                    "identifier": "$$concept.identifier",
-                                    "id": "$$concept._id",
-                                },
-                            }
-                        },
-                        "authors": {
-                            "$map": {
-                                "input": "$authors",
-                                "as": "author",
-                                "in": {
-                                    "label": "$$author.label",
-                                    "identifier": "$$author.identifier",
-                                    "id": "$$author._id",
-                                },
-                            }
-                        },
+                        # "concepts": {
+                        #     "$map": {
+                        #         "input": "$concepts",
+                        #         "as": "concept",
+                        #         "in": {
+                        #             "label": "$$concept.label",
+                        #             "identifier": "$$concept.identifier",
+                        #             "id": "$$concept._id",
+                        #         },
+                        #     }
+                        # },
+                        # "authors": {
+                        #     "$map": {
+                        #         "input": "$authors",
+                        #         "as": "author",
+                        #         "in": {
+                        #             "label": "$$author.label",
+                        #             "identifier": "$$author.identifier",
+                        #             "id": "$$author._id",
+                        #         },
+                        #     }
+                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -259,22 +248,24 @@ class MongoDBClient(DatabaseInterface):
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
+                            "researchField": "$article.researchField",
+                            "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
-                            "research_field": "$article.research_field",
                             "paper_type": "$article.paper_type",
+                            "authors": "$article.author",
                             "id": "$article._id",
-                            "authors": {
-                                "$map": {
-                                    "input": "$article_authors",
-                                    "as": "article_author",
-                                    "in": {
-                                        "label": "$$article_author.label",
-                                        "identifier": "$$article_author.identifier",
-                                        "id": "$$article_author._id",
-                                    },
-                                }
-                            },
+                            # "authors": {
+                            #     "$map": {
+                            #         "input": "$article_authors",
+                            #         "as": "article_author",
+                            #         "in": {
+                            #             "label": "$$article_author.label",
+                            #             "identifier": "$$article_author.identifier",
+                            #             "id": "$$article_author._id",
+                            #         },
+                            #     }
+                            # },
                         },
                     }
                 },
@@ -417,43 +408,41 @@ class MongoDBClient(DatabaseInterface):
         research_fields,
     ):
         db = self.db
-
         try:
             match = {}
             if title:
                 match["$or"] = [
-                    {"article.name": {"$regex": title, "$options": "i"}},
-                    {"article.identifier": {"$regex": title, "$options": "i"}},
+                    # {"article.name": {"$regex": title, "$options": "i"}},
+                    {"supports.notation.label": {"$regex": title, "$options": "i"}},
+                    # {"article.identifier": {"$regex": title, "$options": "i"}},
                 ]
             if author_ids:
                 authors = []
                 for key, value in enumerate(author_ids):
                     authors.append(ObjectId(value))
-                match["author_ids"] = {"$in": authors}
+                match["authors_id"] = {"$in": authors}
+            
             if journal_names:
                 journals = []
                 for key, value in enumerate(journal_names):
                     journals.append(ObjectId(value))
-                match["$or"] = [
-                    {"journal": {"$in": journals}},
-                    {"conference": {"$in": journals}},
-                ]
+                match["journals_conferences_id"] = {"$in": journals}
+
             if concept_ids:
                 concepts = []
                 for key, value in enumerate(concept_ids):
                     concepts.append(ObjectId(value))
-                match["concept_ids"] = {"$in": concepts}
-            if research_fields:
-                fields = []
-                for key, value in enumerate(research_fields):
-                    fields.append(ObjectId(value))
-                match["research_field"] = {"$in": fields}
+                match["supports.notation.concept._id"] = {"$in": concepts}
             if start_year and end_year:
                 match["datePublished"] = {
                     "$gte": datetime(int(start_year), 12, 31),
                     "$lte": datetime(int(end_year), 12, 31),
                 }
-
+            if research_fields:
+                fields = []
+                for key, value in enumerate(research_fields):
+                    fields.append(ObjectId(value))
+                match["research_fields_id"] = {"$in": fields}
             pipeline = [
                 {
                     "$lookup": {
@@ -498,32 +487,33 @@ class MongoDBClient(DatabaseInterface):
                     "$project": {
                         "_id": 1,
                         "name": 1,
-                        "publisher": 1,
-                        "version": 1,
+                        "author": 1,
+                        "components": 1,
+                        "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        "concepts": {
-                            "$map": {
-                                "input": "$concepts",
-                                "as": "concept",
-                                "in": {
-                                    "label": "$$concept.label",
-                                    "identifier": "$$concept.identifier",
-                                    "id": "$$concept._id",
-                                },
-                            }
-                        },
-                        "authors": {
-                            "$map": {
-                                "input": "$authors",
-                                "as": "author",
-                                "in": {
-                                    "label": "$$author.label",
-                                    "identifier": "$$author.identifier",
-                                    "id": "$$author._id",
-                                },
-                            }
-                        },
+                        # "concepts": {
+                        #     "$map": {
+                        #         "input": "$concepts",
+                        #         "as": "concept",
+                        #         "in": {
+                        #             "label": "$$concept.label",
+                        #             "identifier": "$$concept.identifier",
+                        #             "id": "$$concept._id",
+                        #         },
+                        #     }
+                        # },
+                        # "authors": {
+                        #     "$map": {
+                        #         "input": "$authors",
+                        #         "as": "author",
+                        #         "in": {
+                        #             "label": "$$author.label",
+                        #             "identifier": "$$author.identifier",
+                        #             "id": "$$author._id",
+                        #         },
+                        #     }
+                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -532,22 +522,24 @@ class MongoDBClient(DatabaseInterface):
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
+                            "researchField": "$article.researchField",
+                            "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
-                            "research_field": "$article.research_field",
                             "paper_type": "$article.paper_type",
+                            "authors": "$article.author",
                             "id": "$article._id",
-                            "authors": {
-                                "$map": {
-                                    "input": "$article_authors",
-                                    "as": "article_author",
-                                    "in": {
-                                        "label": "$$article_author.label",
-                                        "identifier": "$$article_author.identifier",
-                                        "id": "$$article_author._id",
-                                    },
-                                }
-                            },
+                            # "authors": {
+                            #     "$map": {
+                            #         "input": "$article_authors",
+                            #         "as": "article_author",
+                            #         "in": {
+                            #             "label": "$$article_author.label",
+                            #             "identifier": "$$article_author.identifier",
+                            #             "id": "$$article_author._id",
+                            #         },
+                            #     }
+                            # },
                         },
                     }
                 },
@@ -562,125 +554,216 @@ class MongoDBClient(DatabaseInterface):
         except Exception as e:
             raise e
 
+    def replace_with_full_data(self, item, data_dict):
+        field_mapping = {
+            "author": "author",
+            "journal": "journal",
+            "publisher": "publisher",
+            "researchField": "researchField",
+            "research_field": "researchField",
+            "concept": "concept",
+            "objectOfInterest": "objectOfInterest",
+            "property": "property",
+            "constraint": "constraint",
+            "operation": "operation",
+            "unit": "unit",
+            "components": "component",
+            "variable": "variable",
+            "measure": "measure",
+            "identifier": "identifier",
+            "notation": "notation",
+            "supports": "supports",
+            "file": "file",
+            "conference": "conference",
+        }
+
+        def find_by_id(id_value, type_list):
+            return next(
+                (item for item in type_list if item.get("@id") == id_value), None
+            )
+
+        def process_field(field_value, dict_key):
+            if isinstance(field_value, list):
+                return [
+                    find_by_id(f.get("@id"), data_dict[dict_key]) or f
+                    for f in field_value
+                    if isinstance(f, dict) and "@id" in f
+                ]
+            elif isinstance(field_value, dict) and "@id" in field_value:
+                return (
+                    find_by_id(field_value["@id"], data_dict[dict_key]) or field_value
+                )
+            return field_value
+
+        result = item.copy()
+
+        for field_name, dict_key in field_mapping.items():
+            if field_name in result:
+                result[field_name] = process_field(result[field_name], dict_key)
+
+        return result
+
     def add_article(self, data, json_files):
         scraper = NodeExtractor()
         db = self.db
-        try:
-            authors = {}
-            for item in data["@graph"]:
-                for author in item.get("author", []):
-                    result = db.authors.find_one(
-                        {
-                            "label": f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                        }
-                    )
-                    if result:
-                        authors[
-                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                        ] = result["_id"]
-                    else:
-                        author_result = db.authors.insert_one(
-                            {
-                                "label": f"{author.get('givenName', '')} {author.get('familyName', '')}",
-                                "identifier": author["@id"],
-                            }
-                        )
-                        authors[
-                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                        ] = author_result.inserted_id
-            concepts = {}
-            for item in data["@graph"]:
-                if "Statement" in item.get("@type", []):
-                    for concept in item.get("concept", []):
-                        if concept.get("label"):
-                            result = db.concepts.find_one({"label": concept["label"]})
-                            if result:
-                                concepts[concept["label"]] = result["_id"]
-                            else:
-                                concept_result = db.concepts.insert_one(
-                                    {
-                                        "label": concept["label"],
-                                        "identifier": concept.get("identifier", []),
-                                    }
-                                )
-                                concepts[concept["label"]] = concept_result.inserted_id
+        graph_data = data.get("@graph", [])
+        data = {}
 
-            article = next(
-                item
-                for item in data["@graph"]
-                if item.get("@type") == "ScholarlyArticle"
+        data["author"] = [item for item in graph_data if item.get("@type") == "Person"]
+        authors = []
+        for author in data["author"]:
+            temp = author
+            temp["label"] = f"{author.get('givenName', '')} {author.get('familyName', '')}"
+            temp = db.authors.insert_one(temp)
+            authors.append(temp.inserted_id)
+
+        data["journal"] = [
+            item for item in graph_data if "Journal" in item.get("@type", [])
+        ]
+        journals_conferences = []
+        for journal in data["journal"]:
+            temp = db.journals_conferences.insert_one(journal)
+            journals_conferences.append(temp.inserted_id)
+
+        data["conference"] = [
+            item for item in graph_data if "Conference" in item.get("@type", [])
+        ]
+        for journal in data["conference"]:
+            temp = db.journals_conferences.insert_one(journal)
+            journals_conferences.append(temp.inserted_id)
+
+        data["publisher"] = [
+            item for item in graph_data if "Publisher" in item.get("@type", [])
+        ]
+
+        data["researchField"] = [
+            item for item in graph_data if "ResearchField" in item.get("@type", [])
+        ]
+        research_fields = []
+        for research_field in data["researchField"]:
+            temp = db.research_fields.insert_one(research_field)
+            research_fields.append(temp.inserted_id)
+
+        data["concept"] = [
+            item for item in graph_data if "Concept" in item.get("@type", [])
+        ]
+        concepts = []
+        for concept in data["concept"]:
+            temp = db.concepts.insert_one(concept)
+            concepts.append(temp.inserted_id)
+
+        data["objectOfInterest"] = [
+            item for item in graph_data if "ObjectOfInterest" in item.get("@type", [])
+        ]
+        if len(data["objectOfInterest"]):
+            db.object_of_interests.insert_many(data["objectOfInterest"])
+
+        data["property"] = [
+            item for item in graph_data if "Property" in item.get("@type", [])
+        ]
+        if len(data["property"]):
+            db.properties.insert_many(data["property"])
+
+        data["constraint"] = [
+            item for item in graph_data if "Constraint" in item.get("@type", [])
+        ]
+        if len(data["constraint"]):
+            db.constraints.insert_many(data["constraint"])
+
+        data["operation"] = [
+            item for item in graph_data if "Operation" in item.get("@type", [])
+        ]
+        if len(data["operation"]):
+            db.operations.insert_many(data["operation"])
+
+        data["unit"] = [item for item in graph_data if "Unit" in item.get("@type", [])]
+        if len(data["unit"]):
+            db.units.insert_many(data["unit"])
+
+        data["component"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "Component" in item.get("@type", [])
+        ]
+        if len(data["component"]):
+            db.components.insert_many(data["component"])
+
+        data["variable"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "Variable" in item.get("@type", [])
+        ]
+        if len(data["variable"]):
+            db.variables.insert_many(data["variable"])
+
+        data["measure"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "Measure" in item.get("@type", [])
+        ]
+        if len(data["measure"]):
+            db.measures.insert_many(data["measure"])
+
+        data["identifier"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "ScholarlyArticle" in item.get("@type", [])
+        ]
+        if len(data["identifier"]):
+            db.identifiers.insert_many(data["identifier"])
+
+        data["notation"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "LinguisticStatement" in item.get("@type", [])
+        ]
+        if len(data["notation"]):
+            db.notations.insert_many(data["notation"])
+
+        data["supports"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "Statement" in item.get("@type", [])
+        ]
+        if len(data["supports"]):
+            db.supports.insert_many(data["supports"])
+
+        data["file"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "File" in item.get("@type", [])
+        ]
+        if len(data["file"]):
+            db.files.insert_many(data["file"])
+
+        ScholarlyArticle = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if "ScholarlyArticle" in item.get("@type", [])
+        ]
+        article = db.articles.insert_one(ScholarlyArticle[0])
+        inserted_id = article.inserted_id
+        data["statements"] = [
+            self.replace_with_full_data(item, data)
+            for item in graph_data
+            if item.get("encodingFormat", "") == "application/ld+json"
+            and "File" in item.get("@type", [])
+        ]
+
+        for statement in data["statements"]:
+            temp = statement
+            temp["content"] = scraper.load_json_from_url(
+                json_files[statement.get("name", "")]
             )
-            article["author_ids"] = [
-                authors[f"{author.get('givenName', '')} {author.get('familyName', '')}"]
-                for author in article.get("author", [])
-                if f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                in authors
-            ]
+            temp["article_id"] = inserted_id
+            temp["concepts_id"] = concepts
+            temp["research_fields_id"] = research_fields
+            temp["journals_conferences_id"] = journals_conferences
+            temp["authors_id"] = authors
+            temp["datePublished"] = datetime(int(ScholarlyArticle[0]["datePublished"]), 6, 6)
 
-            if "journal" in article:
-                paper_type = "journal"
-                journal_result = db.journals.insert_one(article["journal"])
-                journal_id = journal_result.inserted_id
-            else:
-                paper_type = "conference"
-                conference_result = db.conferences.insert_one(article["conference"])
-                conference_id = conference_result.inserted_id
-
-            research_result = db.research_fields.insert_one(article["research_field"])
-            research_field = research_result.inserted_id
-
-            article["paper_type"] = paper_type
-            article_result = db.articles.insert_one(article)
-            article_id = article_result.inserted_id
-
-            for item in data["@graph"]:
-                if "Statement" in item.get("@type", []):
-                    item["article_id"] = article_id
-                    item["author_ids"] = [
-                        authors[
-                            f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                        ]
-                        for author in item.get("author", [])
-                        if f"{author.get('givenName', '')} {author.get('familyName', '')}"
-                        in authors
-                    ]
-                    content = scraper.load_json_from_url(
-                        json_files[item.get("name", "")]
-                    )
-                    item["content"] = content
-                    item["datePublished"] = datetime(
-                        int(article["datePublished"]), 6, 6
-                    )
-                    if "journal" in article:
-                        item["type"] = "journal"
-                        item["journal"] = journal_id
-                    else:
-                        item["type"] = "conference"
-                        item["conference"] = conference_id
-
-                    item["research_field"] = research_field
-                    item["concept_ids"] = [
-                        concepts[concept["label"]]
-                        for concept in item.get("concept", [])
-                        if concept.get("label") in concepts
-                    ]
-                    db.statements.insert_one(item)
-
-            for item in data["@graph"]:
-                if "Statement" not in item.get(
-                    "@type", []
-                ) or "ScholarlyArticle" not in item.get("@type", []):
-                    item["article_id"] = article_id
-                    item["author_ids"] = [
-                        authors[author["@id"]]
-                        for author in item.get("author", [])
-                        if author.get("@id") in authors
-                    ]
-                    db.files.insert_one(item)
-
-            return True
-        except Exception as e:
-            raise e
+            article = db.statements.insert_one(temp)
+        return True
 
     def aggregate(self, collection_name, pipeline):
         collection = self.db[collection_name]

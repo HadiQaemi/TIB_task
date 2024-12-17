@@ -93,7 +93,7 @@ class AddPaper(Resource):
     @api.doc("add_paper_by_url")
     def post(self):
         url = request.args.get("url")
-        paper = paper_service.extract_paper(url)
+        paper_service.extract_paper(url)
         return {"result": True}
 
 
@@ -210,7 +210,9 @@ class latestConcepts(Resource):
             {
                 "id": str(concept["_id"]),
                 "name": concept["label"],
-                "identifier": concept["identifier"],
+                "identifier": concept["seeAlso"][0]
+                if isinstance(concept["seeAlso"], list)
+                else concept["seeAlso"],
             }
             for concept in concepts
         ]
@@ -225,17 +227,7 @@ class latestStatements(Resource):
         results = [
             {
                 "id": str(statement["_id"]),
-                "name": statement["content"]
-                .get("doi:21.T11969/a72ca256dc49e55a1a57#has_notation", {})
-                .get(
-                    "doi:21.T11969/44164d31a37c28d8efbf#label",
-                    statement["content"]
-                    .get("doi:a72ca256dc49e55a1a57#has_notation", {})
-                    .get(
-                        "doi:44164d31a37c28d8efbf#label",
-                        None,
-                    ),
-                ),
+                "name": statement["supports"][0]["notation"]["label"],
             }
             for statement in statements
         ]
