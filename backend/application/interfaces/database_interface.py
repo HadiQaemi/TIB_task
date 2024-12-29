@@ -56,6 +56,7 @@ class DatabaseInterface(ABC):
         per_page,
         conference_names,
         title,
+        research_fields,
     ):
         pass
 

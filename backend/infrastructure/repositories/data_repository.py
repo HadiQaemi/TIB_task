@@ -25,6 +25,7 @@ class DataRepository:
         per_page,
         conference_names,
         title,
+        research_fields,
     ):
         return self.db.query_search(
             start_year,
@@ -36,6 +37,7 @@ class DataRepository:
             per_page,
             conference_names,
             title,
+            research_fields,
         )
 
     def search_authors(self, search_term):

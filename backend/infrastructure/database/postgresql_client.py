@@ -156,6 +156,7 @@ class PostgreSQLClient(DatabaseInterface):
         per_page: int,
         conference_names,
         title,
+        research_fields,
     ) -> Tuple[List[Dict], int]:
         conn = self.conn
         cursor = self.cur

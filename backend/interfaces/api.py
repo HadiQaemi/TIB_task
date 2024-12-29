@@ -188,13 +188,14 @@ class filter_statement(Resource):
         end_year = time_range.get('end')
         
         title = data.get('title')
+        research_fields = data.get('research_fields', [])
         author_ids = data.get("authors", [])
         journal_names = data.get("journals", [])
         conference_names = data.get("conferences", [])
         concept_ids = data.get("concepts", [])
         per_page = data.get("per_page", [])
         page = data.get("page", [])
-        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names, conference_names, title)
+        response = paper_service.query_data(author_ids, concept_ids, page, per_page, start_year, end_year, journal_names, conference_names, title, research_fields)
         status_code = (
             HTTPStatus.OK if response["success"] else HTTPStatus.FAILED_DEPENDENCY
         )

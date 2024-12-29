@@ -184,6 +184,7 @@ class MongoDBClient(DatabaseInterface):
         per_page,
         conference_names,
         title,
+        research_fields,
     ):
         db = self.db
 
@@ -192,7 +193,7 @@ class MongoDBClient(DatabaseInterface):
             if title:
                 match["$or"] = [
                     {"article.name": {"$regex": title, "$options": "i"}},
-                    {"article.identifier": {"$regex": title, "$options": "i"}}
+                    {"article.identifier": {"$regex": title, "$options": "i"}},
                 ]
             if author_ids:
                 authors = []
@@ -212,6 +213,11 @@ class MongoDBClient(DatabaseInterface):
                 for key, value in enumerate(concept_ids):
                     concepts.append(ObjectId(value))
                 match["concept_ids"] = {"$in": concepts}
+            if research_fields:
+                fields = []
+                for key, value in enumerate(research_fields):
+                    fields.append(ObjectId(value))
+                match["research_field"] = {"$in": fields}
             if start_year and end_year:
                 match["datePublished"] = {
                     "$gte": datetime(int(start_year), 12, 31),
@@ -229,6 +235,14 @@ class MongoDBClient(DatabaseInterface):
                 },
                 {
                     "$lookup": {
+                        "from": "authors",
+                        "localField": "author_ids",
+                        "foreignField": "_id",
+                        "as": "authors",
+                    }
+                },
+                {
+                    "$lookup": {
                         "from": "articles",
                         "localField": "article_id",
                         "foreignField": "_id",
@@ -241,15 +255,21 @@ class MongoDBClient(DatabaseInterface):
                         "preserveNullAndEmptyArrays": True,
                     }
                 },
+                {
+                    "$lookup": {
+                        "from": "authors",
+                        "localField": "article.author_ids",
+                        "foreignField": "_id",
+                        "as": "article_authors",
+                    }
+                },
                 {"$match": match},
                 {
                     "$project": {
                         "_id": 1,
                         "name": 1,
                         "publisher": 1,
-                        "author": 1,
                         "version": 1,
-                        "article_id": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
                         "concepts": {
@@ -259,13 +279,24 @@ class MongoDBClient(DatabaseInterface):
                                 "in": {
                                     "label": "$$concept.label",
                                     "identifier": "$$concept.identifier",
+                                    "id": "$$concept._id",
+                                },
+                            }
+                        },
+                        "authors": {
+                            "$map": {
+                                "input": "$authors",
+                                "as": "author",
+                                "in": {
+                                    "label": "$$author.label",
+                                    "identifier": "$$author.identifier",
+                                    "id": "$$author._id",
                                 },
                             }
                         },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
-                            "author": "$article.author",
                             "datePublished": "$article.datePublished",
                             "identifier": "$article.identifier",
                             "journal": "$article.journal",
@@ -276,6 +307,17 @@ class MongoDBClient(DatabaseInterface):
                             "research_field": "$article.research_field",
                             "paper_type": "$article.paper_type",
                             "id": "$article._id",
+                            "authors": {
+                                "$map": {
+                                    "input": "$article_authors",
+                                    "as": "article_author",
+                                    "in": {
+                                        "label": "$$article_author.label",
+                                        "identifier": "$$article_author.identifier",
+                                        "id": "$$article_author._id",
+                                    },
+                                }
+                            },
                         },
                     }
                 },

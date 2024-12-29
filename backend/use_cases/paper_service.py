@@ -80,7 +80,7 @@ class PaperService:
         grouped = defaultdict(list)
 
         for item in data:
-            article_id = item["article_id"]
+            article_id = item["article"]["id"]
             grouped[article_id].append(item)
         return dict(grouped)
 
@@ -107,6 +107,7 @@ class PaperService:
         journal_names=[],
         conference_names=[], 
         title="",
+        research_fields=[],
     ):
         data = self.db_client.query_search(
             start_year,
@@ -117,7 +118,8 @@ class PaperService:
             page,
             per_page,
             conference_names,
-            title
+            title,
+            research_fields
         )
         data = self.group_articles(data)
         return {"success": True, "result": data, "total_count": len(data)}
