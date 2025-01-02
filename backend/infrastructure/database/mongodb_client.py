@@ -271,7 +271,7 @@ class MongoDBClient(DatabaseInterface):
                 },
                 {"$sort": {"_id": 1}},
                 {"$skip": 0},
-                {"$limit": 10},
+                # {"$limit": 10},
             ]
         except Exception as e:
             raise e
@@ -548,7 +548,7 @@ class MongoDBClient(DatabaseInterface):
                 },
                 {"$sort": {"_id": 1}},
                 {"$skip": (page - 1) * per_page},
-                {"$limit": per_page},
+                # {"$limit": per_page},
             ]
             docs = list(db.statements.aggregate(pipeline))
             converted_data = self.convert_objectid_to_string(docs)
