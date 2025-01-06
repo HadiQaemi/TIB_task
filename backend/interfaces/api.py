@@ -210,9 +210,9 @@ class latestConcepts(Resource):
             {
                 "id": str(concept["_id"]),
                 "name": concept["label"],
-                "identifier": concept["seeAlso"][0]
-                if isinstance(concept["seeAlso"], list)
-                else concept["seeAlso"],
+                # "identifier": concept["seeAlso"][0]
+                # if isinstance(concept["seeAlso"], list)
+                # else concept["seeAlso"],
             }
             for concept in concepts
         ]
