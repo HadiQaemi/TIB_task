@@ -1,16 +1,13 @@
+from infrastructure.helpers.db_helpers import generate_static_id
 from infrastructure.web_scraper import NodeExtractor
 import pymongo
 import math
 from application.interfaces.database_interface import DatabaseInterface
 from infrastructure.config import Config
-from typing import List, Dict, Tuple
-
-
 from dataclasses import dataclass
 from bson import ObjectId, json_util
 import json
 from datetime import datetime
-from typing import Dict, List, Union, Any
 
 
 @dataclass
@@ -55,9 +52,9 @@ class MongoDBClient(DatabaseInterface):
 
     def find_one(self, collection_name, entity_id):
         db = self.db
-        article_id = ObjectId(entity_id)
+        # entity_id = ObjectId(entity_id)
         article = db.articles.find_one(
-            {"_id": article_id},
+            {"article_id": entity_id},
             {
                 "author": 1,
                 "datePublished": 1,
@@ -70,7 +67,7 @@ class MongoDBClient(DatabaseInterface):
         if article:
             statements = list(
                 db.statements.find(
-                    {"article_id": article_id},
+                    {"article_id": entity_id},
                     {"author": 1, "concept": 1, "content": 1},
                 )
             )
@@ -82,9 +79,9 @@ class MongoDBClient(DatabaseInterface):
 
     def find_one_statement(self, collection_name, entity_id):
         db = self.db
-        statement_id = ObjectId(entity_id)
+        # entity_id = ObjectId(entity_id)
         statement = db.statements.find_one(
-            {"_id": statement_id},
+            {"statement_id": entity_id},
             {"author": 1, "concept": 1, "content": 1},
         )
         if statement:
@@ -92,10 +89,31 @@ class MongoDBClient(DatabaseInterface):
         else:
             return None
 
-    def insert_one(self, collection_name, data):
-        collection = self.db[collection_name]
-        result = collection.insert_one(data)
-        return result
+    def _add_timestamps(self, data):
+        current_time = datetime.utcnow()
+
+        if isinstance(data, list):
+            for document in data:
+                if not document.get("inserted_at"):
+                    document["inserted_at"] = current_time
+                if not document.get("updated_at"):
+                    document["updated_at"] = current_time
+            return data
+        elif isinstance(data, dict):
+            if not data.get("inserted_at"):
+                data["inserted_at"] = current_time
+            if not data.get("updated_at"):
+                data["updated_at"] = current_time
+            return data
+        return data
+
+    def insert_one(self, collection, document):
+        document_with_timestamps = self._add_timestamps(document)
+        return self.db[collection].insert_one(document_with_timestamps)
+
+    def insert_many(self, collection, documents):
+        documents_with_timestamps = self._add_timestamps(documents)
+        return self.db[collection].insert_many(documents_with_timestamps)
 
     def convert_objectid_to_string(self, data):
         def convert_value(value):
@@ -114,9 +132,10 @@ class MongoDBClient(DatabaseInterface):
 
     def search_authors(self, search_term):
         db = self.db
-        authors = db.authors.find({"label": search_term}, {"label": 1, "_id": 1}).limit(
-            10
-        )
+        authors = db.authors.find(
+            {"familyName": search_term}, {"label": 1, "_id": 1}
+        ).limit(10)
+        print(authors)
         return authors
 
     def search_publications(self, publications):
@@ -162,9 +181,9 @@ class MongoDBClient(DatabaseInterface):
 
     def search_statement(self, id):
         db = self.db
-        statement_id = ObjectId(ObjectId(id))
+        # statement_id = ObjectId(ObjectId(id))
         statement = db.statements.find_one(
-            {"_id": statement_id},
+            {"statement_id": id},
             {"author": 1, "concept": 1, "article_id": 1},
         )
 
@@ -211,35 +230,13 @@ class MongoDBClient(DatabaseInterface):
                 {"$match": {"article_id": ObjectId(statement["article_id"])}},
                 {
                     "$project": {
-                        "_id": 1,
+                        "_id": "$statement_id",
                         "name": 1,
                         "author": 1,
                         "components": 1,
                         "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        # "concepts": {
-                        #     "$map": {
-                        #         "input": "$concepts",
-                        #         "as": "concept",
-                        #         "in": {
-                        #             "label": "$$concept.label",
-                        #             "identifier": "$$concept.identifier",
-                        #             "id": "$$concept._id",
-                        #         },
-                        #     }
-                        # },
-                        # "authors": {
-                        #     "$map": {
-                        #         "input": "$authors",
-                        #         "as": "author",
-                        #         "in": {
-                        #             "label": "$$author.label",
-                        #             "identifier": "$$author.identifier",
-                        #             "id": "$$author._id",
-                        #         },
-                        #     }
-                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -254,24 +251,12 @@ class MongoDBClient(DatabaseInterface):
                             "publisher": "$article.publisher",
                             "paper_type": "$article.paper_type",
                             "authors": "$article.author",
-                            "id": "$article._id",
-                            # "authors": {
-                            #     "$map": {
-                            #         "input": "$article_authors",
-                            #         "as": "article_author",
-                            #         "in": {
-                            #             "label": "$$article_author.label",
-                            #             "identifier": "$$article_author.identifier",
-                            #             "id": "$$article_author._id",
-                            #         },
-                            #     }
-                            # },
+                            "id": "$article.article_id",
                         },
                     }
                 },
                 {"$sort": {"_id": 1}},
                 {"$skip": 0},
-                # {"$limit": 10},
             ]
         except Exception as e:
             raise e
@@ -321,38 +306,17 @@ class MongoDBClient(DatabaseInterface):
                         "as": "article_authors",
                     }
                 },
-                {"$match": {"article._id": ObjectId(id)}},
+                # {"$match": {"article._id": ObjectId(id)}},
+                {"$match": {"article.article_id": id}},
                 {
                     "$project": {
-                        "_id": 1,
+                        "_id": "$statement_id",
                         "name": 1,
                         "author": 1,
                         "components": 1,
                         "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        # "concepts": {
-                        #     "$map": {
-                        #         "input": "$concepts",
-                        #         "as": "concept",
-                        #         "in": {
-                        #             "label": "$$concept.label",
-                        #             "identifier": "$$concept.identifier",
-                        #             "id": "$$concept._id",
-                        #         },
-                        #     }
-                        # },
-                        # "authors": {
-                        #     "$map": {
-                        #         "input": "$authors",
-                        #         "as": "author",
-                        #         "in": {
-                        #             "label": "$$author.label",
-                        #             "identifier": "$$author.identifier",
-                        #             "id": "$$author._id",
-                        #         },
-                        #     }
-                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -367,18 +331,7 @@ class MongoDBClient(DatabaseInterface):
                             "publisher": "$article.publisher",
                             "paper_type": "$article.paper_type",
                             "authors": "$article.author",
-                            "id": "$article._id",
-                            # "authors": {
-                            #     "$map": {
-                            #         "input": "$article_authors",
-                            #         "as": "article_author",
-                            #         "in": {
-                            #             "label": "$$article_author.label",
-                            #             "identifier": "$$article_author.identifier",
-                            #             "id": "$$article_author._id",
-                            #         },
-                            #     }
-                            # },
+                            "id": "$article.article_id",
                         },
                     }
                 },
@@ -392,10 +345,191 @@ class MongoDBClient(DatabaseInterface):
         converted_data = self.convert_objectid_to_string(docs)
         return converted_data
 
-    def search_latest_statements(self):
-        db = self.db
-        statements = db.statements.find().limit(5)
-        return statements
+    def search_latest_statements(
+        self,
+        research_fields=None,
+        search_query=None,
+        sort_order="a-z",
+        page=1,
+        page_size=10,
+    ):
+        query = {}
+        if search_query:
+            query["$or"] = [
+                {
+                    "supports.0.notation.label": {
+                        "$regex": search_query,
+                        "$options": "i",
+                    }
+                },
+                # {"title": {"$regex": search_query, "$options": "i"}},
+                # {"content": {"$regex": search_query, "$options": "i"}},
+            ]
+        if research_fields and len(research_fields) > 0:
+            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            query["research_fields_id"] = {"$in": research_field_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("supports.0.notation.label", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("supports.0.notation.label", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("supports.0.notation.label", 1)]  # default sorting
+
+        collection = self.db["statements"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(query)
+
+        cursor = (
+            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
+
+    def search_latest_articles(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        query = {}
+        if search_query:
+            query["$or"] = [
+                {"name": {"$regex": search_query, "$options": "i"}},
+                # {"content": {"$regex": search_query, "$options": "i"}},
+            ]
+        if research_fields and len(research_fields) > 0:
+            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            query["research_fields_id"] = {"$in": research_field_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("name", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("name", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("name", 1)]  # default sorting
+
+        collection = self.db["articles"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(query)
+
+        cursor = (
+            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
+
+    def search_latest_keywords(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        query = {}
+        if search_query:
+            query["$or"] = [
+                {"label": {"$regex": search_query, "$options": "i"}},
+                # {"content": {"$regex": search_query, "$options": "i"}},
+            ]
+        if research_fields and len(research_fields) > 0:
+            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            query["research_fields_id"] = {"$in": research_field_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("label", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("label", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("label", 1)]  # default sorting
+
+        collection = self.db["concepts"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(query)
+
+        cursor = (
+            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
+
+    def search_latest_authors(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        query = {}
+        if search_query:
+            query["$or"] = [
+                {"label": {"$regex": search_query, "$options": "i"}},
+                # {"content": {"$regex": search_query, "$options": "i"}},
+            ]
+        if research_fields and len(research_fields) > 0:
+            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            query["research_fields_id"] = {"$in": research_field_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("label", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("label", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("label", 1)]  # default sorting
+
+        collection = self.db["authors"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(query)
+
+        cursor = (
+            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
+
+    def search_latest_journals(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        query = {}
+        if search_query:
+            query["$or"] = [
+                {"label": {"$regex": search_query, "$options": "i"}},
+                # {"content": {"$regex": search_query, "$options": "i"}},
+            ]
+        if research_fields and len(research_fields) > 0:
+            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            query["research_fields_id"] = {"$in": research_field_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("label", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("label", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("label", 1)]  # default sorting
+
+        collection = self.db["journals_conferences"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(query)
+
+        cursor = (
+            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
 
     def query_search(
         self,
@@ -418,6 +552,7 @@ class MongoDBClient(DatabaseInterface):
                     # {"article.name": {"$regex": title, "$options": "i"}},
                     {"supports.notation.label": {"$regex": title, "$options": "i"}},
                     {"article.identifier": {"$regex": title, "$options": "i"}},
+                    {"article.name": {"$regex": title, "$options": "i"}},
                 ]
             if author_ids:
                 authors = []
@@ -488,35 +623,13 @@ class MongoDBClient(DatabaseInterface):
                 {"$match": match},
                 {
                     "$project": {
-                        "_id": 1,
+                        "_id": "$statement_id",
                         "name": 1,
                         "author": 1,
                         "components": 1,
                         "supports": 1,
                         "content": 1,
                         "label": "$content.doi:a72ca256dc49e55a1a57#has_notation.doi:44164d31a37c28d8efbf#label",
-                        # "concepts": {
-                        #     "$map": {
-                        #         "input": "$concepts",
-                        #         "as": "concept",
-                        #         "in": {
-                        #             "label": "$$concept.label",
-                        #             "identifier": "$$concept.identifier",
-                        #             "id": "$$concept._id",
-                        #         },
-                        #     }
-                        # },
-                        # "authors": {
-                        #     "$map": {
-                        #         "input": "$authors",
-                        #         "as": "author",
-                        #         "in": {
-                        #             "label": "$$author.label",
-                        #             "identifier": "$$author.identifier",
-                        #             "id": "$$author._id",
-                        #         },
-                        #     }
-                        # },
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
@@ -531,18 +644,7 @@ class MongoDBClient(DatabaseInterface):
                             "publisher": "$article.publisher",
                             "paper_type": "$article.paper_type",
                             "authors": "$article.author",
-                            "id": "$article._id",
-                            # "authors": {
-                            #     "$map": {
-                            #         "input": "$article_authors",
-                            #         "as": "article_author",
-                            #         "in": {
-                            #             "label": "$$article_author.label",
-                            #             "identifier": "$$article_author.identifier",
-                            #             "id": "$$article_author._id",
-                            #         },
-                            #     }
-                            # },
+                            "id": "$article.article_id",
                         },
                     }
                 },
@@ -611,15 +713,24 @@ class MongoDBClient(DatabaseInterface):
         db = self.db
         graph_data = data.get("@graph", [])
         data = {}
+        
+        data["researchField"] = [
+            item for item in graph_data if "ResearchField" in item.get("@type", [])
+        ]
+        research_fields = []
+        for research_field in data["researchField"]:
+            temp = self.insert_one("research_fields", research_field)
+            research_fields.append(temp.inserted_id)
 
         data["author"] = [item for item in graph_data if item.get("@type") == "Person"]
         authors = []
         for author in data["author"]:
             temp = author
+            temp["research_fields_id"] = research_fields
             temp["label"] = (
                 f"{author.get('givenName', '')} {author.get('familyName', '')}"
             )
-            temp = db.authors.insert_one(temp)
+            temp = self.insert_one("authors", temp)
             authors.append(temp.inserted_id)
 
         data["journal"] = [
@@ -627,33 +738,28 @@ class MongoDBClient(DatabaseInterface):
         ]
         journals_conferences = []
         for journal in data["journal"]:
-            temp = db.journals_conferences.insert_one(journal)
+            journal["research_fields_id"] = research_fields
+            temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
 
         data["conference"] = [
             item for item in graph_data if "Conference" in item.get("@type", [])
         ]
         for journal in data["conference"]:
-            temp = db.journals_conferences.insert_one(journal)
+            journal["research_fields_id"] = research_fields
+            temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
 
         data["publisher"] = [
             item for item in graph_data if "Publisher" in item.get("@type", [])
         ]
 
-        data["researchField"] = [
-            item for item in graph_data if "ResearchField" in item.get("@type", [])
-        ]
-        research_fields = []
-        for research_field in data["researchField"]:
-            temp = db.research_fields.insert_one(research_field)
-            research_fields.append(temp.inserted_id)
-
         data["concept"] = [
             item for item in graph_data if "Concept" in item.get("@type", [])
         ]
         concepts = []
         for concept in data["concept"]:
+            concept["research_fields_id"] = research_fields
             temp = db.concepts.insert_one(concept)
             concepts.append(temp.inserted_id)
 
@@ -661,29 +767,29 @@ class MongoDBClient(DatabaseInterface):
             item for item in graph_data if "ObjectOfInterest" in item.get("@type", [])
         ]
         if len(data["objectOfInterest"]):
-            db.object_of_interests.insert_many(data["objectOfInterest"])
+            self.insert_many("object_of_interests", data["objectOfInterest"])
 
         data["property"] = [
             item for item in graph_data if "Property" in item.get("@type", [])
         ]
         if len(data["property"]):
-            db.properties.insert_many(data["property"])
+            self.insert_many("properties", data["property"])
 
         data["constraint"] = [
             item for item in graph_data if "Constraint" in item.get("@type", [])
         ]
         if len(data["constraint"]):
-            db.constraints.insert_many(data["constraint"])
+            self.insert_many("constraints", data["constraint"])
 
         data["operation"] = [
             item for item in graph_data if "Operation" in item.get("@type", [])
         ]
         if len(data["operation"]):
-            db.operations.insert_many(data["operation"])
+            self.insert_many("operations", data["operation"])
 
         data["unit"] = [item for item in graph_data if "Unit" in item.get("@type", [])]
         if len(data["unit"]):
-            db.units.insert_many(data["unit"])
+            self.insert_many("units", data["unit"])
 
         data["component"] = [
             self.replace_with_full_data(item, data)
@@ -691,7 +797,7 @@ class MongoDBClient(DatabaseInterface):
             if "Component" in item.get("@type", [])
         ]
         if len(data["component"]):
-            db.components.insert_many(data["component"])
+            self.insert_many("components", data["component"])
 
         data["variable"] = [
             self.replace_with_full_data(item, data)
@@ -699,7 +805,7 @@ class MongoDBClient(DatabaseInterface):
             if "Variable" in item.get("@type", [])
         ]
         if len(data["variable"]):
-            db.variables.insert_many(data["variable"])
+            self.insert_many("variables", data["variable"])
 
         data["measure"] = [
             self.replace_with_full_data(item, data)
@@ -707,7 +813,7 @@ class MongoDBClient(DatabaseInterface):
             if "Measure" in item.get("@type", [])
         ]
         if len(data["measure"]):
-            db.measures.insert_many(data["measure"])
+            self.insert_many("measures", data["measure"])
 
         data["identifier"] = [
             self.replace_with_full_data(item, data)
@@ -715,7 +821,7 @@ class MongoDBClient(DatabaseInterface):
             if "ScholarlyArticle" in item.get("@type", [])
         ]
         if len(data["identifier"]):
-            db.identifiers.insert_many(data["identifier"])
+            self.insert_many("identifiers", data["identifier"])
 
         data["notation"] = [
             self.replace_with_full_data(item, data)
@@ -723,7 +829,7 @@ class MongoDBClient(DatabaseInterface):
             if "LinguisticStatement" in item.get("@type", [])
         ]
         if len(data["notation"]):
-            db.notations.insert_many(data["notation"])
+            self.insert_many("notations", data["notation"])
 
         data["supports"] = [
             self.replace_with_full_data(item, data)
@@ -731,7 +837,7 @@ class MongoDBClient(DatabaseInterface):
             if "Statement" in item.get("@type", [])
         ]
         if len(data["supports"]):
-            db.supports.insert_many(data["supports"])
+            self.insert_many("supports", data["supports"])
 
         data["file"] = [
             self.replace_with_full_data(item, data)
@@ -739,14 +845,18 @@ class MongoDBClient(DatabaseInterface):
             if "File" in item.get("@type", [])
         ]
         if len(data["file"]):
-            db.files.insert_many(data["file"])
+            self.insert_many("files", data["file"])
 
         ScholarlyArticle = [
             self.replace_with_full_data(item, data)
             for item in graph_data
             if "ScholarlyArticle" in item.get("@type", [])
         ]
-        article = db.articles.insert_one(ScholarlyArticle[0])
+        ScholarlyArticle[0]["article_id"] = generate_static_id(
+            ScholarlyArticle[0]["name"]
+        )
+        ScholarlyArticle[0]["research_fields_id"] = research_fields
+        article = self.insert_one("articles", ScholarlyArticle[0])
         inserted_id = article.inserted_id
         data["statements"] = [
             self.replace_with_full_data(item, data)
@@ -768,8 +878,10 @@ class MongoDBClient(DatabaseInterface):
             temp["datePublished"] = datetime(
                 int(ScholarlyArticle[0]["datePublished"]), 6, 6
             )
-
-            article = db.statements.insert_one(temp)
+            temp["statement_id"] = generate_static_id(
+                temp["supports"][0]["notation"]["label"]
+            )
+            article = self.insert_one("statements", temp)
         return True
 
     def aggregate(self, collection_name, pipeline):

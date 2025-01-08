@@ -74,7 +74,19 @@ class PostgreSQLClient(DatabaseInterface):
     def search_paper(self, id):
         pass
 
-    def search_latest_statements(self):
+    def search_latest_statements(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    def search_latest_articles(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    def search_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    def search_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    def search_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
         pass
 
     def search_journals(self, search_term):

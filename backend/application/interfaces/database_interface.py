@@ -57,7 +57,23 @@ class DatabaseInterface(ABC):
         pass
 
     @abstractmethod
-    def search_latest_statements(self):
+    def search_latest_statements(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    @abstractmethod
+    def search_latest_articles(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    @abstractmethod
+    def search_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    @abstractmethod
+    def search_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
+        pass
+
+    @abstractmethod
+    def search_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
         pass
 
     @abstractmethod

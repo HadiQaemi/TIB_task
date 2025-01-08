@@ -97,7 +97,7 @@ class AddPaper(Resource):
         return {"result": True}
 
 
-@api.route("/api/authors")
+@api.route("/api/get-authors")
 @api.param("url", "The author entity name")
 class Authors(Resource):
     @api.doc("authors_by_name")
@@ -146,7 +146,7 @@ class ResearchFields(Resource):
         return jsonify(results)
 
 
-@api.route("/api/journals")
+@api.route("/api/get-journals")
 @api.param("url", "The concept entity title")
 class journals(Resource):
     @api.doc("journals_by_name")
@@ -219,19 +219,161 @@ class latestConcepts(Resource):
         return jsonify(results)
 
 
-@api.route("/api/latest-statements")
+@api.route("/api/statements")
 class latestStatements(Resource):
-    @api.doc("latest_concepts")
+    @api.doc("latest_statements")
     def get(self):
-        statements = paper_service.get_latest_statements()
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        research_fields = request.args.getlist("research_fields[]")
+
+        statements = paper_service.get_latest_statements(
+            research_fields=research_fields,
+            search_query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+
         results = [
             {
-                "id": str(statement["_id"]),
+                "id": str(statement["statement_id"]),
                 "name": statement["supports"][0]["notation"]["label"],
             }
-            for statement in statements
+            for statement in statements["content"]
         ]
-        return jsonify(results)
+        return jsonify(
+            {
+                "items": results,
+                "total": statements["totalElements"],
+            }
+        )
+
+
+@api.route("/api/articles")
+class latestArticles(Resource):
+    @api.doc("latest_articles")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        research_fields = request.args.getlist("research_fields[]")
+        articles = paper_service.get_latest_articles(
+            research_fields=research_fields,
+            search_query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        results = [
+            {
+                "id": str(article["article_id"]),
+                "name": article["name"],
+            }
+            for article in articles["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": articles["totalElements"],
+            }
+        )
+
+
+@api.route("/api/keywords")
+class latestKeywords(Resource):
+    @api.doc("latest_keywords")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        research_fields = request.args.getlist("research_fields[]")
+        keywords = paper_service.get_latest_keywords(
+            research_fields=research_fields,
+            search_query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        results = [
+            {
+                "id": str(keyword["_id"]),
+                "name": keyword["label"],
+            }
+            for keyword in keywords["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": keywords["totalElements"],
+            }
+        )
+
+
+@api.route("/api/authors")
+class latestAuthors(Resource):
+    @api.doc("latest_authors")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        research_fields = request.args.getlist("research_fields[]")
+        authors = paper_service.get_latest_authors(
+            research_fields=research_fields,
+            search_query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        results = [
+            {
+                "id": str(author["_id"]),
+                "name": author["label"],
+            }
+            for author in authors["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": authors["totalElements"],
+            }
+        )
+
+
+@api.route("/api/journals")
+class latestJournals(Resource):
+    @api.doc("latest_journals")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        research_fields = request.args.getlist("research_fields[]")
+        journals = paper_service.get_latest_journals(
+            research_fields=research_fields,
+            search_query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        results = [
+            {
+                "id": str(journal["_id"]),
+                "name": journal["label"],
+            }
+            for journal in journals["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": journals["totalElements"],
+            }
+        )
 
 
 @api.route("/api/concepts")

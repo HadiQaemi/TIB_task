@@ -64,8 +64,22 @@ class DataRepository:
     def search_paper(self, id):
         return self.db.search_paper(id)
 
-    def search_latest_statements(self):
-        return self.db.search_latest_statements()
+    def search_latest_statements(self, research_fields, search_query, sort_order, page, page_size):
+        return self.db.search_latest_statements(
+            research_fields, search_query, sort_order, page, page_size
+        )
+
+    def search_latest_articles(self, research_fields, search_query, sort_order, page, page_size):
+        return self.db.search_latest_articles(research_fields, search_query, sort_order, page, page_size)
+
+    def search_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
+        return self.db.search_latest_keywords(research_fields, search_query, sort_order, page, page_size)
+
+    def search_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
+        return self.db.search_latest_authors(research_fields, search_query, sort_order, page, page_size)
+
+    def search_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
+        return self.db.search_latest_journals(research_fields, search_query, sort_order, page, page_size)
 
     def add_item(self, collection_name, item_data):
         return self.db.insert_one(collection_name, item_data)

@@ -105,7 +105,7 @@ class PaperService:
         start_year="2000",
         end_year="2025",
         journal_names=[],
-        conference_names=[], 
+        conference_names=[],
         title="",
         research_fields=[],
     ):
@@ -119,7 +119,7 @@ class PaperService:
             per_page,
             conference_names,
             title,
-            research_fields
+            research_fields,
         )
         data = self.group_articles(data)
         return {"success": True, "result": data, "total_count": len(data)}
@@ -158,9 +158,31 @@ class PaperService:
         data = self.group_articles(paper)
         return {"success": True, "result": data, "total_count": len(data)}
 
-    def get_latest_statements(self):
-        concepts = self.db_client.search_latest_statements()
-        return concepts
+    def get_latest_statements(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        statements = self.db_client.search_latest_statements(
+            research_fields, search_query, sort_order, page, page_size
+        )
+        return statements
+
+    def get_latest_articles(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        articles = self.db_client.search_latest_articles(research_fields, search_query, sort_order, page, page_size)
+        return articles
+
+    def get_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
+        keywords = self.db_client.search_latest_keywords(research_fields, search_query, sort_order, page, page_size)
+        return keywords
+
+    def get_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
+        authors = self.db_client.search_latest_authors(research_fields, search_query, sort_order, page, page_size)
+        return authors
+
+    def get_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
+        authors = self.db_client.search_latest_journals(research_fields, search_query, sort_order, page, page_size)
+        return authors
 
     def search_by_title(self, search_title):
         search_title = unquote(search_title)
