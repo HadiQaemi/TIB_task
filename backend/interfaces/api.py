@@ -135,8 +135,8 @@ class ResearchFields(Resource):
     @api.doc("research_fields")
     def get(self):
         search_term = request.args.get("label", "")
-        if not search_term:
-            return jsonify([])
+        # if not search_term:
+        #     return jsonify([])
         regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
         research_fields = paper_service.get_research_fields(regex_pattern)
         results = [
