@@ -272,6 +272,10 @@ class latestArticles(Resource):
             {
                 "id": str(article["article_id"]),
                 "name": article["name"],
+                "author": f"{article["author"][0]["givenName"]} {article["author"][0]["familyName"]}",
+                "journal": article["journal"]["label"],
+                "publisher": article["publisher"]["label"],
+                "date": article["datePublished"],
             }
             for article in articles["content"]
         ]
