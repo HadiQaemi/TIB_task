@@ -353,39 +353,53 @@ class MongoDBClient(DatabaseInterface):
         page=1,
         page_size=10,
     ):
-        query = {}
+        match_stage = {}
         if search_query:
-            query["$or"] = [
+            match_stage["$or"] = [
                 {
                     "supports.0.notation.label": {
                         "$regex": search_query,
                         "$options": "i",
                     }
                 },
-                # {"title": {"$regex": search_query, "$options": "i"}},
-                # {"content": {"$regex": search_query, "$options": "i"}},
             ]
         if research_fields and len(research_fields) > 0:
             research_field_ids = [ObjectId(field_id) for field_id in research_fields]
-            query["research_fields_id"] = {"$in": research_field_ids}
+            match_stage["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
-            sort_config = [("supports.0.notation.label", 1)]
+            sort_config = {"supports.0.notation.label": 1}
         elif sort_order == "z-a":
-            sort_config = [("supports.0.notation.label", -1)]
+            sort_config = {"supports.0.notation.label": -1}
         elif sort_order == "newest":
-            sort_config = [("created_at", -1)]
+            sort_config = {"created_at": -1}
         else:
-            sort_config = [("supports.0.notation.label", 1)]  # default sorting
+            sort_config = {"supports.0.notation.label": 1}
+
+        pipeline = [
+            {"$match": match_stage},
+            {
+                "$lookup": {
+                    "from": "articles",
+                    "localField": "article_id",
+                    "foreignField": "_id",
+                    "as": "article",
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$article",
+                    "preserveNullAndEmptyArrays": True,
+                }
+            },
+            {"$sort": sort_config},
+            {"$skip": (page - 1) * page_size},
+            {"$limit": page_size},
+        ]
 
         collection = self.db["statements"]
-        skip = (page - 1) * page_size
-        total_elements = collection.count_documents(query)
-
-        cursor = (
-            collection.find(filter=query).sort(sort_config).skip(skip).limit(page_size)
-        )
-        content = list(cursor)
+        content = list(collection.aggregate(pipeline))
+        total_elements = collection.count_documents(match_stage)
         return {
             "content": content,
             "totalElements": total_elements,
@@ -713,7 +727,7 @@ class MongoDBClient(DatabaseInterface):
         db = self.db
         graph_data = data.get("@graph", [])
         data = {}
-        
+
         data["researchField"] = [
             item for item in graph_data if "ResearchField" in item.get("@type", [])
         ]
@@ -732,6 +746,10 @@ class MongoDBClient(DatabaseInterface):
             )
             temp = self.insert_one("authors", temp)
             authors.append(temp.inserted_id)
+        
+        data["publisher"] = [
+            item for item in graph_data if "Publisher" in item.get("@type", [])
+        ]
 
         data["journal"] = [
             item for item in graph_data if "Journal" in item.get("@type", [])
@@ -739,6 +757,7 @@ class MongoDBClient(DatabaseInterface):
         journals_conferences = []
         for journal in data["journal"]:
             journal["research_fields_id"] = research_fields
+            journal["publisher"] = data["publisher"]
             temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
 
@@ -747,12 +766,9 @@ class MongoDBClient(DatabaseInterface):
         ]
         for journal in data["conference"]:
             journal["research_fields_id"] = research_fields
+            journal["publisher"] = data["publisher"]
             temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
-
-        data["publisher"] = [
-            item for item in graph_data if "Publisher" in item.get("@type", [])
-        ]
 
         data["concept"] = [
             item for item in graph_data if "Concept" in item.get("@type", [])

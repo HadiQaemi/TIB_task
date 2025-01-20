@@ -240,7 +240,14 @@ class latestStatements(Resource):
         results = [
             {
                 "id": str(statement["statement_id"]),
+                "article": str(statement["article"]["name"]),
+                "author": statement["author"][0]["familyName"],
                 "name": statement["supports"][0]["notation"]["label"],
+                "date": statement["article"]["datePublished"],
+                "journal": (
+                    statement["article"].get("journal", {}).get("label")
+                    or statement["article"].get("conference", {}).get("label")
+                ),
             }
             for statement in statements["content"]
         ]
@@ -272,8 +279,9 @@ class latestArticles(Resource):
             {
                 "id": str(article["article_id"]),
                 "name": article["name"],
-                "author": f'{article["author"][0]["givenName"]} {article["author"][0]["familyName"]}',
-                "journal": article.get("journal", {}).get("label") or article.get("conference", {}).get("label"),
+                "author": article["author"][0]["familyName"],
+                "journal": article.get("journal", {}).get("label")
+                or article.get("conference", {}).get("label"),
                 "publisher": article["publisher"]["label"],
                 "date": article["datePublished"],
             }
@@ -337,6 +345,7 @@ class latestAuthors(Resource):
         results = [
             {
                 "id": str(author["_id"]),
+                "doi": author["@id"],
                 "name": author["label"],
             }
             for author in authors["content"]
@@ -369,6 +378,7 @@ class latestJournals(Resource):
             {
                 "id": str(journal["_id"]),
                 "name": journal["label"],
+                "publisher": journal["publisher"][0]["label"],
             }
             for journal in journals["content"]
         ]
