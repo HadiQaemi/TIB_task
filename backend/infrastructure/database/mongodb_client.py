@@ -1,4 +1,4 @@
-from infrastructure.helpers.db_helpers import generate_static_id
+from infrastructure.helpers.db_helpers import generate_static_id, fetch_reborn_DOI
 from infrastructure.web_scraper import NodeExtractor
 import pymongo
 import math
@@ -246,6 +246,7 @@ class MongoDBClient(DatabaseInterface):
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
                             "researchField": "$article.researchField",
+                            "rebornDOI": "$article.rebornDOI",
                             "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
@@ -326,6 +327,7 @@ class MongoDBClient(DatabaseInterface):
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
                             "researchField": "$article.researchField",
+                            "rebornDOI": "$article.rebornDOI",
                             "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
@@ -368,13 +370,13 @@ class MongoDBClient(DatabaseInterface):
             match_stage["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
-            sort_config = {"supports.0.notation.label": 1}
+            sort_config = {"article.name": 1}
         elif sort_order == "z-a":
-            sort_config = {"supports.0.notation.label": -1}
+            sort_config = {"article.name": -1}
         elif sort_order == "newest":
             sort_config = {"created_at": -1}
         else:
-            sort_config = {"supports.0.notation.label": 1}
+            sort_config = {"article.name": 1}
 
         pipeline = [
             {"$match": match_stage},
@@ -653,6 +655,7 @@ class MongoDBClient(DatabaseInterface):
                             "abstract": "$article.abstract",
                             "conference": "$article.conference",
                             "researchField": "$article.researchField",
+                            "rebornDOI": "$article.rebornDOI",
                             "research_field": "$article.research_field",
                             "name": "$article.name",
                             "publisher": "$article.publisher",
@@ -872,6 +875,7 @@ class MongoDBClient(DatabaseInterface):
             ScholarlyArticle[0]["name"]
         )
         ScholarlyArticle[0]["research_fields_id"] = research_fields
+        ScholarlyArticle[0]["rebornDOI"] = fetch_reborn_DOI(ScholarlyArticle[0]["@id"])
         article = self.insert_one("articles", ScholarlyArticle[0])
         inserted_id = article.inserted_id
         data["statements"] = [
