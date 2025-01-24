@@ -900,7 +900,7 @@ class MongoDBClient(DatabaseInterface):
             ScholarlyArticle[0]["name"]
         )
         ScholarlyArticle[0]["research_fields_id"] = research_fields
-        ScholarlyArticle[0]["Dataset"] = data["Dataset"][0]["datePublished"]
+        ScholarlyArticle[0]["Dataset"] = data["Dataset"][0]
         ScholarlyArticle[0]["rebornDOI"] = fetch_reborn_DOI(ScholarlyArticle[0]["@id"])
         article = self.insert_one("articles", ScholarlyArticle[0])
         inserted_id = article.inserted_id
