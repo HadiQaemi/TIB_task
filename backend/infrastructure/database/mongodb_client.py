@@ -181,7 +181,6 @@ class MongoDBClient(DatabaseInterface):
 
     def search_statement(self, id):
         db = self.db
-        # statement_id = ObjectId(ObjectId(id))
         statement = db.statements.find_one(
             {"statement_id": id},
             {"author": 1, "concept": 1, "article_id": 1},
@@ -240,7 +239,15 @@ class MongoDBClient(DatabaseInterface):
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
-                            "datePublished": "$article.datePublished",
+                            "articleDatePublished": "$article.datePublished",
+                            "rebornDatePublished": {
+                                "$dateToString": {
+                                    "format": "%B %d, %Y",
+                                    "date": {
+                                        "$toDate": "$article.Dataset.datePublished"
+                                    },
+                                }
+                            },
                             "identifier": "$article.identifier",
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
@@ -307,7 +314,6 @@ class MongoDBClient(DatabaseInterface):
                         "as": "article_authors",
                     }
                 },
-                # {"$match": {"article._id": ObjectId(id)}},
                 {"$match": {"article.article_id": id}},
                 {
                     "$project": {
@@ -321,7 +327,15 @@ class MongoDBClient(DatabaseInterface):
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
-                            "datePublished": "$article.datePublished",
+                            "articleDatePublished": "$article.datePublished",
+                            "rebornDatePublished": {
+                                "$dateToString": {
+                                    "format": "%B %d, %Y",
+                                    "date": {
+                                        "$toDate": "$article.Dataset.datePublished"
+                                    },
+                                }
+                            },
                             "identifier": "$article.identifier",
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
@@ -649,7 +663,15 @@ class MongoDBClient(DatabaseInterface):
                         "article": {
                             "doi": "$article.@id",
                             "type": "$article.@type",
-                            "datePublished": "$article.datePublished",
+                            "articleDatePublished": "$article.datePublished",
+                            "rebornDatePublished": {
+                                "$dateToString": {
+                                    "format": "%B %d, %Y",
+                                    "date": {
+                                        "$toDate": "$article.Dataset.datePublished"
+                                    },
+                                }
+                            },
                             "identifier": "$article.identifier",
                             "journal": "$article.journal",
                             "abstract": "$article.abstract",
@@ -731,6 +753,9 @@ class MongoDBClient(DatabaseInterface):
         graph_data = data.get("@graph", [])
         data = {}
 
+        data["Dataset"] = [
+            item for item in graph_data if "Dataset" in item.get("@type", [])
+        ]
         data["researchField"] = [
             item for item in graph_data if "ResearchField" in item.get("@type", [])
         ]
@@ -749,7 +774,7 @@ class MongoDBClient(DatabaseInterface):
             )
             temp = self.insert_one("authors", temp)
             authors.append(temp.inserted_id)
-        
+
         data["publisher"] = [
             item for item in graph_data if "Publisher" in item.get("@type", [])
         ]
@@ -875,6 +900,7 @@ class MongoDBClient(DatabaseInterface):
             ScholarlyArticle[0]["name"]
         )
         ScholarlyArticle[0]["research_fields_id"] = research_fields
+        ScholarlyArticle[0]["Dataset"] = data["Dataset"][0]["datePublished"]
         ScholarlyArticle[0]["rebornDOI"] = fetch_reborn_DOI(ScholarlyArticle[0]["@id"])
         article = self.insert_one("articles", ScholarlyArticle[0])
         inserted_id = article.inserted_id
