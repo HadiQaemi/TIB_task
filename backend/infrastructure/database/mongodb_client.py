@@ -240,6 +240,7 @@ class MongoDBClient(DatabaseInterface):
                             "doi": "$article.@id",
                             "type": "$article.@type",
                             "articleDatePublished": "$article.datePublished",
+                            "hasPart": "$article.Dataset.hasPart",
                             "rebornDatePublished": {
                                 "$dateToString": {
                                     "format": "%B %d, %Y",
@@ -328,6 +329,7 @@ class MongoDBClient(DatabaseInterface):
                             "doi": "$article.@id",
                             "type": "$article.@type",
                             "articleDatePublished": "$article.datePublished",
+                            "hasPart": "$article.Dataset.hasPart",
                             "rebornDatePublished": {
                                 "$dateToString": {
                                     "format": "%B %d, %Y",
@@ -664,6 +666,7 @@ class MongoDBClient(DatabaseInterface):
                             "doi": "$article.@id",
                             "type": "$article.@type",
                             "articleDatePublished": "$article.datePublished",
+                            "hasPart": "$article.Dataset.hasPart",
                             "rebornDatePublished": {
                                 "$dateToString": {
                                     "format": "%B %d, %Y",
