@@ -140,7 +140,7 @@ class ResearchFields(Resource):
         regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
         research_fields = paper_service.get_research_fields(regex_pattern)
         results = [
-            {"id": str(research_field["_id"]), "name": research_field["label"]}
+            {"id": str(research_field["@id"]), "name": research_field["label"]}
             for research_field in research_fields
         ]
         return jsonify(results)

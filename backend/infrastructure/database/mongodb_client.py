@@ -135,7 +135,6 @@ class MongoDBClient(DatabaseInterface):
         authors = db.authors.find(
             {"familyName": search_term}, {"label": 1, "_id": 1}
         ).limit(10)
-        print(authors)
         return authors
 
     def search_publications(self, publications):
@@ -163,7 +162,7 @@ class MongoDBClient(DatabaseInterface):
     def search_research_fields(self, search_term):
         db = self.db
         fields = db.research_fields.find(
-            {"label": search_term}, {"label": 1, "_id": 1}
+            {"label": search_term}, {"label": 1, "@id": 1}
         ).limit(10)
         return fields
 
@@ -382,7 +381,8 @@ class MongoDBClient(DatabaseInterface):
                 },
             ]
         if research_fields and len(research_fields) > 0:
-            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            # research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            research_field_ids = [field_id for field_id in research_fields]
             match_stage["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
@@ -433,7 +433,8 @@ class MongoDBClient(DatabaseInterface):
                 # {"content": {"$regex": search_query, "$options": "i"}},
             ]
         if research_fields and len(research_fields) > 0:
-            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            # research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            research_field_ids = [field_id for field_id in research_fields]
             query["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
@@ -468,7 +469,8 @@ class MongoDBClient(DatabaseInterface):
                 # {"content": {"$regex": search_query, "$options": "i"}},
             ]
         if research_fields and len(research_fields) > 0:
-            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            # research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            research_field_ids = [field_id for field_id in research_fields]
             query["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
@@ -503,7 +505,8 @@ class MongoDBClient(DatabaseInterface):
                 # {"content": {"$regex": search_query, "$options": "i"}},
             ]
         if research_fields and len(research_fields) > 0:
-            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            # research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            research_field_ids = [field_id for field_id in research_fields]
             query["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
@@ -538,7 +541,8 @@ class MongoDBClient(DatabaseInterface):
                 # {"content": {"$regex": search_query, "$options": "i"}},
             ]
         if research_fields and len(research_fields) > 0:
-            research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            # research_field_ids = [ObjectId(field_id) for field_id in research_fields]
+            research_field_ids = [field_id for field_id in research_fields]
             query["research_fields_id"] = {"$in": research_field_ids}
 
         if sort_order == "a-z":
@@ -611,7 +615,8 @@ class MongoDBClient(DatabaseInterface):
             if research_fields:
                 fields = []
                 for key, value in enumerate(research_fields):
-                    fields.append(ObjectId(value))
+                    # fields.append(ObjectId(value))
+                    fields.append(value)
                 match["research_fields_id"] = {"$in": fields}
             pipeline = [
                 {
@@ -764,8 +769,14 @@ class MongoDBClient(DatabaseInterface):
         ]
         research_fields = []
         for research_field in data["researchField"]:
-            temp = self.insert_one("research_fields", research_field)
-            research_fields.append(temp.inserted_id)
+            research_field_id = generate_static_id(research_field["label"])
+            item_check = db.research_fields.find_one(
+                {"@id": research_field_id},
+            )
+            if item_check is None:
+                research_field["@id"] = research_field_id
+                temp = self.insert_one("research_fields", research_field)            
+            research_fields.append(research_field_id)
 
         data["author"] = [item for item in graph_data if item.get("@type") == "Person"]
         authors = []
