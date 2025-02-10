@@ -715,6 +715,7 @@ class MongoDBClient(DatabaseInterface):
             "research_field": "researchField",
             "concept": "concept",
             "objectOfInterest": "objectOfInterest",
+            "matrix": "matrix",
             "property": "property",
             "constraint": "constraint",
             "operation": "operation",
@@ -826,6 +827,12 @@ class MongoDBClient(DatabaseInterface):
         ]
         if len(data["objectOfInterest"]):
             self.insert_many("object_of_interests", data["objectOfInterest"])
+
+        data["matrix"] = [
+            item for item in graph_data if "Matrix" in item.get("@type", [])
+        ]
+        if len(data["matrix"]):
+            self.insert_many("matrix", data["matrix"])
 
         data["property"] = [
             item for item in graph_data if "Property" in item.get("@type", [])
