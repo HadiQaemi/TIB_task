@@ -132,9 +132,9 @@ class MongoDBClient(DatabaseInterface):
 
     def search_authors(self, search_term):
         db = self.db
-        authors = db.authors.find(
-            {"familyName": search_term}, {"label": 1, "_id": 1}
-        ).limit(10)
+        authors = db.authors.find({"label": search_term}, {"label": 1, "id": 1}).limit(
+            10
+        )
         return authors
 
     def search_publications(self, publications):
@@ -191,7 +191,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "concepts",
                         "localField": "concept_ids",
-                        "foreignField": "_id",
+                        "foreignField": "@id",
                         "as": "concepts",
                     }
                 },
@@ -199,7 +199,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "authors",
                         "localField": "author_ids",
-                        "foreignField": "_id",
+                        "foreignField": "id",
                         "as": "authors",
                     }
                 },
@@ -280,7 +280,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "concepts",
                         "localField": "concept_ids",
-                        "foreignField": "_id",
+                        "foreignField": "@id",
                         "as": "concepts",
                     }
                 },
@@ -288,7 +288,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "authors",
                         "localField": "author_ids",
-                        "foreignField": "_id",
+                        "foreignField": "id",
                         "as": "authors",
                     }
                 },
@@ -593,7 +593,8 @@ class MongoDBClient(DatabaseInterface):
             if author_ids:
                 authors = []
                 for key, value in enumerate(author_ids):
-                    authors.append(ObjectId(value))
+                    # authors.append(ObjectId(value))
+                    authors.append(value)
                 match["authors_id"] = {"$in": authors}
 
             if journal_names:
@@ -623,7 +624,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "concepts",
                         "localField": "concept_ids",
-                        "foreignField": "_id",
+                        "foreignField": "@id",
                         "as": "concepts",
                     }
                 },
@@ -631,7 +632,7 @@ class MongoDBClient(DatabaseInterface):
                     "$lookup": {
                         "from": "authors",
                         "localField": "author_ids",
-                        "foreignField": "_id",
+                        "foreignField": "id",
                         "as": "authors",
                     }
                 },
@@ -712,7 +713,6 @@ class MongoDBClient(DatabaseInterface):
             "journal": "journal",
             "publisher": "publisher",
             "researchField": "researchField",
-            "research_field": "researchField",
             "concept": "concept",
             "objectOfInterest": "objectOfInterest",
             "matrix": "matrix",
@@ -765,19 +765,21 @@ class MongoDBClient(DatabaseInterface):
         data["Dataset"] = [
             item for item in graph_data if "Dataset" in item.get("@type", [])
         ]
+
         data["researchField"] = [
             item for item in graph_data if "ResearchField" in item.get("@type", [])
         ]
         research_fields = []
+        research_field_ids = []
         for research_field in data["researchField"]:
             research_field_id = generate_static_id(research_field["label"])
-            item_check = db.research_fields.find_one(
-                {"@id": research_field_id},
-            )
+            item_check = db.research_fields.find_one({"@id": research_field_id})
             if item_check is None:
                 research_field["@id"] = research_field_id
-                temp = self.insert_one("research_fields", research_field)            
-            research_fields.append(research_field_id)
+                item_check = self.insert_one("research_fields", research_field)
+                item_check = db.research_fields.find_one({"@id": research_field_id})
+            research_fields.append(item_check)
+            research_field_ids.append(research_field_id)
 
         data["author"] = [item for item in graph_data if item.get("@type") == "Person"]
         authors = []
@@ -787,8 +789,15 @@ class MongoDBClient(DatabaseInterface):
             temp["label"] = (
                 f"{author.get('givenName', '')} {author.get('familyName', '')}"
             )
-            temp = self.insert_one("authors", temp)
-            authors.append(temp.inserted_id)
+            author_id = generate_static_id(author["@id"])
+            temp["id"] = author_id
+            item_check = db.authors.find_one({"id": author_id})
+            inserted_id = ""
+            if item_check is None:
+                temp = db.authors.insert_one(author)
+            else:
+                temp = item_check
+            authors.append(author_id)
 
         data["publisher"] = [
             item for item in graph_data if "Publisher" in item.get("@type", [])
@@ -799,7 +808,7 @@ class MongoDBClient(DatabaseInterface):
         ]
         journals_conferences = []
         for journal in data["journal"]:
-            journal["research_fields_id"] = research_fields
+            journal["research_fields_id"] = research_field_ids
             journal["publisher"] = data["publisher"]
             temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
@@ -808,7 +817,7 @@ class MongoDBClient(DatabaseInterface):
             item for item in graph_data if "Conference" in item.get("@type", [])
         ]
         for journal in data["conference"]:
-            journal["research_fields_id"] = research_fields
+            journal["research_fields_id"] = research_field_ids
             journal["publisher"] = data["publisher"]
             temp = self.insert_one("journals_conferences", journal)
             journals_conferences.append(temp.inserted_id)
@@ -818,9 +827,16 @@ class MongoDBClient(DatabaseInterface):
         ]
         concepts = []
         for concept in data["concept"]:
-            concept["research_fields_id"] = research_fields
-            temp = db.concepts.insert_one(concept)
-            concepts.append(temp.inserted_id)
+            concept_id = generate_static_id(concept["label"])
+            item_check = db.concepts.find_one({"id": concept_id})
+            if item_check is None:
+                concept["id"] = concept_id
+                concept["research_fields_id"] = research_field_ids
+                temp = db.concepts.insert_one(concept)
+                concept_id = temp.inserted_id
+            else:
+                concept_id = item_check["_id"]
+            concepts.append(concept_id)
 
         data["objectOfInterest"] = [
             item for item in graph_data if "ObjectOfInterest" in item.get("@type", [])
@@ -920,7 +936,9 @@ class MongoDBClient(DatabaseInterface):
         ScholarlyArticle[0]["article_id"] = generate_static_id(
             ScholarlyArticle[0]["name"]
         )
-        ScholarlyArticle[0]["research_fields_id"] = research_fields
+        ScholarlyArticle[0]["research_fields_id"] = research_field_ids
+        ScholarlyArticle[0]["researchField"] = research_fields
+        ScholarlyArticle[0]["research_field"] = research_fields
         ScholarlyArticle[0]["Dataset"] = data["Dataset"][0]
         ScholarlyArticle[0]["rebornDOI"] = fetch_reborn_DOI(ScholarlyArticle[0]["@id"])
         article = self.insert_one("articles", ScholarlyArticle[0])
@@ -939,7 +957,7 @@ class MongoDBClient(DatabaseInterface):
             )
             temp["article_id"] = inserted_id
             temp["concepts_id"] = concepts
-            temp["research_fields_id"] = research_fields
+            temp["research_fields_id"] = research_field_ids
             temp["journals_conferences_id"] = journals_conferences
             temp["authors_id"] = authors
             temp["datePublished"] = datetime(

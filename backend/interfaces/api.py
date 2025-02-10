@@ -108,7 +108,7 @@ class Authors(Resource):
         regex_pattern = re.compile(f".*{re.escape(search_term)}.*", re.IGNORECASE)
         authors = paper_service.get_authors(regex_pattern)
         results = [
-            {"id": str(author["_id"]), "name": author["label"]} for author in authors
+            {"id": str(author["id"]), "name": author["label"]} for author in authors
         ]
         return jsonify(results)
 
@@ -344,7 +344,7 @@ class latestAuthors(Resource):
         )
         results = [
             {
-                "id": str(author["_id"]),
+                "id": str(author["id"]),
                 "doi": author["@id"],
                 "name": author["label"],
             }
