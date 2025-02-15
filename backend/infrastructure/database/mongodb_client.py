@@ -1,4 +1,7 @@
 from infrastructure.helpers.db_helpers import generate_static_id, fetch_reborn_DOI
+from infrastructure.helpers.semantic_search_engine import SemanticSearchEngine
+from infrastructure.helpers.keyword_search_engine import KeywordSearchEngine
+from infrastructure.helpers.hybrid_search_engine import HybridSearchEngine
 from infrastructure.web_scraper import NodeExtractor
 import pymongo
 import math
@@ -24,6 +27,11 @@ class MongoDBClient(DatabaseInterface):
     def __init__(self):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]
+        self.semantic_engine = SemanticSearchEngine()
+        self.keyword_engine = KeywordSearchEngine()
+        self.hybrid_engine = HybridSearchEngine(
+            self.semantic_engine, self.keyword_engine
+        )
 
     def find_all_paginated(
         self, collection_name, query=None, projection=None, page=1, page_size=10
@@ -423,6 +431,91 @@ class MongoDBClient(DatabaseInterface):
             "totalElements": total_elements,
         }
 
+    def search_latest_semantics_statements(
+        self,
+        ids,
+        sort_order="a-z",
+        page=1,
+        page_size=10,
+    ):
+        match_stage = {}
+        if ids and len(ids) > 0:
+            statement_ids = [ObjectId(statement_id) for statement_id in ids]
+            match_stage["_id"] = {"$in": statement_ids}
+
+        if sort_order == "a-z":
+            sort_config = {"article.name": 1}
+        elif sort_order == "z-a":
+            sort_config = {"article.name": -1}
+        elif sort_order == "newest":
+            sort_config = {"created_at": -1}
+        else:
+            sort_config = {"article.name": 1}
+
+        pipeline = [
+            {"$match": match_stage},
+            {
+                "$lookup": {
+                    "from": "articles",
+                    "localField": "article_id",
+                    "foreignField": "_id",
+                    "as": "article",
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$article",
+                    "preserveNullAndEmptyArrays": True,
+                }
+            },
+            {"$sort": sort_config},
+            {"$skip": (page - 1) * page_size},
+            {"$limit": page_size},
+        ]
+
+        collection = self.db["statements"]
+        content = list(collection.aggregate(pipeline))
+        total_elements = collection.count_documents(match_stage)
+        return {
+            # "content": self.convert_objectid_to_string(content),
+            "content": content,
+            "totalElements": total_elements,
+        }
+    
+    def search_latest_semantics_articles(
+        self,
+        ids,
+        sort_order="a-z",
+        page=1,
+        page_size=10,
+    ):
+        match_stage = {}
+        if ids and len(ids) > 0:
+            article_ids = [ObjectId(article_id) for article_id in ids]
+            match_stage["_id"] = {"$in": article_ids}
+
+        if sort_order == "a-z":
+            sort_config = [("name", 1)]
+        elif sort_order == "z-a":
+            sort_config = [("name", -1)]
+        elif sort_order == "newest":
+            sort_config = [("created_at", -1)]
+        else:
+            sort_config = [("name", 1)]
+
+        collection = self.db["articles"]
+        skip = (page - 1) * page_size
+        total_elements = collection.count_documents(match_stage)
+
+        cursor = (
+            collection.find(filter=match_stage).sort(sort_config).skip(skip).limit(page_size)
+        )
+        content = list(cursor)
+        return {
+            "content": content,
+            "totalElements": total_elements,
+        }
+
     def search_latest_articles(
         self, research_fields, search_query, sort_order, page, page_size
     ):
@@ -444,7 +537,7 @@ class MongoDBClient(DatabaseInterface):
         elif sort_order == "newest":
             sort_config = [("created_at", -1)]
         else:
-            sort_config = [("name", 1)]  # default sorting
+            sort_config = [("name", 1)]
 
         collection = self.db["articles"]
         skip = (page - 1) * page_size
@@ -480,7 +573,7 @@ class MongoDBClient(DatabaseInterface):
         elif sort_order == "newest":
             sort_config = [("created_at", -1)]
         else:
-            sort_config = [("label", 1)]  # default sorting
+            sort_config = [("label", 1)]
 
         collection = self.db["concepts"]
         skip = (page - 1) * page_size
@@ -949,7 +1042,15 @@ class MongoDBClient(DatabaseInterface):
             if item.get("encodingFormat", "") == "application/ld+json"
             and "File" in item.get("@type", [])
         ]
-
+        article = [
+            {
+                "title": ScholarlyArticle[0]["name"],
+                "abstract": ScholarlyArticle[0]["abstract"],
+                "article_id": str(article.inserted_id),
+            },
+        ]
+        self.hybrid_engine.semantic_engine.add_articles(article)
+        self.hybrid_engine.keyword_engine.add_articles(article)
         for statement in data["statements"]:
             temp = statement
             temp["content"] = scraper.load_json_from_url(
@@ -966,7 +1067,15 @@ class MongoDBClient(DatabaseInterface):
             temp["statement_id"] = generate_static_id(
                 temp["supports"][0]["notation"]["label"]
             )
-            article = self.insert_one("statements", temp)
+            statement = self.insert_one("statements", temp)
+            statement = [
+                {
+                    "text": temp["supports"][0]["notation"]["label"],
+                    "statement_id": str(statement.inserted_id),
+                },
+            ]
+            self.hybrid_engine.semantic_engine.add_statements(statement)
+            self.hybrid_engine.keyword_engine.add_statements(statement)
         return True
 
     def aggregate(self, collection_name, pipeline):

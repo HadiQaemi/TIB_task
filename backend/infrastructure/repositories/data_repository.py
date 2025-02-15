@@ -92,3 +92,9 @@ class DataRepository:
 
     def find_one_statement(self, table_name, entity_id):
         return self.db.find_one_statement(table_name, entity_id)
+
+    def search_latest_semantics_statements(self, ids, sort_order, page, page_size):
+        return self.db.search_latest_semantics_statements(ids, sort_order, page, page_size)
+
+    def search_latest_semantics_articles(self, ids, sort_order, page, page_size):
+        return self.db.search_latest_semantics_articles(ids, sort_order, page, page_size)

@@ -104,6 +104,12 @@ class PostgreSQLClient(DatabaseInterface):
     def find_one_statement(self, table_name, entity_id):
         pass
 
+    def search_latest_semantics_statements(self, ids, sort_order, page, page_size):
+        pass
+
+    def search_latest_semantics_articles(self, ids, sort_order, page, page_size):
+        pass
+
     def process_json(self, json_data):
         result = {
             "json_id": None,

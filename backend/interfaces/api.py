@@ -77,6 +77,80 @@ class PaperById(Resource):
         return paper
 
 
+@api.route("/api/semantic_search_statements")
+@api.param("search", "Write query")
+class SemanticSearchStatement(Resource):
+    @api.doc("semantic_search_statements")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+        statements = paper_service.semantic_search_statement(
+            query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        results = [
+            {
+                "id": str(statement["statement_id"]),
+                "article": str(statement["article"]["name"]),
+                "author": statement["author"][0]["familyName"],
+                "name": statement["supports"][0]["notation"]["label"],
+                "date": statement["article"]["datePublished"],
+                "journal": (
+                    statement["article"].get("journal", {}).get("label")
+                    or statement["article"].get("conference", {}).get("label")
+                ),
+            }
+            for statement in statements["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": statements["totalElements"],
+            }
+        )
+
+
+@api.route("/api/semantic_search_articles")
+@api.param("search", "Write query")
+class SemanticSearchArticle(Resource):
+    @api.doc("semantic_search_articles")
+    def get(self):
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+        sort_order = request.args.get("sort", "a-z")
+        search_query = request.args.get("search")
+
+        articles = paper_service.semantic_search_article(
+            query=search_query,
+            sort_order=sort_order,
+            page=page,
+            page_size=limit,
+        )
+        print(articles)
+        results = [
+            {
+                "id": str(article["article_id"]),
+                "name": article["name"],
+                "author": article["author"][0]["familyName"],
+                "journal": article.get("journal", {}).get("label")
+                or article.get("conference", {}).get("label"),
+                "publisher": article["publisher"]["label"],
+                "date": article["datePublished"],
+            }
+            for article in articles["content"]
+        ]
+        return jsonify(
+            {
+                "items": results,
+                "total": articles["totalElements"],
+            }
+        )
+
+
 @api.route("/api/statement")
 @api.param("id", "The paper entity ID")
 class StatementById(Resource):

@@ -2,7 +2,9 @@ from infrastructure.web_scraper import NodeExtractor
 from domain.entities import Paper, Contribution
 from bson.regex import Regex
 from urllib.parse import unquote
-
+from infrastructure.helpers.semantic_search_engine import SemanticSearchEngine
+from infrastructure.helpers.keyword_search_engine import KeywordSearchEngine
+from infrastructure.helpers.hybrid_search_engine import HybridSearchEngine
 from infrastructure.repositories.data_repository import DataRepository
 import math
 from collections import defaultdict
@@ -73,6 +75,31 @@ class PaperService:
                 "total_count": len(statements),
             }
 
+        except Exception as e:
+            return {"success": False, "result": str(e), "total_count": 0}
+
+    def semantic_search_statement(self, query, sort_order, page, page_size):
+        try:
+            semantic_engine = SemanticSearchEngine()
+            keyword_engine = KeywordSearchEngine()
+            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+            statement_results, final_ids = hybrid_engine.search_statements(query)
+            return self.db_client.search_latest_semantics_statements(
+                final_ids, sort_order, page, page_size
+            )
+
+        except Exception as e:
+            return {"success": False, "result": str(e), "total_count": 0}
+
+    def semantic_search_article(self, query, sort_order, page, page_size):
+        try:
+            semantic_engine = SemanticSearchEngine()
+            keyword_engine = KeywordSearchEngine()
+            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+            article_results, final_ids = hybrid_engine.search_articles(query)
+            return self.db_client.search_latest_semantics_articles(
+                final_ids, sort_order, page, page_size
+            )
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
 
@@ -169,19 +196,33 @@ class PaperService:
     def get_latest_articles(
         self, research_fields, search_query, sort_order, page, page_size
     ):
-        articles = self.db_client.search_latest_articles(research_fields, search_query, sort_order, page, page_size)
+        articles = self.db_client.search_latest_articles(
+            research_fields, search_query, sort_order, page, page_size
+        )
         return articles
 
-    def get_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
-        keywords = self.db_client.search_latest_keywords(research_fields, search_query, sort_order, page, page_size)
+    def get_latest_keywords(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        keywords = self.db_client.search_latest_keywords(
+            research_fields, search_query, sort_order, page, page_size
+        )
         return keywords
 
-    def get_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
-        authors = self.db_client.search_latest_authors(research_fields, search_query, sort_order, page, page_size)
+    def get_latest_authors(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        authors = self.db_client.search_latest_authors(
+            research_fields, search_query, sort_order, page, page_size
+        )
         return authors
 
-    def get_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
-        authors = self.db_client.search_latest_journals(research_fields, search_query, sort_order, page, page_size)
+    def get_latest_journals(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
+        authors = self.db_client.search_latest_journals(
+            research_fields, search_query, sort_order, page, page_size
+        )
         return authors
 
     def search_by_title(self, search_title):
