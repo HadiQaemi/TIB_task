@@ -107,5 +107,5 @@ class HybridSearchEngine:
         #     semantic_results, keyword_results, "statement_id", 0.3, "text"
         # )[:k]
         return self._merge_results(
-            semantic_results, "statement_id", 0.2, "text"
+            semantic_results, "statement_id", 0.3, "text"
         )[:k]

@@ -130,7 +130,6 @@ class SemanticSearchArticle(Resource):
             page=page,
             page_size=limit,
         )
-        print(articles)
         results = [
             {
                 "id": str(article["article_id"]),
