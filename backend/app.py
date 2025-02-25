@@ -14,7 +14,6 @@ def create_app():
     def add_header(response):
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         return response
-
     return app
 
 if __name__ == '__main__':
