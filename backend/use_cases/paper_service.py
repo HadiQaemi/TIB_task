@@ -81,9 +81,9 @@ class PaperService:
     def semantic_search_statement(self, query, sort_order, page, page_size):
         try:
             semantic_engine = SemanticSearchEngine()
-            # keyword_engine = KeywordSearchEngine()
-            # hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
-            hybrid_engine = HybridSearchEngine(semantic_engine)
+            keyword_engine = KeywordSearchEngine()
+            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+            # hybrid_engine = HybridSearchEngine(semantic_engine)
             statement_results, final_ids = hybrid_engine.search_statements(query)
             return self.db_client.search_latest_semantics_statements(
                 final_ids, sort_order, page, page_size
@@ -95,9 +95,9 @@ class PaperService:
     def semantic_search_article(self, query, sort_order, page, page_size):
         try:
             semantic_engine = SemanticSearchEngine()
-            # keyword_engine = KeywordSearchEngine()
-            # hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
-            hybrid_engine = HybridSearchEngine(semantic_engine)
+            keyword_engine = KeywordSearchEngine()
+            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+            # hybrid_engine = HybridSearchEngine(semantic_engine)
             article_results, final_ids = hybrid_engine.search_articles(query)
             return self.db_client.search_latest_semantics_articles(
                 final_ids, sort_order, page, page_size

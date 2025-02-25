@@ -1,6 +1,6 @@
 from infrastructure.helpers.db_helpers import generate_static_id, fetch_reborn_DOI
 from infrastructure.helpers.semantic_search_engine import SemanticSearchEngine
-# from infrastructure.helpers.keyword_search_engine import KeywordSearchEngine
+from infrastructure.helpers.keyword_search_engine import KeywordSearchEngine
 from infrastructure.helpers.hybrid_search_engine import HybridSearchEngine
 from infrastructure.web_scraper import NodeExtractor
 import pymongo
@@ -28,13 +28,13 @@ class MongoDBClient(DatabaseInterface):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]
         self.semantic_engine = SemanticSearchEngine()
-        # self.keyword_engine = KeywordSearchEngine()
-        # self.hybrid_engine = HybridSearchEngine(
-        #     self.semantic_engine, self.keyword_engine
-        # )
+        self.keyword_engine = KeywordSearchEngine()
         self.hybrid_engine = HybridSearchEngine(
-            self.semantic_engine
+            self.semantic_engine, self.keyword_engine
         )
+        # self.hybrid_engine = HybridSearchEngine(
+        #     self.semantic_engine
+        # )
 
     def find_all_paginated(
         self, collection_name, query=None, projection=None, page=1, page_size=10
@@ -1053,7 +1053,7 @@ class MongoDBClient(DatabaseInterface):
             },
         ]
         self.hybrid_engine.semantic_engine.add_articles(article)
-        # self.hybrid_engine.keyword_engine.add_articles(article)
+        self.hybrid_engine.keyword_engine.add_articles(article)
         for statement in data["statements"]:
             temp = statement
             temp["content"] = scraper.load_json_from_url(
@@ -1078,7 +1078,7 @@ class MongoDBClient(DatabaseInterface):
                 },
             ]
             self.hybrid_engine.semantic_engine.add_statements(statement)
-            # self.hybrid_engine.keyword_engine.add_statements(statement)
+            self.hybrid_engine.keyword_engine.add_statements(statement)
         return True
 
     def aggregate(self, collection_name, pipeline):
