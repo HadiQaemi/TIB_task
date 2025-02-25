@@ -8,7 +8,8 @@ from infrastructure.helpers.hybrid_search_engine import HybridSearchEngine
 from infrastructure.repositories.data_repository import DataRepository
 import math
 from collections import defaultdict
-
+import numpy as np
+from sentence_transformers import CrossEncoder
 
 class PaperService:
     def __init__(self):
@@ -85,9 +86,18 @@ class PaperService:
             hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
             # hybrid_engine = HybridSearchEngine(semantic_engine)
             statement_results, final_ids = hybrid_engine.search_statements(query)
-            return self.db_client.search_latest_semantics_statements(
+            semantics_statements = self.db_client.search_latest_semantics_statements(
                 final_ids, sort_order, page, page_size
             )
+
+            reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+            temp = semantics_statements['content']
+            pairs = [[query, abstract["supports"][0]["notation"]["label"]] for abstract in temp]
+            scores = reranker.predict(pairs)
+
+            ranked_indices = np.argsort(scores)[::-1]
+            semantics_statements['content'] = [temp[i] for i in ranked_indices]
+            return semantics_statements
 
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
@@ -99,9 +109,19 @@ class PaperService:
             hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
             # hybrid_engine = HybridSearchEngine(semantic_engine)
             article_results, final_ids = hybrid_engine.search_articles(query)
-            return self.db_client.search_latest_semantics_articles(
+            
+            semantics_articles = self.db_client.search_latest_semantics_articles(
                 final_ids, sort_order, page, page_size
             )
+
+            reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+            temp = semantics_articles['content']
+            pairs = [[query, abstract["abstract"]] for abstract in temp]
+            scores = reranker.predict(pairs)
+
+            ranked_indices = np.argsort(scores)[::-1]
+            semantics_articles['content'] = [temp[i] for i in ranked_indices]
+            return semantics_articles
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
 

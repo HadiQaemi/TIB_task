@@ -478,7 +478,7 @@ class MongoDBClient(DatabaseInterface):
 
         collection = self.db["statements"]
         content = list(collection.aggregate(pipeline))
-        total_elements = collection.count_documents(match_stage)
+        total_elements = 10 if collection.count_documents(match_stage) > 10 else collection.count_documents(match_stage)
         return {
             # "content": self.convert_objectid_to_string(content),
             "content": content,
@@ -508,7 +508,7 @@ class MongoDBClient(DatabaseInterface):
 
         collection = self.db["articles"]
         skip = (page - 1) * page_size
-        total_elements = collection.count_documents(match_stage)
+        total_elements = 10 if collection.count_documents(match_stage) > 10 else collection.count_documents(match_stage)
 
         cursor = (
             collection.find(filter=match_stage).sort(sort_config).skip(skip).limit(page_size)
