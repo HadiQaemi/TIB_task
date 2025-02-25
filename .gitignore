@@ -3,6 +3,8 @@
 *.pyo
 __pycache__/
 .pytest_cache/
+backend/infrastructure/config.py
+**/config.py
 
 # Flask-specific
 .flaskenv
@@ -19,3 +21,8 @@ yarn-error.log
 .vscode/
 .idea/
 .DS_Store
+backend/data_articles_index.index
+backend/data_articles_index.json
+backend/data_statements_index.index
+backend/data_statements_index.json
+backend/output.txt
