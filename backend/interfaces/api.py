@@ -92,6 +92,14 @@ class SemanticSearchStatement(Resource):
             page=page,
             page_size=limit,
         )
+        if statements["totalElements"] == 0:
+            return jsonify(
+                {
+                    "items": [],
+                    "total": statements["totalElements"],
+                }
+            )
+
         results = [
             {
                 "id": str(statement["statement_id"]),
@@ -130,6 +138,13 @@ class SemanticSearchArticle(Resource):
             page=page,
             page_size=limit,
         )
+        if articles["totalElements"] == 0:
+            return jsonify(
+                {
+                    "items": [],
+                    "total": articles["totalElements"],
+                }
+            )
         results = [
             {
                 "id": str(article["article_id"]),
@@ -150,6 +165,14 @@ class SemanticSearchArticle(Resource):
         )
 
 
+@api.route("/api/delete_indices")
+class DeleteIndices(Resource):
+    @api.doc("delete_indices")
+    def delete(self):
+        paper = paper_service.delete_indices()
+        return paper
+
+
 @api.route("/api/statement")
 @api.param("id", "The paper entity ID")
 class StatementById(Resource):
@@ -159,6 +182,25 @@ class StatementById(Resource):
         paper = paper_service.get_statement_by_id(entity_id)
         return paper
 
+
+@api.route("/api/add-all-papers")
+class AddAllPaper(Resource):
+    @api.doc("add_all_papers")
+    def post(self):
+        URLs =[
+            "https://service.tib.eu/ldmservice/dataset/millan-marquez-2024-1",
+            "https://service.tib.eu/ldmservice/dataset/gentsch-2023-2",
+            "https://service.tib.eu/ldmservice/dataset/baimuratov-2024-2",
+            "https://service.tib.eu/ldmservice/dataset/perez-alvarez-2018-2",
+            "https://service.tib.eu/ldmservice/dataset/pina-ortiz-2023-1",
+            "https://service.tib.eu/ldmservice/dataset/akter-2023-1",
+            "https://service.tib.eu/ldmservice/dataset/paredes-2022-1",
+            "https://service.tib.eu/ldmservice/dataset/pina-ortiz-2024-1",
+            "https://service.tib.eu/ldmservice/dataset/gkatzelis-2021-1",
+        ]
+        for url in URLs:
+            paper_service.extract_paper(url)
+        return {"result": True}
 
 @api.route("/api/add-paper")
 @api.param("url", "The paper entity URL")

@@ -18,6 +18,9 @@ class PostgreSQLClient(DatabaseInterface):
         self.conn.autocommit = True
         self.cur = self.conn.cursor()
 
+    def delete_database(self):
+        pass
+
     def find_all_paginated(
         self, table_name, query=None, projection=None, page=1, page_size=10
     ):
@@ -74,19 +77,29 @@ class PostgreSQLClient(DatabaseInterface):
     def search_paper(self, id):
         pass
 
-    def search_latest_statements(self, research_fields, search_query, sort_order, page, page_size):
+    def search_latest_statements(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
         pass
 
-    def search_latest_articles(self, research_fields, search_query, sort_order, page, page_size):
+    def search_latest_articles(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
         pass
 
-    def search_latest_keywords(self, research_fields, search_query, sort_order, page, page_size):
+    def search_latest_keywords(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
         pass
 
-    def search_latest_authors(self, research_fields, search_query, sort_order, page, page_size):
+    def search_latest_authors(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
         pass
 
-    def search_latest_journals(self, research_fields, search_query, sort_order, page, page_size):
+    def search_latest_journals(
+        self, research_fields, search_query, sort_order, page, page_size
+    ):
         pass
 
     def search_journals(self, search_term):
@@ -441,9 +454,7 @@ class PostgreSQLClient(DatabaseInterface):
             print("It is finally")
 
     def aggregate(self, query):
-        raise NotImplementedError(
-            "Aggregate functionality"
-        )
+        raise NotImplementedError("Aggregate functionality")
 
     def close(self):
         self.cur.close()

@@ -129,7 +129,9 @@ class SemanticSearchEngine:
     def add_statements(self, statements: List[Dict[str, str]]):
         self._load_indices()
         self.statements.extend(statements)
-        texts = [statement["text"] for statement in statements]
+        texts = [
+            f"{statement['text']} {statement['abstract']}" for statement in statements
+        ]
         embeddings = self._encode_texts(texts)
         dimension = embeddings.shape[1]
 
@@ -188,13 +190,31 @@ class SemanticSearchEngine:
                 results.append(
                     {
                         "item": data[index],
-                        "score": float(
-                            1 / (1 + distance)
-                        ),
+                        "score": float(1 / (1 + distance)),
                         id_field: data[index].get(id_field, None),
                     }
                 )
         return results
+
+    def delete_indices(self):
+        articles_index_path = f"{self.base_path}_{self.articles_index_name}.index"
+        articles_data_path = f"{self.base_path}_{self.articles_index_name}.json"
+        if os.path.exists(articles_index_path) and os.path.exists(articles_data_path):
+            os.remove(articles_index_path)
+            os.remove(articles_data_path)
+            print(f"Deleted {articles_index_path} and {articles_data_path}")
+        else:
+            print("One or both files do not exist.")
+        statements_index_path = f"{self.base_path}_{self.statements_index_name}.index"
+        statements_data_path = f"{self.base_path}_{self.statements_index_name}.json"
+        if os.path.exists(statements_index_path) and os.path.exists(
+            statements_data_path
+        ):
+            os.remove(statements_index_path)
+            os.remove(statements_data_path)
+            print(f"Deleted {statements_index_path} and {statements_data_path}")
+        else:
+            print("One or both files do not exist.")
 
     def __del__(self):
         if self.articles_index is not None:

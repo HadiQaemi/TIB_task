@@ -36,6 +36,13 @@ class MongoDBClient(DatabaseInterface):
         #     self.semantic_engine
         # )
 
+    def delete_database(self):
+        try:
+            self.client.drop_database(Config.DATABASE_NAME)
+            return {"success": True, "totalElements": 0}
+        except Exception as e:
+            return {"success": False, "result": str(e), "totalElements": 0}
+
     def find_all_paginated(
         self, collection_name, query=None, projection=None, page=1, page_size=10
     ):
@@ -1074,6 +1081,7 @@ class MongoDBClient(DatabaseInterface):
             statement = [
                 {
                     "text": temp["supports"][0]["notation"]["label"],
+                    "abstract": ScholarlyArticle[0]["abstract"],
                     "statement_id": str(statement.inserted_id),
                 },
             ]
