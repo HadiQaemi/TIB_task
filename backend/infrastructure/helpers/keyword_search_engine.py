@@ -1,3 +1,4 @@
+from infrastructure.config import Config
 from elasticsearch import Elasticsearch, NotFoundError
 from typing import List, Dict, Optional
 import logging
@@ -9,7 +10,7 @@ logger = logging.getLogger(__name__)
 class KeywordSearchEngine:
     def __init__(
         self,
-        host: str = "http://localhost:9200",
+        host: str = Config.ELASTIC_URL,
         articles_index_name: str = "articles_index",
         statements_index_name: str = "statements_index",
     ):
