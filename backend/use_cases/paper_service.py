@@ -80,52 +80,75 @@ class PaperService:
         except Exception as e:
             return {"success": False, "result": str(e), "total_count": 0}
 
-    def semantic_search_statement(self, query, sort_order, page, page_size):
+    def semantic_search_statement(self, query, sort_order, page, page_size, type):
         try:
-            semantic_engine = SemanticSearchEngine()
-            keyword_engine = KeywordSearchEngine()
-            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
-            # hybrid_engine = HybridSearchEngine(semantic_engine)
-            statement_results, final_ids = hybrid_engine.search_statements(query)
-            semantics_statements = self.db_client.search_latest_semantics_statements(
-                final_ids, sort_order, page, page_size
-            )
+            if type == "semantic":
+                semantic_engine = SemanticSearchEngine()
+                keyword_engine = False
+                hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+                statement_results, final_ids = hybrid_engine.search_statements(query)
+                semantics_statements = (
+                    self.db_client.search_latest_semantics_statements(
+                        final_ids, sort_order, page, page_size
+                    )
+                )
+                return semantics_statements
+            elif type == "hybrid":
+                semantic_engine = SemanticSearchEngine()
+                keyword_engine = KeywordSearchEngine()
+                hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+                # hybrid_engine = HybridSearchEngine(semantic_engine)
+                statement_results, final_ids = hybrid_engine.search_statements(query)
+                semantics_statements = (
+                    self.db_client.search_latest_semantics_statements(
+                        final_ids, sort_order, page, page_size
+                    )
+                )
 
-            reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-            temp = semantics_statements["content"]
-            pairs = [
-                [query, abstract["supports"][0]["notation"]["label"]]
-                for abstract in temp
-            ]
-            scores = reranker.predict(pairs)
+                reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+                temp = semantics_statements["content"]
+                pairs = [
+                    [query, abstract["supports"][0]["notation"]["label"]]
+                    for abstract in temp
+                ]
+                scores = reranker.predict(pairs)
 
-            ranked_indices = np.argsort(scores)[::-1]
-            semantics_statements["content"] = [temp[i] for i in ranked_indices]
-            return semantics_statements
-
+                ranked_indices = np.argsort(scores)[::-1]
+                semantics_statements["content"] = [temp[i] for i in ranked_indices]
+                return semantics_statements
         except Exception as e:
             return {"success": False, "result": str(e), "totalElements": 0}
 
-    def semantic_search_article(self, query, sort_order, page, page_size):
+    def semantic_search_article(self, query, sort_order, page, page_size, type):
         try:
-            semantic_engine = SemanticSearchEngine()
-            keyword_engine = KeywordSearchEngine()
-            hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
-            # hybrid_engine = HybridSearchEngine(semantic_engine)
-            article_results, final_ids = hybrid_engine.search_articles(query)
+            if type == "semantic":
+                semantic_engine = SemanticSearchEngine()
+                keyword_engine = False
+                hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+                article_results, final_ids = hybrid_engine.search_articles(query)
+                semantics_articles = self.db_client.search_latest_semantics_articles(
+                    final_ids, sort_order, page, page_size
+                )
+                return semantics_articles
+            elif type == "hybrid":
+                semantic_engine = SemanticSearchEngine()
+                keyword_engine = KeywordSearchEngine()
+                hybrid_engine = HybridSearchEngine(semantic_engine, keyword_engine)
+                # hybrid_engine = HybridSearchEngine(semantic_engine)
+                article_results, final_ids = hybrid_engine.search_articles(query)
 
-            semantics_articles = self.db_client.search_latest_semantics_articles(
-                final_ids, sort_order, page, page_size
-            )
+                semantics_articles = self.db_client.search_latest_semantics_articles(
+                    final_ids, sort_order, page, page_size
+                )
 
-            reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-            temp = semantics_articles["content"]
-            pairs = [[query, abstract["abstract"]] for abstract in temp]
-            scores = reranker.predict(pairs)
+                reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+                temp = semantics_articles["content"]
+                pairs = [[query, abstract["abstract"]] for abstract in temp]
+                scores = reranker.predict(pairs)
 
-            ranked_indices = np.argsort(scores)[::-1]
-            semantics_articles["content"] = [temp[i] for i in ranked_indices]
-            return semantics_articles
+                ranked_indices = np.argsort(scores)[::-1]
+                semantics_articles["content"] = [temp[i] for i in ranked_indices]
+                return semantics_articles
         except Exception as e:
             return {"success": False, "result": str(e), "totalElements": 0}
 

@@ -86,40 +86,73 @@ class SemanticSearchStatement(Resource):
         limit = int(request.args.get("limit", 10))
         sort_order = request.args.get("sort", "a-z")
         search_query = request.args.get("search")
-        statements = paper_service.semantic_search_statement(
-            query=search_query,
-            sort_order=sort_order,
-            page=page,
-            page_size=limit,
-        )
-        if statements["totalElements"] == 0:
+        type = request.args.get("type")
+        if type == "keyword":
+            research_fields = request.args.getlist("research_fields[]")
+            statements = paper_service.get_latest_statements(
+                research_fields=research_fields,
+                search_query=search_query,
+                sort_order=sort_order,
+                page=page,
+                page_size=limit,
+            )
+
+            results = [
+                {
+                    "id": str(statement["statement_id"]),
+                    "article": str(statement["article"]["name"]),
+                    "author": statement["author"][0]["familyName"],
+                    "name": statement["supports"][0]["notation"]["label"],
+                    "date": statement["article"]["datePublished"],
+                    "journal": (
+                        statement["article"].get("journal", {}).get("label")
+                        or statement["article"].get("conference", {}).get("label")
+                    ),
+                }
+                for statement in statements["content"]
+            ]
             return jsonify(
                 {
-                    "items": [],
+                    "items": results,
                     "total": statements["totalElements"],
                 }
             )
+        else:
+            statements = paper_service.semantic_search_statement(
+                query=search_query,
+                sort_order=sort_order,
+                page=page,
+                type=type,
+                page_size=limit,
+            )
+            if statements["totalElements"] == 0:
+                return jsonify(
+                    {
+                        "items": [],
+                        "total": statements["totalElements"],
+                    }
+                )
 
-        results = [
-            {
-                "id": str(statement["statement_id"]),
-                "article": str(statement["article"]["name"]),
-                "author": statement["author"][0]["familyName"],
-                "name": statement["supports"][0]["notation"]["label"],
-                "date": statement["article"]["datePublished"],
-                "journal": (
-                    statement["article"].get("journal", {}).get("label")
-                    or statement["article"].get("conference", {}).get("label")
-                ),
-            }
-            for statement in statements["content"]
-        ]
-        return jsonify(
-            {
-                "items": results,
-                "total": statements["totalElements"],
-            }
-        )
+            results = [
+                {
+                    "id": str(statement["statement_id"]),
+                    "article": str(statement["article"]["name"]),
+                    "author": statement["author"][0]["familyName"],
+                    "name": statement["supports"][0]["notation"]["label"],
+                    "date": statement["article"]["datePublished"],
+                    "journal": (
+                        statement["article"].get("journal", {}).get("label")
+                        or statement["article"].get("conference", {}).get("label")
+                    ),
+                }
+                for statement in statements["content"]
+            ]
+            return jsonify(
+                {
+                    "items": results,
+                    "total": statements["totalElements"],
+                }
+            )
 
 
 @api.route("/api/semantic_search_articles")
@@ -131,38 +164,67 @@ class SemanticSearchArticle(Resource):
         limit = int(request.args.get("limit", 10))
         sort_order = request.args.get("sort", "a-z")
         search_query = request.args.get("search")
-
-        articles = paper_service.semantic_search_article(
-            query=search_query,
-            sort_order=sort_order,
-            page=page,
-            page_size=limit,
-        )
-        if articles["totalElements"] == 0:
+        type = request.args.get("type")
+        if type == "keyword":
+            research_fields = request.args.getlist("research_fields[]")
+            articles = paper_service.get_latest_articles(
+                research_fields=research_fields,
+                search_query=search_query,
+                sort_order=sort_order,
+                page=page,
+                page_size=limit,
+            )
+            results = [
+                {
+                    "id": str(article["article_id"]),
+                    "name": article["name"],
+                    "author": article["author"][0]["familyName"],
+                    "journal": article.get("journal", {}).get("label")
+                    or article.get("conference", {}).get("label"),
+                    "publisher": article["publisher"]["label"],
+                    "date": article["datePublished"],
+                }
+                for article in articles["content"]
+            ]
             return jsonify(
                 {
-                    "items": [],
+                    "items": results,
                     "total": articles["totalElements"],
                 }
             )
-        results = [
-            {
-                "id": str(article["article_id"]),
-                "name": article["name"],
-                "author": article["author"][0]["familyName"],
-                "journal": article.get("journal", {}).get("label")
-                or article.get("conference", {}).get("label"),
-                "publisher": article["publisher"]["label"],
-                "date": article["datePublished"],
-            }
-            for article in articles["content"]
-        ]
-        return jsonify(
-            {
-                "items": results,
-                "total": articles["totalElements"],
-            }
-        )
+        else:
+            articles = paper_service.semantic_search_article(
+                query=search_query,
+                sort_order=sort_order,
+                page=page,
+                type=type,
+                page_size=limit,
+            )
+            if articles["totalElements"] == 0:
+                return jsonify(
+                    {
+                        "items": [],
+                        "total": articles["totalElements"],
+                    }
+                )
+            results = [
+                {
+                    "id": str(article["article_id"]),
+                    "name": article["name"],
+                    "author": article["author"][0]["familyName"],
+                    "journal": article.get("journal", {}).get("label")
+                    or article.get("conference", {}).get("label"),
+                    "publisher": article["publisher"]["label"],
+                    "date": article["datePublished"],
+                }
+                for article in articles["content"]
+            ]
+            return jsonify(
+                {
+                    "items": results,
+                    "total": articles["totalElements"],
+                }
+            )
 
 
 @api.route("/api/delete_indices")
@@ -187,7 +249,7 @@ class StatementById(Resource):
 class AddAllPaper(Resource):
     @api.doc("add_all_papers")
     def post(self):
-        URLs =[
+        URLs = [
             "https://service.tib.eu/ldmservice/dataset/millan-marquez-2024-1",
             "https://service.tib.eu/ldmservice/dataset/gentsch-2023-2",
             "https://service.tib.eu/ldmservice/dataset/baimuratov-2024-2",
@@ -201,6 +263,7 @@ class AddAllPaper(Resource):
         for url in URLs:
             paper_service.extract_paper(url)
         return {"result": True}
+
 
 @api.route("/api/add-paper")
 @api.param("url", "The paper entity URL")
