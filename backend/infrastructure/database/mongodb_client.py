@@ -372,7 +372,7 @@ class MongoDBClient(DatabaseInterface):
                 },
                 {"$sort": {"_id": 1}},
                 {"$skip": 0},
-                {"$limit": 10},
+                {"$limit": 100},
             ]
         except Exception as e:
             raise e
@@ -485,13 +485,17 @@ class MongoDBClient(DatabaseInterface):
 
         collection = self.db["statements"]
         content = list(collection.aggregate(pipeline))
-        total_elements = 10 if collection.count_documents(match_stage) > 10 else collection.count_documents(match_stage)
+        total_elements = (
+            10
+            if collection.count_documents(match_stage) > 10
+            else collection.count_documents(match_stage)
+        )
         return {
             # "content": self.convert_objectid_to_string(content),
             "content": content,
             "totalElements": total_elements,
         }
-    
+
     def search_latest_semantics_articles(
         self,
         ids,
@@ -515,10 +519,17 @@ class MongoDBClient(DatabaseInterface):
 
         collection = self.db["articles"]
         skip = (page - 1) * page_size
-        total_elements = 10 if collection.count_documents(match_stage) > 10 else collection.count_documents(match_stage)
+        total_elements = (
+            10
+            if collection.count_documents(match_stage) > 10
+            else collection.count_documents(match_stage)
+        )
 
         cursor = (
-            collection.find(filter=match_stage).sort(sort_config).skip(skip).limit(page_size)
+            collection.find(filter=match_stage)
+            .sort(sort_config)
+            .skip(skip)
+            .limit(page_size)
         )
         content = list(cursor)
         return {
