@@ -1069,7 +1069,7 @@ class MongoDBClient(DatabaseInterface):
             },
         ]
         self.hybrid_engine.semantic_engine.add_articles(article)
-        self.hybrid_engine.keyword_engine.add_articles(article)
+        # self.hybrid_engine.keyword_engine.add_articles(article)
         for statement in data["statements"]:
             temp = statement
             temp["content"] = scraper.load_json_from_url(
@@ -1095,7 +1095,7 @@ class MongoDBClient(DatabaseInterface):
                 },
             ]
             self.hybrid_engine.semantic_engine.add_statements(statement)
-            self.hybrid_engine.keyword_engine.add_statements(statement)
+            # self.hybrid_engine.keyword_engine.add_statements(statement)
         return True
 
     def aggregate(self, collection_name, pipeline):
