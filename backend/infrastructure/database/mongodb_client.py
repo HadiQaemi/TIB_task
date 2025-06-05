@@ -28,13 +28,11 @@ class MongoDBClient(DatabaseInterface):
         self.client = pymongo.MongoClient(Config.MONGO_URI)
         self.db = self.client[Config.DATABASE_NAME]
         self.semantic_engine = SemanticSearchEngine()
-        self.keyword_engine = KeywordSearchEngine()
-        self.hybrid_engine = HybridSearchEngine(
-            self.semantic_engine, self.keyword_engine
-        )
+        # self.keyword_engine = KeywordSearchEngine()
         # self.hybrid_engine = HybridSearchEngine(
-        #     self.semantic_engine
+        #     self.semantic_engine, self.keyword_engine
         # )
+        self.hybrid_engine = HybridSearchEngine(self.semantic_engine)
 
     def delete_database(self):
         try:

@@ -110,30 +110,30 @@ class HybridSearchEngine:
 
     def search_articles(self, query: str, k: int = 5) -> List[Dict]:
         semantic_results = self.semantic_engine.search_articles(query, k)
-        if self.keyword_engine:
-            keyword_results = self.keyword_engine.search_articles(query, k)
-            return self._merge_results(
-                semantic_results, keyword_results, "article_id", 0.6, "title"
-            )[:k]
-        else:
-            return self._merge_results(
-                semantic_results, [], "article_id", 0.6, "title", self.keyword_engine
-            )[:k]
-        # return self._merge_results(
-        #     semantic_results, "article_id", 0.3, "title"
-        # )[:k]
+        # if self.keyword_engine:
+        #     keyword_results = self.keyword_engine.search_articles(query, k)
+        #     return self._merge_results(
+        #         semantic_results, keyword_results, "article_id", 0.6, "title"
+        #     )[:k]
+        # else:
+        #     return self._merge_results(
+        #         semantic_results, [], "article_id", 0.6, "title", self.keyword_engine
+        #     )[:k]
+        return self._merge_results(
+            semantic_results, "article_id", 0.3, "title"
+        )[:k]
 
     def search_statements(self, query: str, k: int = 5) -> List[Dict]:
         semantic_results = self.semantic_engine.search_statements(query, k)
-        if self.keyword_engine:
-            keyword_results = self.keyword_engine.search_statements(query, k)
-            return self._merge_results(
-                semantic_results, keyword_results, "statement_id", 0.3, "text"
-            )[:k]
-        else:
-            return self._merge_results(
-                semantic_results, [], "statement_id", 0.3, "text", self.keyword_engine
-            )[:k]
-        # return self._merge_results(
-        #     semantic_results, "statement_id", 0.3, "text"
-        # )[:k]
+        # if self.keyword_engine:
+        #     keyword_results = self.keyword_engine.search_statements(query, k)
+        #     return self._merge_results(
+        #         semantic_results, keyword_results, "statement_id", 0.3, "text"
+        #     )[:k]
+        # else:
+        #     return self._merge_results(
+        #         semantic_results, [], "statement_id", 0.3, "text", self.keyword_engine
+        #     )[:k]
+        return self._merge_results(
+            semantic_results, "statement_id", 0.3, "text"
+        )[:k]
