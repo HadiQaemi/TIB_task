@@ -259,6 +259,11 @@ class AddAllPaper(Resource):
             "https://service.tib.eu/ldmservice/dataset/paredes-2022-1",
             "https://service.tib.eu/ldmservice/dataset/pina-ortiz-2024-1",
             "https://service.tib.eu/ldmservice/dataset/gkatzelis-2021-1",
+            "https://service.tib.eu/ldmservice/dataset/libranembid-2024-1",
+            "https://service.tib.eu/ldmservice/dataset/babaei-giglou-2023-1",
+            "https://service.tib.eu/ldmservice/dataset/chausson-2024-1",
+            "https://service.tib.eu/ldmservice/dataset/haris-2025-1",
+            "https://service.tib.eu/ldmservice/dataset/thiessen-2023-2",
         ]
         for url in URLs:
             paper_service.extract_paper(url)
